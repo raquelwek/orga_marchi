@@ -183,7 +183,8 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int evenBits(void) {
-  return 2;
+  int salida = 0x5555555555; // 5 = 0101, cumple que para las posiciones pares vale 1
+  return salida;
 }
 /* 
  * anyOddBit - return 1 if any odd-numbered bit in word set to 1
