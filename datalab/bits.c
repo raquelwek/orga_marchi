@@ -143,7 +143,7 @@ NOTES:
  *   Rating: 1
  */
 int bitOr(int x, int y) {
-  return 2;
+  return ~(~x & ~y);
 }
 /*
  * bitParity - returns 1 if x contains an odd number of 0's
