@@ -240,7 +240,17 @@ int byteSwap(int x, int n, int m) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-  return 2;
+  /* x se podrá representar sii: -2^n-1 <= x <= (2^n-1) -1 */
+  
+  int shift = 0x1 << (n-1); // 2^n-1
+  int lim_sup = shift + (~0x1 + 1); // (2^n-1) - 1
+  int lim_inf = ~shift + 1; // -2^n-1
+  int signo_x = x >> 31; 
+
+  int suma_sup_msb = (x + lim_sup) >> (31 - n); 
+  int suma_inf_msb = (x + lim_inf) >> (31- n);
+
+  return (!signo_x & suma_sup_msb) | (signo_x & !suma_inf_msb);
 }
 /* 
  * oddBits - return word with all odd-numbered bits set to 1
