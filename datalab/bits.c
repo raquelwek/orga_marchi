@@ -210,7 +210,25 @@ int anyOddBit(int x) {
  *  Rating: 2
  */
 int byteSwap(int x, int n, int m) {
-    return 2;
+    //creo mascara para el primer byte
+    int maskByte0 = ~(~0x00 << 8);
+
+    //encuentro las mascaras para los bits del swap
+    int maskByteM = maskByte0 << (m << 3);
+    int maskByteN =  maskByte0 << (n << 3);
+
+    //Extraigo bytes n y m y los posiciono en 0 y elimino posibles replicados del msb !0
+    int byteM = ((x & maskByteM) >> (m << 3)) & maskByte0;
+    int byteN = ((x & maskByteN) >> (n << 3)) & maskByte0;
+
+    //conservo el resto de posiciones que no hacen swap
+    int maskRestantes = ~(maskByteM | maskByteN);
+    int bytesRestantes = x & maskRestantes;
+
+    //colocar bytes extraidos en sus nuevas posiciones
+    int nuevoByteM = byteM << (n << 3);
+    int nuevoByteN = byteN << (m << 3);
+    return nuevoByteM | nuevoByteN | bytesRestantes;
 }
 /* 
  * fitsBits - return 1 if x can be represented as an 
@@ -244,7 +262,11 @@ int oddBits(void) {
  *  Rating: 2
  */
 int sign(int x) {
-    return 2;
+    //replico el bit de signo en todos los bytes
+    int bitSign = x >> 31;
+    //esCero==1 si x != 0 y esCero==0 si x = 0
+    int esCero = !!x;
+    return bitSign | esCero;
 }
 //3
 /* 
