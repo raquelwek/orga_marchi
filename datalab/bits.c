@@ -270,7 +270,11 @@ int oddBits(void) {
  *  Rating: 2
  */
 int sign(int x) {
-    return 2;
+    //replico el bit de signo en todos los bytes
+    int bitSign = x >> 31;
+    //esCero==1 si x != 0 y esCero==0 si x = 0
+    int esCero = !!x;
+    return bitSign | esCero;
 }
 //3
 /* 
