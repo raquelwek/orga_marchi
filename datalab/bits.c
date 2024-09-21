@@ -309,7 +309,11 @@ int bitMask(int highbit, int lowbit) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  // nota: !x -> 1 si x == 0 else ->0
+  // luego, si x es cero maskCondicional es todos 1, 
+  //y si no es cero maskCondicional es todos ceros
+  int maskCondicional = ~(!x) + 1;
+  return (maskCondicional & z) | (~maskCondicional & y);
 }
 /*
  * bitCount - returns count of number of 1's in word
