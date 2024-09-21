@@ -278,7 +278,15 @@ int sign(int x) {
  *   Rating: 3
  */
 int addOK(int x, int y) {
-    return 2;
+  /* Sabiendo que hay overflow sii: x e y tienen el mismo signo e (x+y) tiene signo opuesto: */
+  int msb_x = x >> 31; // Guardo el signo de x
+  int msb_y = y >> 31; // Guardo el signo de x
+  int msb_sum = (x + y) >> 31; // Guardo si la suma es positiva o negativa
+
+  int v_pos = (!msb_x & !msb_y) & (msb_sum); // Averiguo si el resultado de dos positivos dió un valor negativo
+  int v_neg = (msb_x & msb_y) & (!msb_sum); // Averiguo si al sumar dos nros negativos el resultado dió positivo
+
+  return !(v_pos | v_neg); // Si no hubo ni v_pos ni v_neg, entonces no hay overflow
 }
 /* 
  * bitMask - Generate a mask consisting of all 1's 
