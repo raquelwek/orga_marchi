@@ -346,7 +346,11 @@ int bitMatch(int x, int y) {
  *   Rating: 3
  */
 int replaceByte(int x, int n, int c) {
-  return 2;
+  int maskByte0 = ~(~0x00 << 8);
+  int maskByteN = maskByte0 << (n << 3);
+  int bytesRestantes = x & ~maskByteN;
+  int byteCReubicado = c << (n << 3);
+  return byteCReubicado | bytesRestantes;
 }
 //4
 /*
