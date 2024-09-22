@@ -183,9 +183,9 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int evenBits(void) {
-  int salida = 0x55; // salida = 0000 0000 0000 0000 0000 0000 0101 0101
-  salida = (salida << 8) + 0x55;
-  salida = (salida << 8) + 0x55;
+  int salida = 0x55; // salida = 0000 (...)  0101 0101
+  salida = (salida << 8) + 0x55; // salida = 0000 (...) 0101 0101 0101 0101
+  salida = (salida << 8) + 0x55; 
   salida = (salida << 8) + 0x55;
   return salida;
 }
@@ -280,7 +280,7 @@ int sign(int x) {
 int addOK(int x, int y) {
   /* Sabiendo que hay overflow sii: x e y tienen el mismo signo e (x+y) tiene signo opuesto: */
   int msb_x = x >> 31; // Guardo el signo de x
-  int msb_y = y >> 31; // Guardo el signo de x
+  int msb_y = y >> 31; // Guardo el signo de y
   int msb_sum = (x + y) >> 31; // Guardo si la suma es positiva o negativa
 
   int v_pos = (!msb_x & !msb_y) & (msb_sum); // Averiguo si el resultado de dos positivos dió un valor negativo
@@ -398,7 +398,13 @@ int isNonZero(int x) {
  *   Rating: 3 
  */
 int rotateRight(int x, int n) {
-  return 2;
+  // Obtengo los n bits que irán al comienzo una vez que rotemos a x:
+  int x_aux = x << (32 + (~n + 1)); 
+  // Armo una máscara que me permita generar <n> ceros al comienzo de x. Para el ejemplo dado quedaría mask = 0x0FFFFFFF
+  int mask = ~(~0x0 << (32 + (~n + 1)));
+  // Genero n bits en 0 al comienzo de x para luego sumarle x_aux:
+  x = (x >> n) & (mask); 
+  return (x_aux + x);
 }
 //float
 /* 
