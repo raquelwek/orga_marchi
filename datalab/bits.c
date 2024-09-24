@@ -457,7 +457,21 @@ int floatIsEqual(unsigned uf, unsigned ug) {
  *   Rating: 2
  */
 unsigned floatNegate(unsigned uf) {
- return 2;
+  // Verifico que <uf> no sea NaN: 
+  // - Veo si <frac> es distinto o no de 000(...)0:
+  int frac_mask = 0x007FFFFF; // Los 23 bits del frac están en 1 -> 0000 0000 0111 (...) 1111
+  int frac_nan = (uf & (frac_mask)) != 0; // Si es NaN, <frac_nan> debe ser != 0000(...)0000
+
+  // - Veo si <exp> es 111(...)111:
+  int exp_mask = 0x7F800000; // Los 8 bits del exp están en 1 -> 0111 1111 1000 (...) 0000
+  int exp_nan = (uf & (exp_mask)) == exp_mask; // Si la igualdad es 1 es porque el <exp> de <uf> es 111..1
+  
+  // Si <exp> = 111..1 y <frac> != 000.00 -> Es NaN
+  if (exp_nan && frac_nan){
+    return uf;
+  }
+  // Cambio el bit de signo:
+  return uf ^ (0x1 << 31);
 }
 /* 
  * floatIsLess - Compute f < g for floating point arguments f and g.
