@@ -397,7 +397,12 @@ int satMul2(int x) {
  *   Rating: 4 
  */
 int isNonZero(int x) {
-  return 2;
+  //calcular el inverso artimetico, si es negX 
+  int negX = ~x + 1;
+  // asi nos aseguramos que haya un 1 en el bit mas significtivo si x no es cero
+  int resSuma = negX | x;
+  //si x era 0 su msb == 0 si sino msb=1
+  return (resSuma >> 31) & 1;
 }
 /* 
  * rotateRight - Rotate x to the right by n
