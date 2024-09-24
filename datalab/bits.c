@@ -153,7 +153,16 @@ int bitOr(int x, int y) {
  *   Rating: 4
  */
 int bitParity(int x) {
-  return 2;
+  /* Nota: la idea es ir haciendo un XOR entre las mitades de <x>
+   * Es decir, vamos comparando las mitades de x entre sí, teniendo en cuenta que:
+   * si tenemos una cantidad par de unos -> gracias al XOR se cancelan todos los unos
+   * si tenemos una cantidad impar de unos -> habrá algún uno que no se va a cancelar y se irá arrastrando
+   */
+  int x1 = x ^ (x >> 16);
+  int x2 = x1 ^ (x1 >> 8);
+  int x3 = x2 ^ (x2 >> 4);
+  int x4 = x3 ^ (x3 >> 2);
+  return ((x4 ^ (x4>>1)) & 1);
 }
 /* 
  * bitNor - ~(x|y) using only ~ and & 
