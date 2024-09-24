@@ -198,7 +198,12 @@ int evenBits(void) {
  *   Rating: 2
  */
 int anyOddBit(int x) { 
-    return 2;
+    int maskOddBit = 0xAA;
+    maskOddBit = (maskOddBit << 8) + 0xAA; 
+    maskOddBit = (maskOddBit << 8) + 0xAA; 
+    maskOddBit = (maskOddBit << 8) + 0xAA; //maskOddBit = 1010 1010 1010 1010
+    int oddBit = x & maskOddBit; //Se queda con '1' si en alguna pos.Impar había un '1'
+    return !!oddBit;//(!oddBit)=> Si es oddBit = 0 devuelve = 1 y  viceversa, entonces se niega 2 veces para la consigna. 
 }
 /* 
  * byteSwap - swaps the nth byte and the mth byte
@@ -252,11 +257,11 @@ int fitsBits(int x, int n) {
  */
 int oddBits(void) {
 
-  int resultado = 0xAA;  //1010 1010
-  resultado = (resultado << 8) + 0xAA; 
+  int resultado = 0xAA;  //   resultado = 0000 (...) 1010 1010
+  resultado = (resultado << 8) + 0xAA; //resultado = 0000 (...) 1010 1010 1010 1010
   resultado = (resultado << 8) + 0xAA; 
   resultado = (resultado << 8) + 0xAA;
-  return resultado;//10101010
+  return resultado;//1010 1010
 }
 /* 
  * sign - return 1 if positive, 0 if zero, and -1 if negative
