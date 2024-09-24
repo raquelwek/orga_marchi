@@ -487,7 +487,26 @@ unsigned floatAbsVal(unsigned uf) {
  *   Rating: 2
  */
 int floatIsEqual(unsigned uf, unsigned ug) {
-    return 2;
+  unsigned int menosCero = 0x80000000; 
+  //mascaras
+  unsigned int maskFrac = 0x007FFFFF;
+  unsigned int maskExp = 0x000000FF;
+  //extraigo componentes del float uf
+  unsigned int expF = (uf >> 23) & maskExp;
+  unsigned int fracF = uf & maskFrac;
+  //idem para ug
+  unsigned int expG = (ug >> 23) & maskExp;
+  unsigned int fracG = ug & maskFrac;
+
+  int esNaNF = (expF == 255) && (fracF != 0);//0 -> true; else -> false
+  int esNaNG = (expG == 255) && (fracG != 0);
+
+  if (esNaNF || esNaNG ){
+    return 0;
+  }else if ((uf == menosCero || uf == 0) && (ug == menosCero || ug == 0)){
+    return 1;
+  }
+  return uf == ug;
 }
 /* 
  * floatNegate - Return bit-level equivalent of expression -f for
