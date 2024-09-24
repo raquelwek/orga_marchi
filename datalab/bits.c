@@ -187,7 +187,7 @@ int evenBits(void) {
   salida = (salida << 8) + 0x55; // salida = 0000 (...) 0101 0101 0101 0101
   salida = (salida << 8) + 0x55; 
   salida = (salida << 8) + 0x55;
-  return salida;
+  return salida;//1010101
 }
 /* 
  * anyOddBit - return 1 if any odd-numbered bit in word set to 1
@@ -197,7 +197,7 @@ int evenBits(void) {
  *   Max ops: 12
  *   Rating: 2
  */
-int anyOddBit(int x) {
+int anyOddBit(int x) { 
     return 2;
 }
 /* 
@@ -251,7 +251,12 @@ int fitsBits(int x, int n) {
  *   Rating: 2
  */
 int oddBits(void) {
-  return 2;
+
+  int resultado = 0xAA;  //1010 1010
+  resultado = (resultado << 8) + 0xAA; 
+  resultado = (resultado << 8) + 0xAA; 
+  resultado = (resultado << 8) + 0xAA;
+  return resultado;//10101010
 }
 /* 
  * sign - return 1 if positive, 0 if zero, and -1 if negative
