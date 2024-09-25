@@ -2,7 +2,7 @@
 # Makefile that builds btest and other helper programs for the CS:APP data lab
 # 
 CC = gcc
-CFLAGS := -O -g -Wall -m32
+CFLAGS := -O0 -g -Wall -m32
 LDLIBS := -lm
 LDFLAGS := -m32
 
