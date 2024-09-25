@@ -203,7 +203,7 @@ int anyOddBit(int x) {
     maskOddBit = (maskOddBit << 8) + 0xAA; 
     maskOddBit = (maskOddBit << 8) + 0xAA; //maskOddBit = 1010 1010 1010 1010
     int oddBit = x & maskOddBit; //Se queda con '1' si en alguna pos.Impar había un '1'
-    return !!oddBit;//(!oddBit)=> Si es oddBit = 0 devuelve = 1 y  viceversa, entonces se niega 2 veces para la consigna. 
+    return !!oddBit;//(!oddBit)=> Si es oddBit = 0 devuelve = 1 y  si oddBit != 0 => (!oddBit) = 0, entonces se niega 2 veces para la consigna. 
 }
 /* 
  * byteSwap - swaps the nth byte and the mth byte
@@ -309,7 +309,15 @@ int addOK(int x, int y) {
  *   Rating: 3
  */
 int bitMask(int highbit, int lowbit) {
-  return 2;
+  int maskOne = ~0; //1111 (...) 1111
+  //Todos los bits son 1's hasta highMask y 0's en los bit superiores
+  int highMask = (maskOne << highbit) << 1;
+  //Todos los bits son 1's hasta lowbit y 0's en los bits inferiores
+  int lowMask = maskOne << lowbit;
+  
+  //Uso XOR para obtener los bits que son diferentes entre highMask y lowMask, devolverá '1' donde sean distintos
+  //Usando lowMask aseguro que los bits de menor orden se mantengan, y cumple lowbit > highbit
+  return (highMask ^ lowMask) & lowMask;
 }
 /* 
  * conditional - same as x ? y : z 
