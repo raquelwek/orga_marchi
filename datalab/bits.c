@@ -153,7 +153,16 @@ int bitOr(int x, int y) {
  *   Rating: 4
  */
 int bitParity(int x) {
-  return 2;
+  /* Nota: la idea es ir haciendo un XOR entre las mitades de <x>
+   * Es decir, vamos comparando las mitades de x entre sí, teniendo en cuenta que:
+   * si tenemos una cantidad par de unos -> gracias al XOR se cancelan todos los unos
+   * si tenemos una cantidad impar de unos -> habrá algún uno que no se va a cancelar y se irá arrastrando
+   */
+  int x1 = x ^ (x >> 16);
+  int x2 = x1 ^ (x1 >> 8);
+  int x3 = x2 ^ (x2 >> 4);
+  int x4 = x3 ^ (x3 >> 2);
+  return ((x4 ^ (x4>>1)) & 1);
 }
 /* 
  * bitNor - ~(x|y) using only ~ and & 
@@ -341,7 +350,46 @@ int conditional(int x, int y, int z) {
  *   Rating: 4
  */
 int bitCount(int x) {
-  return 2;
+  // Declaro algunas variables:
+  int nibble1, nibble2, nibble3, nibble4, nibble5, nibble6, nibble7, nibble8;
+  int res,sum, mask_nibble;
+
+  // Genero una mascara que separe a <x> en baches de 4 bits:
+  int mask = 0x11;
+  mask = (mask << 8) + 0x11; 
+  mask = (mask << 8) + 0x11; 
+  mask = (mask << 8) + 0x11; // mask = 0001 0001 (...) 0001
+
+  // Armo 8 baches de 4 bits para contar la cantidad de bits en 1:
+  int sum1 = (x) & mask;
+  int sum2 = (x >> 1) & mask;
+  int sum3 = (x >> 2) & mask;
+  int sum4 = (x >> 3) & mask;
+  int sum5 = (x >> 4) & mask;
+  int sum6 = (x >> 5) & mask;
+  int sum7 = (x >> 6) & mask;
+  int sum8 = (x >> 7) & mask;
+  
+  // Cada nibble representa la cantidad de bits en 1 en cada bache de <x>:
+  sum = sum1 + sum2 + sum3 + sum4 + sum5 + sum6 + sum7 + sum8; 
+  // Es decir: si sum = 0000 0000 0000 0000 0000 0010 0011 0001 ->
+  // -> Los primeros 4 bits menos significativos tienen 0001 == 1 bit en 1
+  // -> Los segundos 4 bits menos significativos tienen 0011 == 3 bits en 1 (...)
+  
+  // Ahora obtengo cada nibble por separado:
+  mask_nibble = 0xF;
+  nibble1 = sum & mask_nibble;
+  nibble2 = (sum >> 4) & mask_nibble;
+  nibble3 = (sum >> 8) & mask_nibble;
+  nibble4 = (sum >> 12) & mask_nibble;
+  nibble5 = (sum >> 16) & mask_nibble;
+  nibble6 = (sum >> 20) & mask_nibble;
+  nibble7 = (sum >> 24) & mask_nibble;
+  nibble8 = (sum >> 28) & mask_nibble;
+  
+  // Sumo cada nibble:
+  res = nibble1 + nibble2 + nibble3 + nibble4 + nibble5 + nibble6 + nibble7 + nibble8;
+  return (res); 
 }
 /* 
  * bitMatch - Create mask indicating which bits in x match those in y
@@ -405,7 +453,12 @@ int satMul2(int x) {
  *   Rating: 4 
  */
 int isNonZero(int x) {
-  return 2;
+  //calcular el inverso artimetico, si es negX 
+  int negX = ~x + 1;
+  // asi nos aseguramos que haya un 1 en el bit mas significtivo si x no es cero
+  int resSuma = negX | x;
+  //si x era 0 su msb == 0 si sino msb=1
+  return (resSuma >> 31) & 1;
 }
 /* 
  * rotateRight - Rotate x to the right by n
@@ -451,7 +504,26 @@ unsigned floatAbsVal(unsigned uf) {
  *   Rating: 2
  */
 int floatIsEqual(unsigned uf, unsigned ug) {
-    return 2;
+  unsigned int menosCero = 0x80000000; 
+  //mascaras
+  unsigned int maskFrac = 0x007FFFFF;
+  unsigned int maskExp = 0x000000FF;
+  //extraigo componentes del float uf
+  unsigned int expF = (uf >> 23) & maskExp;
+  unsigned int fracF = uf & maskFrac;
+  //idem para ug
+  unsigned int expG = (ug >> 23) & maskExp;
+  unsigned int fracG = ug & maskFrac;
+
+  int esNaNF = (expF == 255) && (fracF != 0);//0 -> true; else -> false
+  int esNaNG = (expG == 255) && (fracG != 0);
+
+  if (esNaNF || esNaNG ){
+    return 0;
+  }else if ((uf == menosCero || uf == 0) && (ug == menosCero || ug == 0)){
+    return 1;
+  }
+  return uf == ug;
 }
 /* 
  * floatNegate - Return bit-level equivalent of expression -f for
@@ -465,7 +537,21 @@ int floatIsEqual(unsigned uf, unsigned ug) {
  *   Rating: 2
  */
 unsigned floatNegate(unsigned uf) {
- return 2;
+  // Verifico que <uf> no sea NaN: 
+  // - Veo si <frac> es distinto o no de 000(...)0:
+  int frac_mask = 0x007FFFFF; // Los 23 bits del frac están en 1 -> 0000 0000 0111 (...) 1111
+  int frac_nan = (uf & (frac_mask)) != 0; // Si es NaN, <frac_nan> debe ser != 0000(...)0000
+
+  // - Veo si <exp> es 111(...)111:
+  int exp_mask = 0x7F800000; // Los 8 bits del exp están en 1 -> 0111 1111 1000 (...) 0000
+  int exp_nan = (uf & (exp_mask)) == exp_mask; // Si la igualdad es 1 es porque el <exp> de <uf> es 111..1
+  
+  // Si <exp> = 111..1 y <frac> != 000.00 -> Es NaN
+  if (exp_nan && frac_nan){
+    return uf;
+  }
+  // Cambio el bit de signo:
+  return uf ^ (0x1 << 31);
 }
 /* 
  * floatIsLess - Compute f < g for floating point arguments f and g.
