@@ -223,10 +223,13 @@ int test_satAdd(int x, int y)
 }
 int test_satMul2(int x)
 {
-  if ((x+x)/2 != x)
-    return x < 0 ? 0x80000000 : 0x7FFFFFFF;
-  else
-    return 2*x;
+    int result;
+    
+    if (__builtin_smul_overflow(x, 2, &result)) {
+        return x < 0 ? 0x80000000 : 0x7FFFFFFF;
+    } else {
+        return result;
+    }
 }
 int test_isNonZero(int x)
 {
