@@ -360,10 +360,10 @@ int bitCount(int x) {
   mask = (mask << 8) + 0x11; 
   mask = (mask << 8) + 0x11; // mask = 0001 0001 (...) 0001
 
-  int sum1 = (x) & mask;
-  int sum2 = (x >> 1) & mask;
-  int sum3 = (x >> 2) & mask;
-  int sum4 = (x >> 3) & mask;
+  sum1 = (x) & mask;
+  sum2 = (x >> 1) & mask;
+  sum3 = (x >> 2) & mask;
+  sum4 = (x >> 3) & mask;
   
   // Cada nibble representa la cantidad de bits en 1 en cada bache de <x>:
   sum = sum1 + sum2 + sum3 + sum4; 
@@ -606,7 +606,7 @@ int floatFloat2Int(unsigned uf) {
   }
 
   // El valor es MUY garnde para ser representando como entero 
-  if (E > 31) || (exp == 255) {
+  if ((E > 31) || (exp == 255)) {
     return 0x80000000u;
   }
 
@@ -641,5 +641,14 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+  int bias = 127; // Para precisión simple el bias es cte y vale 127
+  int exp = x + bias; // <exp> codifica E, y depende de <x>
+  unsigned int res = exp << 23; // Luego, el <res> pedido será con signo positivo y 23 ceros como parte fraccionaria
+
+  // Verifico que el <exp> no se pase de los límites:
+  if ((exp > 255) | (exp < 0)){ 
+    return (exp > 255) ? 0x7F800000:0; // +INF = 0 11111111 000000(...)0
+  }
+
+  return res;
 }
