@@ -428,7 +428,23 @@ int replaceByte(int x, int n, int c) {
  *   Rating: 4
  */
 int satAdd(int x, int y) {
-  return 2;
+  int max = ~(0x1 << 31); // max = 0111 (...) 1111
+  int min = (0x1 << 31); //  min = 1000 (...) 0000
+  int sum = x + y;
+  
+  // Guardo los signos de x,y y de (x+y)
+  int sign_x = x >> 31;
+  int sign_y = y >> 31;
+  int sign_sum = (sum) >> 31;
+
+  // Averiguo si hubo <ov_pos> o si hubo <ov_neg>
+  // Si hubo algún overflow esa variable valdrá 0xFFFFFFF, si no hubo valdrá 0x0000000 
+  int ov_pos = (~sign_x  & ~sign_y) & sign_sum;
+  int ov_neg = (sign_x & sign_y) & ~sign_sum;
+
+  // Si alguna variable vale 0xFFFFFFF será el neutro de la conjunción y no afectará el valor
+  // de <max>, <min> o <sum> (según corresponda). Pero, si vale 0x000000 la expresión se reduce a 0x0, el neutro de la disyunción
+  return (ov_pos & max) | (ov_neg & min) | ((~ov_pos & ~ov_neg) & sum);
 }
 /*
  * satMul2 - multiplies by 2, saturating to Tmin or Tmax if overflow
