@@ -153,16 +153,7 @@ int bitOr(int x, int y) {
  *   Rating: 4
  */
 int bitParity(int x) {
-  /* Nota: la idea es ir haciendo un XOR entre las mitades de <x>
-   * Es decir, vamos comparando las mitades de x entre sí, teniendo en cuenta que:
-   * si tenemos una cantidad par de unos -> gracias al XOR se cancelan todos los unos
-   * si tenemos una cantidad impar de unos -> habrá algún uno que no se va a cancelar y se irá arrastrando
-   */
-  int x1 = x ^ (x >> 16);
-  int x2 = x1 ^ (x1 >> 8);
-  int x3 = x2 ^ (x2 >> 4);
-  int x4 = x3 ^ (x3 >> 2);
-  return ((x4 ^ (x4>>1)) & 1);
+  return 2;
 }
 /* 
  * bitNor - ~(x|y) using only ~ and & 
@@ -212,7 +203,7 @@ int anyOddBit(int x) {
     maskOddBit = (maskOddBit << 8) + 0xAA; 
     maskOddBit = (maskOddBit << 8) + 0xAA; //maskOddBit = 1010 1010 1010 1010
     int oddBit = x & maskOddBit; //Se queda con '1' si en alguna pos.Impar había un '1'
-    return !!oddBit;//(!oddBit)=> Si es oddBit = 0 devuelve = 1 y  si oddBit != 0 => (!oddBit) = 0, entonces se niega 2 veces para la consigna. 
+    return !!oddBit;//(!oddBit)=> Si es oddBit = 0 devuelve = 1 y  viceversa, entonces se niega 2 veces para la consigna. 
 }
 /* 
  * byteSwap - swaps the nth byte and the mth byte
@@ -318,15 +309,7 @@ int addOK(int x, int y) {
  *   Rating: 3
  */
 int bitMask(int highbit, int lowbit) {
-  int maskOne = ~0; //1111 (...) 1111
-  //Todos los bits son 1's hasta highMask y 0's en los bit superiores
-  int highMask = (maskOne << highbit) << 1;
-  //Todos los bits son 1's hasta lowbit y 0's en los bits inferiores
-  int lowMask = maskOne << lowbit;
-  
-  //Uso XOR para obtener los bits que son diferentes entre highMask y lowMask, devolverá '1' donde sean distintos
-  //Usando lowMask aseguro que los bits de menor orden se mantengan, y cumple lowbit > highbit
-  return (highMask ^ lowMask) & lowMask;
+  return 2;
 }
 /* 
  * conditional - same as x ? y : z 
@@ -351,37 +334,45 @@ int conditional(int x, int y, int z) {
  */
 int bitCount(int x) {
   // Declaro algunas variables:
-  int nibble1, nibble2, nibble3, nibble4;
-  int sum, mask_nibble;
-  int sum1, sum2, sum3, sum4;
+  int nibble1, nibble2, nibble3, nibble4, nibble5, nibble6, nibble7, nibble8;
+  int res,sum, mask_nibble;
 
   // Genero una mascara que separe a <x> en baches de 4 bits:
   int mask = 0x11;
-  mask = (mask << 8) | 0x11; 
-  mask = (mask << 8) | 0x11; 
-  mask = (mask << 8) | 0x11; // mask = 0001 0001 (...) 0001
+  mask = (mask << 8) + 0x11; 
+  mask = (mask << 8) + 0x11; 
+  mask = (mask << 8) + 0x11; // mask = 0001 0001 (...) 0001
 
-  // Armo 4 baches para contar la cantidad de bits en 1 en cada nibble de <x>:
-  sum1 = (x) & mask;
-  sum2 = (x >> 1) & mask;
-  sum3 = (x >> 2) & mask;
-  sum4 = (x >> 3) & mask;
+  // Armo 8 baches de 4 bits para contar la cantidad de bits en 1:
+  int sum1 = (x) & mask;
+  int sum2 = (x >> 1) & mask;
+  int sum3 = (x >> 2) & mask;
+  int sum4 = (x >> 3) & mask;
+  int sum5 = (x >> 4) & mask;
+  int sum6 = (x >> 5) & mask;
+  int sum7 = (x >> 6) & mask;
+  int sum8 = (x >> 7) & mask;
   
-  // Cada nibble  en <sum> representa la cantidad de bits en 1 en cada bache de <x>:
-  sum = sum1 + sum2 + sum3 + sum4; 
-  sum += (sum >> 16);
+  // Cada nibble representa la cantidad de bits en 1 en cada bache de <x>:
+  sum = sum1 + sum2 + sum3 + sum4 + sum5 + sum6 + sum7 + sum8; 
   // Es decir: si sum = 0000 0000 0000 0000 0000 0010 0011 0001 ->
   // -> Los primeros 4 bits menos significativos tienen 0001 == 1 bit en 1
   // -> Los segundos 4 bits menos significativos tienen 0011 == 3 bits en 1 (...)
   
   // Ahora obtengo cada nibble por separado:
-  mask_nibble = 0xF; // mask_nibble = 0000 (...) 1111
+  mask_nibble = 0xF;
   nibble1 = sum & mask_nibble;
   nibble2 = (sum >> 4) & mask_nibble;
   nibble3 = (sum >> 8) & mask_nibble;
   nibble4 = (sum >> 12) & mask_nibble;
+  nibble5 = (sum >> 16) & mask_nibble;
+  nibble6 = (sum >> 20) & mask_nibble;
+  nibble7 = (sum >> 24) & mask_nibble;
+  nibble8 = (sum >> 28) & mask_nibble;
   
-  return nibble1 + nibble2 + nibble3 + nibble4;
+  // Sumo cada nibble:
+  res = nibble1 + nibble2 + nibble3 + nibble4 + nibble5 + nibble6 + nibble7 + nibble8;
+  return (res); 
 }
 /* 
  * bitMatch - Create mask indicating which bits in x match those in y
@@ -572,7 +563,39 @@ int floatIsLess(unsigned uf, unsigned ug) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-  return 2;
+  int signo = uf >> 31;            
+  int exp = (uf >> 23) & 0xFF;     
+  int frac = uf & 0x7FFFFF;        
+  int bias = 127;                  // Bias para el punto flotante de presicion simple
+  int E = exp - bias;              // calculo de exponente por exceso
+  int M;                           // variable para el significando
+
+  // El valor es MUY pequeño para ser representado como entero
+  if (E < 0) {
+    return 0;
+  }
+
+  // El valor es MUY garnde para ser representando como entero 
+  if (E > 31) || (exp == 255) {
+    return 0x80000000u;
+  }
+
+  // Agrego bit para el significando de floats normalizados
+  M = frac | 0x800000;
+  
+  // Ajustar el significando según el exponente
+  if (E > 23) {
+    M = M << (E - 23);       
+  } else {
+    M = M >> (23 - E);
+  }
+
+  // Aplicar el signo
+  if (signo) {
+    M = -M;
+  }
+
+  return M;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
