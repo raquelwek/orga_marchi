@@ -378,12 +378,7 @@ int bitCount(int x) {
   nibble1 = sum & mask_nibble;
   nibble2 = (sum >> 4) & mask_nibble;
   nibble3 = (sum >> 8) & mask_nibble;
-  nibble4 = (sum >> 12) & mask_nibble;
-  nibble5 = (sum >> 16) & mask_nibble;
-  nibble6 = (sum >> 20) & mask_nibble;
-  nibble7 = (sum >> 24) & mask_nibble;
-  nibble8 = (sum >> 28) & mask_nibble;
-  
+  nibble4 = (sum >> 12) & mask_nibble; 
   // Sumo cada nibble:
   return nibble1 + nibble2 + nibble3 + nibble4; 
 }
