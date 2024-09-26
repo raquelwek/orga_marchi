@@ -153,7 +153,7 @@ int bitOr(int x, int y) {
  *   Rating: 4
  */
 int bitParity(int x) {
-  /* Nota: la idea es ir haciendo un XOR entre las mitades de <x>
+    /* Nota: la idea es ir haciendo un XOR entre las mitades de <x>
    * Es decir, vamos comparando las mitades de x entre sí, teniendo en cuenta que:
    * si tenemos una cantidad par de unos -> gracias al XOR se cancelan todos los unos
    * si tenemos una cantidad impar de unos -> habrá algún uno que no se va a cancelar y se irá arrastrando
@@ -162,7 +162,7 @@ int bitParity(int x) {
   int x2 = x1 ^ (x1 >> 8);
   int x3 = x2 ^ (x2 >> 4);
   int x4 = x3 ^ (x3 >> 2);
-  return ((x4 ^ (x4>>1)) & 1);
+  return ((x4 ^ (x4 >> 1)) & 1);
 }
 /* 
  * bitNor - ~(x|y) using only ~ and & 
@@ -212,8 +212,13 @@ int anyOddBit(int x) {
     maskOddBit = (maskOddBit << 8) + 0xAA; 
     maskOddBit = (maskOddBit << 8) + 0xAA; 
     maskOddBit = (maskOddBit << 8) + 0xAA; //maskOddBit = 1010 1010 1010 1010
+<<<<<<< HEAD
     oddBit = x & maskOddBit; //Se queda con '1' si en alguna pos.Impar había un '1'
     return !!oddBit;//(!oddBit)=> Si es oddBit = 0 devuelve = 1 y  si oddBit != 0 => (!oddBit) = 0, entonces se niega 2 veces para la consigna. 
+=======
+    int oddBit = x & maskOddBit; //Se queda con '1' si en alguna pos.Impar había un '1'
+    return !!oddBit;//(!oddBit)=> Si es oddBit = 0 devuelve = 1 y  viceversa, entonces se niega 2 veces para la consigna. 
+>>>>>>> 44b7565cadbd5018bc37611ef31f3cfd03efc12f
 }
 /* 
  * byteSwap - swaps the nth byte and the mth byte
@@ -327,7 +332,7 @@ int bitMask(int highbit, int lowbit) {
   
   //Uso XOR para obtener los bits que son diferentes entre highMask y lowMask, devolverá '1' donde sean distintos
   //Usando lowMask aseguro que los bits de menor orden se mantengan, y cumple lowbit > highbit
-  return (highMask ^ lowMask) & lowMask;
+  return (highMask ^ lowMask) & lowMask;;
 }
 /* 
  * conditional - same as x ? y : z 
@@ -352,15 +357,23 @@ int conditional(int x, int y, int z) {
  */
 int bitCount(int x) {
   // Declaro algunas variables:
+<<<<<<< HEAD
   int nibble1, nibble2, nibble3, nibble4, nibble5, nibble6, nibble7, nibble8;
   int res,sum, mask_nibble;
 
   // Genero una mascara que separe a <x> en baches de 4 bits:
+=======
+  int nibble1, nibble2, nibble3, nibble4;
+  int sum, mask_nibble;
+  int sum1,sum2, sum3, sum4;
+  
+>>>>>>> 44b7565cadbd5018bc37611ef31f3cfd03efc12f
   int mask = 0x11;
   mask = (mask << 8) + 0x11; 
   mask = (mask << 8) + 0x11; 
   mask = (mask << 8) + 0x11; // mask = 0001 0001 (...) 0001
 
+<<<<<<< HEAD
   // Armo 8 baches de 4 bits para contar la cantidad de bits en 1:
   int sum1 = (x) & mask;
   int sum2 = (x >> 1) & mask;
@@ -373,6 +386,16 @@ int bitCount(int x) {
   
   // Cada nibble representa la cantidad de bits en 1 en cada bache de <x>:
   sum = sum1 + sum2 + sum3 + sum4 + sum5 + sum6 + sum7 + sum8; 
+=======
+  sum1 = (x) & mask;
+  sum2 = (x >> 1) & mask;
+  sum3 = (x >> 2) & mask;
+  sum4 = (x >> 3) & mask;
+  
+  // Cada nibble representa la cantidad de bits en 1 en cada bache de <x>:
+  sum = sum1 + sum2 + sum3 + sum4; 
+  sum += (sum >> 16);
+>>>>>>> 44b7565cadbd5018bc37611ef31f3cfd03efc12f
   // Es decir: si sum = 0000 0000 0000 0000 0000 0010 0011 0001 ->
   // -> Los primeros 4 bits menos significativos tienen 0001 == 1 bit en 1
   // -> Los segundos 4 bits menos significativos tienen 0011 == 3 bits en 1 (...)
@@ -389,8 +412,12 @@ int bitCount(int x) {
   nibble8 = (sum >> 28) & mask_nibble;
   
   // Sumo cada nibble:
+<<<<<<< HEAD
   res = nibble1 + nibble2 + nibble3 + nibble4 + nibble5 + nibble6 + nibble7 + nibble8;
   return (res); 
+=======
+  return nibble1 + nibble2 + nibble3 + nibble4; 
+>>>>>>> 44b7565cadbd5018bc37611ef31f3cfd03efc12f
 }
 /* 
  * bitMatch - Create mask indicating which bits in x match those in y
@@ -437,7 +464,23 @@ int replaceByte(int x, int n, int c) {
  *   Rating: 4
  */
 int satAdd(int x, int y) {
-  return 2;
+  int max = ~(0x1 << 31); // max = 0111 (...) 1111
+  int min = (0x1 << 31); //  min = 1000 (...) 0000
+  int sum = x + y;
+  
+  // Guardo los signos de x,y y de (x+y)
+  int sign_x = x >> 31;
+  int sign_y = y >> 31;
+  int sign_sum = (sum) >> 31;
+
+  // Averiguo si hubo <ov_pos> o si hubo <ov_neg>
+  // Si hubo algún overflow esa variable valdrá 0xFFFFFFF, si no hubo valdrá 0x0000000 
+  int ov_pos = (~sign_x  & ~sign_y) & sign_sum;
+  int ov_neg = (sign_x & sign_y) & ~sign_sum;
+
+  // Si alguna variable vale 0xFFFFFFF será el neutro de la conjunción y no afectará el valor
+  // de <max>, <min> o <sum> (según corresponda). Pero, si vale 0x000000 la expresión se reduce a 0x0, el neutro de la disyunción
+  return (ov_pos & max) | (ov_neg & min) | ((~ov_pos & ~ov_neg) & sum);
 }
 /*
  * satMul2 - multiplies by 2, saturating to Tmin or Tmax if overflow
@@ -587,7 +630,39 @@ int floatIsLess(unsigned uf, unsigned ug) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-  return 2;
+  int signo = uf >> 31;            
+  int exp = (uf >> 23) & 0xFF;     
+  int frac = uf & 0x7FFFFF;        
+  int bias = 127;                  // Bias para el punto flotante de presicion simple
+  int E = exp - bias;              // calculo de exponente por exceso
+  int M;                           // variable para el significando
+
+  // El valor es MUY pequeño para ser representado como entero
+  if (E < 0) {
+    return 0;
+  }
+
+  // El valor es MUY garnde para ser representando como entero 
+  if ((E > 31) || (exp == 255)) {
+    return 0x80000000u;
+  }
+
+  // Agrego bit para el significando de floats normalizados
+  M = frac | 0x800000;
+  
+  // Ajustar el significando según el exponente
+  if (E > 23) {
+    M = M << (E - 23);       
+  } else {
+    M = M >> (23 - E);
+  }
+
+  // Aplicar el signo
+  if (signo) {
+    M = -M;
+  }
+
+  return M;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
@@ -603,5 +678,14 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+  int bias = 127; // Para precisión simple el bias es cte y vale 127
+  int exp = x + bias; // <exp> codifica E, y depende de <x>
+  unsigned int res = exp << 23; // Luego, el <res> pedido será con signo positivo y 23 ceros como parte fraccionaria
+
+  // Verifico que el <exp> no se pase de los límites:
+  if ((exp > 255) | (exp < 0)){ 
+    return (exp > 255) ? 0x7F800000:0; // +INF = 0 11111111 000000(...)0
+  }
+
+  return res;
 }
