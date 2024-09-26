@@ -383,7 +383,13 @@ int bitCount(int x) {
  *   Rating: 1
  */
 int bitMatch(int x, int y) {
-  return 2;
+  //Obtengo los bits que son 1 en ambos números
+  int maskOne = x & y;
+  //Obtengo los bits que son 0 en ambos números
+  int maskZero = ~x & ~y;
+  //Obtenemos los bits que coinciden y l niego para mantener 1 en las posiciones donde los bits de x y y coinciden
+  int match = ~(~maskOne & ~maskZero);
+  return match;
 }
 /* 
  * replaceByte(x,n,c) - Replace byte n in x with c
