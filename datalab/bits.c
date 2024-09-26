@@ -153,7 +153,16 @@ int bitOr(int x, int y) {
  *   Rating: 4
  */
 int bitParity(int x) {
-  return 2;
+    /* Nota: la idea es ir haciendo un XOR entre las mitades de <x>
+   * Es decir, vamos comparando las mitades de x entre sí, teniendo en cuenta que:
+   * si tenemos una cantidad par de unos -> gracias al XOR se cancelan todos los unos
+   * si tenemos una cantidad impar de unos -> habrá algún uno que no se va a cancelar y se irá arrastrando
+   */
+  int x1 = x ^ (x >> 16);
+  int x2 = x1 ^ (x1 >> 8);
+  int x3 = x2 ^ (x2 >> 4);
+  int x4 = x3 ^ (x3 >> 2);
+  return ((x4 ^ (x4 >> 1)) & 1);
 }
 /* 
  * bitNor - ~(x|y) using only ~ and & 
@@ -309,7 +318,15 @@ int addOK(int x, int y) {
  *   Rating: 3
  */
 int bitMask(int highbit, int lowbit) {
-  return 2;
+  int maskOne = ~0; //1111 (...) 1111
+  //Todos los bits son 1's hasta highMask y 0's en los bit superiores
+  int highMask = (maskOne << highbit) << 1;
+  //Todos los bits son 1's hasta lowbit y 0's en los bits inferiores
+  int lowMask = maskOne << lowbit;
+  
+  //Uso XOR para obtener los bits que son diferentes entre highMask y lowMask, devolverá '1' donde sean distintos
+  //Usando lowMask aseguro que los bits de menor orden se mantengan, y cumple lowbit > highbit
+  return (highMask ^ lowMask) & lowMask;;
 }
 /* 
  * conditional - same as x ? y : z 
@@ -334,27 +351,23 @@ int conditional(int x, int y, int z) {
  */
 int bitCount(int x) {
   // Declaro algunas variables:
-  int nibble1, nibble2, nibble3, nibble4, nibble5, nibble6, nibble7, nibble8;
-  int res,sum, mask_nibble;
-
-  // Genero una mascara que separe a <x> en baches de 4 bits:
+  int nibble1, nibble2, nibble3, nibble4;
+  int sum, mask_nibble;
+  int sum1,sum2, sum3, sum4;
+  
   int mask = 0x11;
   mask = (mask << 8) + 0x11; 
   mask = (mask << 8) + 0x11; 
   mask = (mask << 8) + 0x11; // mask = 0001 0001 (...) 0001
 
-  // Armo 8 baches de 4 bits para contar la cantidad de bits en 1:
   int sum1 = (x) & mask;
   int sum2 = (x >> 1) & mask;
   int sum3 = (x >> 2) & mask;
   int sum4 = (x >> 3) & mask;
-  int sum5 = (x >> 4) & mask;
-  int sum6 = (x >> 5) & mask;
-  int sum7 = (x >> 6) & mask;
-  int sum8 = (x >> 7) & mask;
   
   // Cada nibble representa la cantidad de bits en 1 en cada bache de <x>:
-  sum = sum1 + sum2 + sum3 + sum4 + sum5 + sum6 + sum7 + sum8; 
+  sum = sum1 + sum2 + sum3 + sum4; 
+  sum += (sum >> 16);
   // Es decir: si sum = 0000 0000 0000 0000 0000 0010 0011 0001 ->
   // -> Los primeros 4 bits menos significativos tienen 0001 == 1 bit en 1
   // -> Los segundos 4 bits menos significativos tienen 0011 == 3 bits en 1 (...)
@@ -365,14 +378,9 @@ int bitCount(int x) {
   nibble2 = (sum >> 4) & mask_nibble;
   nibble3 = (sum >> 8) & mask_nibble;
   nibble4 = (sum >> 12) & mask_nibble;
-  nibble5 = (sum >> 16) & mask_nibble;
-  nibble6 = (sum >> 20) & mask_nibble;
-  nibble7 = (sum >> 24) & mask_nibble;
-  nibble8 = (sum >> 28) & mask_nibble;
   
   // Sumo cada nibble:
-  res = nibble1 + nibble2 + nibble3 + nibble4 + nibble5 + nibble6 + nibble7 + nibble8;
-  return (res); 
+  return nibble1 + nibble2 + nibble3 + nibble4; 
 }
 /* 
  * bitMatch - Create mask indicating which bits in x match those in y
