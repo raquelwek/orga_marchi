@@ -207,11 +207,12 @@ int evenBits(void) {
  *   Rating: 2
  */
 int anyOddBit(int x) { 
+    int oddBit;
     int maskOddBit = 0xAA;
     maskOddBit = (maskOddBit << 8) + 0xAA; 
     maskOddBit = (maskOddBit << 8) + 0xAA; 
     maskOddBit = (maskOddBit << 8) + 0xAA; //maskOddBit = 1010 1010 1010 1010
-    int oddBit = x & maskOddBit; //Se queda con '1' si en alguna pos.Impar había un '1'
+    oddBit = x & maskOddBit; //Se queda con '1' si en alguna pos.Impar había un '1'
     return !!oddBit;//(!oddBit)=> Si es oddBit = 0 devuelve = 1 y  si oddBit != 0 => (!oddBit) = 0, entonces se niega 2 veces para la consigna. 
 }
 /* 
@@ -351,37 +352,45 @@ int conditional(int x, int y, int z) {
  */
 int bitCount(int x) {
   // Declaro algunas variables:
-  int nibble1, nibble2, nibble3, nibble4;
-  int sum, mask_nibble;
-  int sum1, sum2, sum3, sum4;
+  int nibble1, nibble2, nibble3, nibble4, nibble5, nibble6, nibble7, nibble8;
+  int res,sum, mask_nibble;
 
   // Genero una mascara que separe a <x> en baches de 4 bits:
   int mask = 0x11;
-  mask = (mask << 8) | 0x11; 
-  mask = (mask << 8) | 0x11; 
-  mask = (mask << 8) | 0x11; // mask = 0001 0001 (...) 0001
+  mask = (mask << 8) + 0x11; 
+  mask = (mask << 8) + 0x11; 
+  mask = (mask << 8) + 0x11; // mask = 0001 0001 (...) 0001
 
-  // Armo 4 baches para contar la cantidad de bits en 1 en cada nibble de <x>:
-  sum1 = (x) & mask;
-  sum2 = (x >> 1) & mask;
-  sum3 = (x >> 2) & mask;
-  sum4 = (x >> 3) & mask;
+  // Armo 8 baches de 4 bits para contar la cantidad de bits en 1:
+  int sum1 = (x) & mask;
+  int sum2 = (x >> 1) & mask;
+  int sum3 = (x >> 2) & mask;
+  int sum4 = (x >> 3) & mask;
+  int sum5 = (x >> 4) & mask;
+  int sum6 = (x >> 5) & mask;
+  int sum7 = (x >> 6) & mask;
+  int sum8 = (x >> 7) & mask;
   
-  // Cada nibble  en <sum> representa la cantidad de bits en 1 en cada bache de <x>:
-  sum = sum1 + sum2 + sum3 + sum4; 
-  sum += (sum >> 16);
+  // Cada nibble representa la cantidad de bits en 1 en cada bache de <x>:
+  sum = sum1 + sum2 + sum3 + sum4 + sum5 + sum6 + sum7 + sum8; 
   // Es decir: si sum = 0000 0000 0000 0000 0000 0010 0011 0001 ->
   // -> Los primeros 4 bits menos significativos tienen 0001 == 1 bit en 1
   // -> Los segundos 4 bits menos significativos tienen 0011 == 3 bits en 1 (...)
   
   // Ahora obtengo cada nibble por separado:
-  mask_nibble = 0xF; // mask_nibble = 0000 (...) 1111
+  mask_nibble = 0xF;
   nibble1 = sum & mask_nibble;
   nibble2 = (sum >> 4) & mask_nibble;
   nibble3 = (sum >> 8) & mask_nibble;
   nibble4 = (sum >> 12) & mask_nibble;
+  nibble5 = (sum >> 16) & mask_nibble;
+  nibble6 = (sum >> 20) & mask_nibble;
+  nibble7 = (sum >> 24) & mask_nibble;
+  nibble8 = (sum >> 28) & mask_nibble;
   
-  return nibble1 + nibble2 + nibble3 + nibble4;
+  // Sumo cada nibble:
+  res = nibble1 + nibble2 + nibble3 + nibble4 + nibble5 + nibble6 + nibble7 + nibble8;
+  return (res); 
 }
 /* 
  * bitMatch - Create mask indicating which bits in x match those in y
