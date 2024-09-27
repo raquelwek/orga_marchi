@@ -456,7 +456,7 @@ int satAdd(int x, int y) {
  */
 int satMul2(int x) {
   int Tmin = (0x1 << 31); //  Tmin = 1000 (...) 0000
-  int multi2 = (x << 1); 
+  int multi2 = (x << 1); // Multiplicación con shift
   
   // Averiguo signo de x (-1 o 0)
   int signoX = x >> 31;
@@ -464,7 +464,7 @@ int satMul2(int x) {
   // Averiguo signo de multiplicación (-1 o 0)
   int signoMulti = multi2 >> 31;
 
-  // Averiguo si coinciden => 0  sino => 1
+  // Averiguo si coinciden => 0 (no overflow) sino => 1 (overflow)
   int coincidencia = (signoX ^ signoMulti);
   
   /*Logica de salida: 
@@ -521,8 +521,22 @@ int rotateRight(int x, int n) {
  *   Rating: 2
  */
 unsigned floatAbsVal(unsigned uf) {
-  return 2;
-}
+  
+  //Máscaras
+  unsigned int maskExp = 0xFF;
+  unsigned int maskFrac = 0x7FFFFF;
+  unsigned int maskAbs = ~(1 << 31);
+
+  //Extraigo componentes de uf
+  unsigned int exp = (uf >> 23) & maskExp;
+  unsigned int frac = uf & maskFrac;
+
+  //Se evalúa si es NaN  y se retorna lo pedido
+  if (exp == 0xFF && frac != 0){
+    return uf;
+  }
+  return uf & maskAbs; 
+} 
 /* 
  * floatIsEqual - Compute f == g for floating point arguments f and g.
  *   Both the arguments are passed as unsigned int's, but
