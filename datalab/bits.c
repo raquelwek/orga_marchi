@@ -327,7 +327,7 @@ int bitMask(int highbit, int lowbit) {
   
   //Uso XOR para obtener los bits que son diferentes entre highMask y lowMask, devolverá '1' donde sean distintos
   //Usando lowMask aseguro que los bits de menor orden se mantengan, y cumple lowbit > highbit
-  return (highMask ^ lowMask) & lowMask;;
+  return (highMask ^ lowMask) & lowMask;
 }
 /* 
  * conditional - same as x ? y : z 
@@ -455,7 +455,6 @@ int satAdd(int x, int y) {
  *   Rating: 3
  */
 int satMul2(int x) {
-  int Tmax = ~(0x1 << 31); // Tmax = 0111 (...) 1111
   int Tmin = (0x1 << 31); //  Tmin = 1000 (...) 0000
   int multi2 = (x << 1); 
   
