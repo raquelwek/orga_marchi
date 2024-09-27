@@ -455,7 +455,26 @@ int satAdd(int x, int y) {
  *   Rating: 3
  */
 int satMul2(int x) {
-  return 2;
+  int Tmax = ~(0x1 << 31); // Tmax = 0111 (...) 1111
+  int Tmin = (0x1 << 31); //  Tmin = 1000 (...) 0000
+  int multi2 = (x << 1); 
+  
+  // Averiguo signo de x (-1 o 0)
+  int signoX = x >> 31;
+
+  // Averiguo signo de multiplicación (-1 o 0)
+  int signoMulti = multi2 >> 31;
+
+  // Averiguo si coinciden => 0  sino => 1
+  int coincidencia = (signoX ^ signoMulti);
+  
+  /*Logica de salida: 
+  1. coincidencia = 1: Si el resultado multi2 es negativo se ajusta a Tmax. 
+  *                    Si el resultado multi2 es positivo, se ajusta a Tmin
+  2. coincidencia = 0: Como (coincidencia & ...) se evalúa a 0, salida = multi2 */
+    
+  int salida = multi2 + (coincidencia & ((signoMulti ^ Tmin) + (~multi2 + 1)));
+	return salida;
 }
 /* 
  * isNonZero - Check whether x is nonzero using
