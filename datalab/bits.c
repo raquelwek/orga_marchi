@@ -610,7 +610,51 @@ unsigned floatNegate(unsigned uf) {
  *   Rating: 3
  */
 int floatIsLess(unsigned uf, unsigned ug) {
-    return 2;
+  int ug_nan,uf_nan;
+  int sign_ug, sign_uf;
+
+  int mask_exp = 0x7F800000;
+  int mask_frac = 0x007FFFFF;
+
+  // Obtengo el <exp>, <frac> y <sign> de <uf> y <ug>:
+  int frac_uf = uf & mask_frac;
+  int frac_ug = ug & mask_frac;
+  
+  int exp_uf = (uf & mask_exp) >> 23;
+  int exp_ug = (ug & mask_exp) >> 23;
+
+  sign_uf = (uf >> 31);
+  sign_ug = (ug >> 31);
+
+  if( ((frac_uf + exp_uf) == 0) && ((frac_ug + exp_ug) == 0) ){
+    return 0; // ambos son 0, ya sea +0 o -0
+  }
+
+  // Averiguo si alguno es NaN:
+  uf_nan = (frac_uf != 0) && (exp_uf == 0xFF); 
+  ug_nan = (frac_ug != 0) && (exp_ug == 0xFF);
+  if (uf_nan || ug_nan){
+    return 0;
+  }
+
+  // Si <sign_uf> = 1 -> es negativo y es menor que <ug>
+  // En cambio, si vale 0 -> es positivo y es mayor que <ug>
+  if(sign_uf != sign_ug){
+    return (sign_uf);
+  }
+
+  // Comparo los exponentes y las partes fraccionarias, sabiendo 
+  // que <uf> y <ug> tienen el mismo signo:
+  if(exp_uf != exp_ug){
+    return (sign_uf == 0)? (exp_uf < exp_ug) : (exp_ug < exp_uf); 
+  }
+  if(frac_uf != frac_ug){
+    return (sign_uf == 0)? (frac_uf  < frac_ug) : (frac_ug < frac_uf);
+  }
+  // Si tienen mismo <signo>,mismo <exp> y misma parte <frac> -> <uf> == <ug>
+  else{
+    return 0;
+  }
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
