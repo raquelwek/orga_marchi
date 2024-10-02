@@ -42,4 +42,6 @@ Ahora que ya definimos qué lugar ocupa en memoria cada instrucción, podemos re
  - *seguir* <- 0x02
  - *siguiente* <- 0x06
  - *halt* <- 0x0A
-Entonces, la instrucción `JMP seguir` se puede "leer" como: `PC <- 0x02`. Es decir, la próxima instrucción a ejecutarse será aquella asociada con la dirección de memoria 0x02, en este caso es: `SET R0, 0XFF`.
+
+Entonces,por ejemplo, la instrucción `JMP seguir` se puede "leer" como: `PC <- 0x02`. Es decir, la próxima instrucción a ejecutarse será aquella asociada con la dirección de memoria 0x02, en este caso es: `SET R0, 0XFF`.
+De manera similar, la instrucción `JC siguiente` sería: `PC <- 0x06`. Esto implica que si corresponde, la próxima instrucción a ejecutrar será aquella asociada con la dirección 0x06.
