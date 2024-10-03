@@ -5,16 +5,56 @@
 ## OrgaSmall
 ### 1. Análisis
 - Características generales de **OrgaSmall**
-El tamaño de la memoria presente en el Procesador es de 256 palabras como máximo, pues el tamaño de palabra manejado por todo el microprocesador es de 8 bits.
 
-Por otro lado el * *Program Counter* * es aquel que guarda la dirección de la próxima instrucción a ser ejercutada, y por lo antes dicho para que el mismo pueda generar 256 direcciones diferentes, es necesario que su tamaño sea de 8 bits.
+El tamaño de la memoria presente en el Procesador es de 256 palabras como máximo, pues el tamaño de palabra manejado por todo el microprocesador es de 8 bits (tamaño del bus de datos).
 
-Dado que el * *opCode* * es un código único representado por 5 bits para cada instrucción implementada, en total nuestra máquina **OrgaSmall** podría tener 2^5 = 32 códigos instrucciones. En nuestro caso ya tenemos 21 instrucciones por ende podríamos implementar 11 instrucciones más.
+Por otro lado el  *Program Counter*  es aquel que guarda la dirección de la próxima instrucción a ser ejercutada, y por lo antes dicho para que el mismo pueda generar 256 direcciones diferentes, es necesario que su tamaño sea de 8 bits.
+
+Dado que el *opCode* es un código único representado por 5 bits para cada instrucción implementada, en total nuestra máquina **OrgaSmall** podría tener 2<sup>5</sup> = 32 códigos instrucciones. En nuestro caso ya tenemos 21 instrucciones por ende podríamos implementar 11 instrucciones más.
 
 - Funcionamientos particulares de algunas componentes
-En primer lugar, la señal `inc` del circuito PC se encarga de incrementar +1 el valor actual del registro, dicha señal sirve para poder leer las instrucciones completas ya que en este caso de ocupan 2 palabras.
+    1. *Contador del programa*
 
-Por otro lado la ALU, tiene una señal `opW` la cual es últil para indicar si las flags obtenidas de alguna operación deben ser escritas o no, en base a lo que sea necesario por el microprocesador.
+    En primer lugar, la señal `inc` del circuito **`PC`** se encarga de incrementar +1 el valor actual del *Program Counter*, dicha señal sirve para leer ambas partes de la instrucción que deseemos posteriormente decodificar, esto es así porque el tamaño de palabra manejado es de 1 byte y cada instrucción ocupa 2bytes.
+
+    2.  *Unidad Aritmético Lógica*
+
+    Por otro lado la **`ALU`**, tiene una señal `opW` la cual es últil para indicar si las flags obtenidas de alguna operación deben ser escritas o no, en base a lo que sea necesario por el para cada operación.
+
+    3. *Data Path*
+
+    `DE_enOutImm` es la señal de control que permite que permite activar la salida del valor del bus de datos inmediato, pues todos los componentes deben escuchar al bus  de datos en algún momento para hacer sus operaciones, sin embargo no al mismo tiempo ya que implicaría el mal funcionamiento del procesdor.
+
+    Asímismo las señales `RB_enIn`, `RB_enOut`, `RB_selectIndexIn` y `RB_selectIndexOut` son las que nos permiten almacenar (escribir) u obtener (leer) daros del *Banco de Registros*, en particular cada una:
+
+    - `RB_enIn`: Habilita la entrada del bus de datos del registro seleccionado.
+    - `RB_enOut`: Habilita la salida al bus de datos del registro seleccionado.
+    - `RB_selectIndexIn`: Selecciona qué registro se escribirá.
+    - `RB_selectIndexOut`: Selecciona qué registro se leerá.
+
+
+    4.  *Unidad de Control*
+
+    Partiendo de la base de que en el funcionamiento general esperado por nuestro procesador es el siguiente:
+    ```mermaid
+    graph TD;
+        Fetch --> Decode;
+        Decode --> Execute;
+        Execute --> Fetch;
+    ```
+
+    Que más a bajo nivel se determina por la unidad de control de la siguiente manera:
+    Comúnmente si no se activa ninguna señal interna de la unidad de control para hacer un salto, el `OP_code` se resetea en su valor de inicio 00000.
+    Mientras que, la unidad de control usará las señales internas `jc_microOp`,`jz_microOp` y `jn_microOp` para determinar si se quiere hacer un salto condicional; como así también, las flags resultantes de la ALU pues, es necesario verificar que las condiciones de salto sean verdaderas o en otras opalabras que las señales se corresponden a la flag de condición. De esta manera, si no se cumplen las condiciones para saltar a la instrucción que deseamos se incrementa +1 al microPC con el fin de que caiga en la microinstrucción `reset_microOp` y continúe el loop común (vuelve al fetch); caso contrario, le suma +2 para evitar justamente la línea antes mencionada y habilitar el `PC_load` para cargar la línea siguiente que esté mismo debe de ejecutar para que finalmente se continúe con el flujo normal del procesador.
+
+    Diagrama de Flujo de saltos:
+    ```mermaid
+    graph TD;
+        A["¿Quiero hacer un salto?"] -->|Sí| B["¿La señal se corresponde con la flag coondicional?"];
+        A -->|No| D["Cargar Opcode con 00000"];
+        B -->|Sí| E["Incremento +2 en microOP"];
+        B -->|No| F["Incremento +1 en microOP"];
+    ```
 
 ## 2. Ensamblar y correr
 - **Comportamiento esperado antes de correr el programa**:
