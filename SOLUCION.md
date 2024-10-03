@@ -23,7 +23,7 @@ Al inicio, por medio de la instrucción **JMP**, el `PC` apuntará hacia la dire
 En líneas generales, se carga en el registro  `R0` el valor `0xFF` por medio de la instrucción **SET**.
 Luego, con la misma instrucción se carga en `R1` el valor `0x11`. La idea, entonces es que se sumen los valores almacenados en ambos registros, por medio de la instrucción **ADD**. El resultado se almacenará en `R0`, y según si la operación encendió o no la señal `flag_C`, la instrucción del **ADD** se repetirá o no. En caso de que `flag_C = 0` el `PC` apuntará hacia la instrucción `JMP halt`, que cargará en el `PC` la dirección de `halt`.Caso contrario, se vuelve a la instrucción del **ADD** 
 
-En particular, si `R0 <- 0xFF` y `R1 <- 0x11`, al ejecutarse el **ADD** `R0 <- 0x10` y `flag_C = 1`. Como se encendió la señal de *carry*, el `PC` apuntará hacia la instrucción **ADD** y la misma se ejecutará de nuevo, con `R0 <- 0x10`. Ahora, una vez que se hace la suma, `R0 <- 0x22` (considerando el *carry*) y ahora `flag_C = 0`. Esta vez no hay *carry*, entonces el `PC` apunta hacia la siguiente instrucción, que carga en el PC el valor de la etiqueta `halt`.
+En particular, si `R0 <- 0xFF` y `R1 <- 0x11`, al ejecutarse el **ADD** `R0 <- 0x10` y `flag_C = 1`. Como se encendió la señal de *carry*, el `PC` apuntará hacia la instrucción **ADD** y la misma se ejecutará de nuevo, con `R0 <- 0x10`. Ahora, una vez que se hace la suma, `R0 <- 0x21` y ahora `flag_C = 0`. Esta vez no hay *carry*, entonces el `PC` apunta hacia la siguiente instrucción, que carga en el PC el valor de la etiqueta `halt`.
 
 - **Memoria e instrucciones. Valores de las etiquetas:**
 Teniendo en cuenta que en el micro **OrgaSmall** cada instrucción se codifica con 16 bits, podemos saber qué lugar ocupará cada instrucción en la memoria:
@@ -39,9 +39,12 @@ Teniendo en cuenta que en el micro **OrgaSmall** cada instrucción se codifica c
 
 
 Ahora que ya definimos qué lugar ocupa en memoria cada instrucción, podemos reemplazar las etiquetas con sus respectivos valores:
- - *seguir* <- 0x02
- - *siguiente* <- 0x06
- - *halt* <- 0x0A
+  - *seguir* <- 0x02
+  - *siguiente* <- 0x06
+  - *halt* <- 0x0A
 
 Entonces,por ejemplo, la instrucción `JMP seguir` se puede "leer" como: `PC <- 0x02`. Es decir, la próxima instrucción a ejecutarse será aquella asociada con la dirección de memoria 0x02, en este caso es: `SET R0, 0XFF`.
-De manera similar, la instrucción `JC siguiente` sería: `PC <- 0x06`. Esto implica que si corresponde, la próxima instrucción a ejecutrar será aquella asociada con la dirección 0x06.
+De manera similar, la instrucción `JC siguiente` sería: `PC <- 0x06`. Esto implica que si corresponde, la próxima instrucción a ejecutar será aquella asociada con la dirección 0x06.
+
+- **Ejecutar y controlar. Ciclos de clock**
+Ejecutar y controlar ¿cuántos ciclos de clock son necesarios para que este código llegue a la instrucción JMP halt?
