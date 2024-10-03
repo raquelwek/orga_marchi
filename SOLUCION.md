@@ -58,33 +58,97 @@ Dado que el *opCode* es un código único representado por 5 bits para cada inst
 
 ## 2. Ensamblar y correr
 - **Comportamiento esperado antes de correr el programa**:
-Dado el código ASM podemos predecir que el comportamiento del programa será el siguiente.
-Al inicio, por medio de la instrucción **JMP**, el `PC` apuntará hacia la dirección de memoria de la etiqueta `seguir`. 
-En líneas generales, se carga en el registro  `R0` el valor `0xFF` por medio de la instrucción **SET**.
-Luego, con la misma instrucción se carga en `R1` el valor `0x11`. La idea, entonces es que se sumen los valores almacenados en ambos registros, por medio de la instrucción **ADD**. El resultado se almacenará en `R0`, y según si la operación encendió o no la señal `flag_C`, la instrucción del **ADD** se repetirá o no. En caso de que `flag_C = 0` el `PC` apuntará hacia la instrucción `JMP halt`, que cargará en el `PC` la dirección de `halt`.Caso contrario, se vuelve a la instrucción del **ADD** 
 
-En particular, si `R0 <- 0xFF` y `R1 <- 0x11`, al ejecutarse el **ADD** `R0 <- 0x10` y `flag_C = 1`. Como se encendió la señal de *carry*, el `PC` apuntará hacia la instrucción **ADD** y la misma se ejecutará de nuevo, con `R0 <- 0x10`. Ahora, una vez que se hace la suma, `R0 <- 0x21` y ahora `flag_C = 0`. Esta vez no hay *carry*, entonces el `PC` apunta hacia la siguiente instrucción, que carga en el PC el valor de la etiqueta `halt`.
+  Dado el código ASM podemos predecir que el comportamiento del programa será el siguiente.
+  Al inicio, por medio de la instrucción **JMP**, el `PC` apuntará hacia la dirección de memoria de la etiqueta `seguir`. 
+  En líneas generales, se carga en el registro  `R0` el valor `0xFF` por medio de la instrucción **SET**.
+  Luego, con la misma instrucción se carga en `R1` el valor `0x11`. La idea, entonces es que se sumen los valores almacenados en ambos registros, por medio de la instrucción **ADD**. El resultado se almacenará en `R0`, y según si la operación encendió o no la señal `flag_C`, la instrucción del **ADD** se repetirá o no. En caso de que `flag_C = 0` el `PC` apuntará hacia la instrucción `JMP halt`, que cargará en el `PC` la dirección de `halt`.Caso contrario, se vuelve a la instrucción del **ADD** 
+
+  En particular, si `R0 <- 0xFF` y `R1 <- 0x11`, al ejecutarse el **ADD** `R0 <- 0x10` y `flag_C = 1`. Como se encendió la señal de *carry*, el `PC` apuntará hacia la instrucción **ADD** y la misma se ejecutará de nuevo, con `R0 <- 0x10`. Ahora, una vez que se hace la suma, `R0 <- 0x21` y ahora `flag_C = 0`. Esta vez no hay *carry*, entonces el `PC` apunta hacia la siguiente instrucción, que carga en el PC el valor de la etiqueta `halt`.
 
 - **Memoria e instrucciones. Valores de las etiquetas:**
-Teniendo en cuenta que en el micro **OrgaSmall** cada instrucción se codifica con 16 bits, podemos saber qué lugar ocupará cada instrucción en la memoria:
 
-| **Dirección** |**Instrucción**          | 
-| ------------- | ------------------------|
-| 0x00          | JMP *seguir*            |
-| 0x02          | *seguir*: SET R0, 0XFF  |
-| 0x04          | set R1, 0X11            |
-| 0X06          | *siguiente*: ADD R0,R1  |
-| 0x08          | JC *siguiente*          |
-| 0x0A          | *halt*: JMP *halt*      |
+  Teniendo en cuenta que en el micro **OrgaSmall** cada instrucción se codifica con 16 bits, podemos saber qué lugar ocupará cada instrucción en la memoria:
 
+  | **Dirección** |**Instrucción**          | 
+  | ------------- | ------------------------|
+  | 0x00          | JMP `seguir`            |
+  | 0x02          | `seguir`: SET R0, 0XFF  |
+  | 0x04          | set R1, 0X11            |
+  | 0X06          | `siguiente`: ADD R0,R1  |
+  | 0x08          | JC `siguiente`          |
+  | 0x0A          | `halt`: JMP `halt`      |
 
-Ahora que ya definimos qué lugar ocupa en memoria cada instrucción, podemos reemplazar las etiquetas con sus respectivos valores:
-  - *seguir* <- 0x02
-  - *siguiente* <- 0x06
-  - *halt* <- 0x0A
+  Ahora que ya definimos qué lugar ocupa en memoria cada instrucción, podemos reemplazar las etiquetas con sus respectivos valores:
+  - `seguir` <-- 0x02
+  - `siguiente` <-- 0x06
+  - `halt` <-- 0x0A
 
-Entonces,por ejemplo, la instrucción `JMP seguir` se puede "leer" como: `PC <- 0x02`. Es decir, la próxima instrucción a ejecutarse será aquella asociada con la dirección de memoria 0x02, en este caso es: `SET R0, 0XFF`.
-De manera similar, la instrucción `JC siguiente` sería: `PC <- 0x06`. Esto implica que si corresponde, la próxima instrucción a ejecutar será aquella asociada con la dirección 0x06.
+  Entonces,por ejemplo, la instrucción `JMP seguir` se puede "leer" como: `PC <- 0x02`. Es decir, la próxima instrucción a ejecutarse será aquella asociada con la dirección de memoria 0x02, en este caso es: `SET R0, 0XFF`.
+  De manera similar, la instrucción `JC siguiente` sería: `PC <- 0x06`. Esto implica que si corresponde, la próxima instrucción a ejecutar será aquella asociada con la dirección 0x06. 
 
 - **Ejecutar y controlar. Ciclos de clock**
-Ejecutar y controlar ¿cuántos ciclos de clock son necesarios para que este código llegue a la instrucción JMP halt?
+
+  Podemos determinar cuántos ciclos de clock son necesarios para que el código llegue a la instrucción `JMP halt` analizando el microcódigo y el flujo del programa.
+
+  Observando el archivo *microCode.ops* sabemos que cada linea de microcódigo se corresponde con un clock.Además por cada instrucción que debe ejecutarse se lleva a cabo el ciclo de *fetch-decode*. El mismo tarda 6 clocks en ejecutarse.
+  Entonces sabemos que las intrucciones a ejecutarse con sus respectivos clocks son:
+    - **JMP**: 2 clocks + 6 clocks = 8 clocks
+    - **SET**: 2 clocks + 6 = 8 clocks
+    - **ADD**: 5 clocks + 6 = 11 clocks -> *se ejecuta 2 veces* = 22 clocks
+    - **JC**:  4 clocks + 6 = 10 clocks -> *se ejecuta 2 veces* = 20 clocks
+
+  Entonces, el flujo del programa sería: 
+
+ 
+  
+    ```mermaid
+      stateDiagram-v2
+        direction LR
+        [*] --> JMP_seguir: Fetch-Decode
+        JMP_seguir --> SET_R0,0xFF: F-D
+
+        note right of SET_R0,0xFF
+             Asociada con la etiqueta seguir
+        end note
+
+        SET_R0,0xFF--> SET_R1,0x11 : F-D
+        SET_R1,0x11 --> ADD_R0,R1 : F-D
+
+        note right of ADD_R0,R1
+             Asociada a la etiqueta siguiente
+        end note
+
+        ADD_R0,R1 --> JC_siguiente : F-D
+
+        note right of JC_siguiente
+            En este punto, flac_C = 1
+        end note
+
+    ```
+
+    ```mermaid
+      stateDiagram-v2
+        direction LR
+        JC_siguiente --> ADD_R0,R1: F-D
+
+        note left of JC_siguiente
+            Recordar que: flag_C = 1
+        end note
+
+        ADD_R0,R1 --> JC_siguiente_: F-D
+        JC_siguiente_ --> JMP_halt: F-D
+
+        note left of JC_siguiente_
+            En este punto flag_C = 0
+        end note
+
+        JMP_halt --> [*]
+
+    ```
+  Por lo tanto, para llegar a la instrucción `JMP halt` son necesarios:
+  *8 + 8 + 22 + 20* -> 58 clocks
+  
+
+
+
