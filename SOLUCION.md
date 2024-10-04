@@ -60,9 +60,15 @@ Dado que el *opCode* es un código único representado por 5 bits para cada inst
 - **Comportamiento esperado antes de correr el programa**:
 
   Dado el código ASM podemos predecir que el comportamiento del programa será el siguiente.
-  Al inicio, por medio de la instrucción **JMP**, el `PC` apuntará hacia la dirección de memoria de la etiqueta `seguir`. 
+
+  Al inicio, por medio de la instrucción **JMP**, el `PC` apuntará hacia la dirección de memoria de la etiqueta `seguir`.
+
   En líneas generales, se carga en el registro  `R0` el valor `0xFF` por medio de la instrucción **SET**.
-  Luego, con la misma instrucción se carga en `R1` el valor `0x11`. La idea, entonces es que se sumen los valores almacenados en ambos registros, por medio de la instrucción **ADD**. El resultado se almacenará en `R0`, y según si la operación encendió o no la señal `flag_C`, la instrucción del **ADD** se repetirá o no. En caso de que `flag_C = 0` el `PC` apuntará hacia la instrucción `JMP halt`, que cargará en el `PC` la dirección de `halt`.Caso contrario, se vuelve a la instrucción del **ADD** 
+  Luego, con la misma instrucción se carga en `R1` el valor `0x11`. 
+  
+  La idea, entonces es que se sumen los valores almacenados en ambos registros, por medio de la instrucción **ADD**. El resultado se almacenará en `R0`, y según si la operación encendió o no la señal `flag_C`, la instrucción del **ADD** se repetirá o no. 
+  
+  En caso de que `flag_C = 0` el `PC` apuntará hacia la instrucción `JMP halt`, que cargará en el `PC` la dirección de `halt`.Caso contrario, se vuelve a la instrucción del **ADD** 
 
   En particular, si `R0 <- 0xFF` y `R1 <- 0x11`, al ejecutarse el **ADD** `R0 <- 0x10` y `flag_C = 1`. Como se encendió la señal de *carry*, el `PC` apuntará hacia la instrucción **ADD** y la misma se ejecutará de nuevo, con `R0 <- 0x10`. Ahora, una vez que se hace la suma, `R0 <- 0x21` y ahora `flag_C = 0`. Esta vez no hay *carry*, entonces el `PC` apunta hacia la siguiente instrucción, que carga en el PC el valor de la etiqueta `halt`.
 
@@ -149,6 +155,10 @@ Dado que el *opCode* es un código único representado por 5 bits para cada inst
   Por lo tanto, para llegar a la instrucción `JMP halt` son necesarios:
   *8 + 8 + 22 + 20* -> 58 clocks
   
+- **Microinstrucciones necesarias para realizar el ADD y para realizar el salto**
+
+  Sabemos que en el micro **OrgaSmall** el ciclo de instrucción es *fetch, decode y execute* para ejecutar cualquier instrucción. A partir de la información del *microCode.ops* vemos que el ciclo de *fetch y decode* requiere 6 microinstrucciones. Entonces, para realizar el **ADD** serán necesarias: 6 microinstrucciones para el *fetch y decode* + 5 microinstrucciones para el *execute*, en total 11 microinstrucciones.
+  Luego, para realizar el **JMP** se necesitan 6 microinstrucciones (*fetch y decode*) y otras 2 microinstrucciones (*execute*), es decir 8 en total.
 
 
 
