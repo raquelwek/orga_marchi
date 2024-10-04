@@ -97,12 +97,30 @@ Dado que el *opCode* es un código único representado por 5 bits para cada inst
 
   Podemos determinar cuántos ciclos de clock son necesarios para que el código llegue a la instrucción `JMP halt` analizando el microcódigo y el flujo del programa.
 
-  Observando el archivo *microCode.ops* sabemos que cada linea de microcódigo se corresponde con un clock.Además por cada instrucción que debe ejecutarse se lleva a cabo el ciclo de *fetch-decode*. El mismo tarda 6 clocks en ejecutarse.
-  Entonces sabemos que las intrucciones a ejecutarse con sus respectivos clocks son:
-    - **JMP**: 2 clocks + 6 clocks = 8 clocks
-    - **SET**: 2 clocks + 6 = 8 clocks
-    - **ADD**: 5 clocks + 6 = 11 clocks -> *se ejecuta 2 veces* = 22 clocks
-    - **JC**:  4 clocks + 6 = 10 clocks -> *se ejecuta 2 veces* = 20 clocks
+  Observando el archivo *microCode.ops* sabemos que cada linea de microcódigo se corresponde con un clock.
+  Como se mencionó anteriormente, el funcionamiento del **OrgaSmall** viene dado por  el ciclo de instrucción *fetch, decode y execute*. Por lo tanto, para toda instrucción de nuestro micro se llevará a cabo el ciclo de *fetch y decode* el cual tarda lo mismo en cualquier caso.
+
+  Dicho lo anterior, analicemos cuántos ciclos de clock se necesitan para el *fetch y decode*:
+
+  `PC_enOut MM_enAddr` -> habilita la salida del PC y permite que se lea del componente de Memory (*Fetch*)
+
+  `MM_enOut DE_loadH PC_inc` -> carga la parte alta de la instrucción y se incrementa el PC (*Decode*)
+
+  `PC_enOut MM_enAddr` -> habilita que se cargue el valor del PC en el path y carga la direccion en Memory (*Fetch*)
+
+  `MM_enOut DE_loadL PC_inc` -> carga la parte baja de la instrucción y se incrementa el PC (*Decode*)
+
+  `load_microOp` -> se redirige el flujo del programa para ejecutar la instrucción
+
+  `reset_microOp`
+
+  Entonces, vemos que el ciclo de *fetch y decode* requiere de 5 clocks, pues la microinstrucción `load_microOp` redirige el flujo del programa para realizar el `execute` de la instrucción correspondiente. Como cada instrucción en el *microCode.ops* finaliza con la línea `reset_microOp`, dicha línea no llegará a ejecutarse en el *fetch y decode*.
+
+  Entonces las intrucciones a ejecutarse con sus respectivos clocks son:
+    - **JMP**: 2 clocks + 5 clocks = 7 clocks
+    - **SET**: 2 clocks + 5 = 7 clocks
+    - **ADD**: 5 clocks + 5 = 10 clocks -> *se ejecuta 2 veces* = 20 clocks
+    - **JC**:  4 clocks + 5 = 9 clocks -> *se ejecuta 2 veces* = 18 clocks
 
   Entonces, el flujo del programa sería: 
 
@@ -153,12 +171,12 @@ Dado que el *opCode* es un código único representado por 5 bits para cada inst
 
     ```
   Por lo tanto, para llegar a la instrucción `JMP halt` son necesarios:
-  *8 + 8 + 22 + 20* -> 58 clocks
-  
+  *7 + 7 + 20 + 18* -> 52 clocks
+
 - **Microinstrucciones necesarias para realizar el ADD y para realizar el salto**
 
-  Sabemos que en el micro **OrgaSmall** el ciclo de instrucción es *fetch, decode y execute* para ejecutar cualquier instrucción. A partir de la información del *microCode.ops* vemos que el ciclo de *fetch y decode* requiere 6 microinstrucciones. Entonces, para realizar el **ADD** serán necesarias: 6 microinstrucciones para el *fetch y decode* + 5 microinstrucciones para el *execute*, en total 11 microinstrucciones.
-  Luego, para realizar el **JMP** se necesitan 6 microinstrucciones (*fetch y decode*) y otras 2 microinstrucciones (*execute*), es decir 8 en total.
+  Sabemos que en el micro **OrgaSmall** el ciclo de instrucción es *fetch, decode y execute* para ejecutar cualquier instrucción. A partir de la información del *microCode.ops* vemos que el ciclo de *fetch y decode* requiere 5 microinstrucciones. Entonces, para realizar el **ADD** serán necesarias: 5 microinstrucciones para el *fetch y decode* + 5 microinstrucciones para el *execute*, en total 10 microinstrucciones.
+  Luego, para realizar el **JMP** se necesitan 5 microinstrucciones (*fetch y decode*) y otras 2 microinstrucciones (*execute*), es decir 7 en total.
 
 
 
