@@ -2,7 +2,7 @@
 from common import *
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-type_RR = ["ADD", "ADC", "SUB", "AND", "OR", "XOR", "CMP", "MOV"]
+type_RR = ["ADD", "ADC", "SUB", "AND", "OR", "XOR", "CMP", "MOV", "MIX"]
 type_RM = ["STR", "LOAD"]
 type_M = ["JMP", "JC", "JZ", "JN"]
 type_R = ["INC", "DEC", "SIG"]
@@ -20,6 +20,7 @@ opcodes = {
     "CMP": 7,
     "MOV": 8,
     "SIG": 9,
+    "MIX": 10,
     "STR": 16,
     "LOAD": 17,
     "STRr": 18,
