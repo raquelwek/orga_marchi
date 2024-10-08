@@ -34,21 +34,38 @@ El componente *regZ* es un registro que guarda un valor dependiendo de las seña
 
 - Escribir una secuencia de activación y desactivación de entradas para que el registro R1 pase a tener el valor 1.
    Pasos Activar:
-   1. Establecer -input_bit- en 1, valor que quiero almacenar.
-   2. Habilitar -en_input_bit- => 1.
-   3. Habilitar -w- de R1 => 1.
-   4. Aplicar un clock => clk = 1.
-   5. Una vez almacenado el valor desactivar -w- para no tener cambios en futuros clocks.
+   1. Establecer -input_bit- en 1, valor que quiero almacenar => *input_bit = 1*.
+   2. Habilitar -en_input_bit- *en_input_bit = 1*.
+   3. Habilitar -w- de R1 => *w = 1*.
+   4. Aplicar un clock => *clk = 1*.
+   5. Una vez almacenado el valor desactivar -w- para no tener cambios en futuros clocks => *w = 0*.
 
    Pasos Desactivar:
-   1. Establecer -input_bit- en 0, valor que quiero almacenar.
-   2. Habilitar -en_input_bit- => 1.
-   3. Habilitar -w- de R1 => 1.
-   4. Aplicar un clock => clk = 1.
-   5. Una vez almacenado el valor desactivar -w- para no tener cambios en futuros clocks.
+   1. Establecer -input_bit- en 0, valor que quiero almacenar => *input_bit = 0*.
+   2. Habilitar -en_input_bit- => *en_input_bit = 1*.
+   3. Habilitar -w- de R1 => *w = 1*.
+   4. Aplicar un clock => *clk = 1*.
+   5. Una vez almacenado el valor desactivar -w- para no tener cambios en futuros clocks => *w = 0*.
 
 
 - Dar una secuencia de activaciones que inicialmente ponga un valor 1 en R0, luego que este valor se transfiera a R1, luego que el valor de R2 pase a R0 y finalmente el valor de R1 a R2.
+
+   1. Establecer -input_bit- en 1, valor que quiero almacenar => *input_bit = 1*.
+   2. Habilitar -en_input_bit- *en_input_bit = 1*.
+   3. Habilitar -w- de R0 => *w = 1*.
+   4. Aplicar un clock => *clk = 1, => R0 = 1*.
+   5. Una vez almacenado el valor desactivar -w0- para no tener cambios en futuros clocks => *w0= 0*.
+   6. Activar -en_out- de R0 => *en_out0 = 1*.
+   7. Desactivar -input_bit- y -en_input_bit- => *input_bit = 0, en_input_bit = 0*.
+   8. Habilitar -w- de R1 => *w1 = 1*.
+   9. Aplicar un clock => *clk = 1, => R1 = 1*.
+   10. Desactivar -w1- y -en_out0- => *w1 = 0, en_out0 = 0*.
+   11. Activar -en_out- de R1 => *en_out1 = 1*.
+   12. Habilitar -w- de R2 => *w2 = 1*.
+   13. Aplicar un clock => *clk = 1, => R2 = 1*.
+   14. Desactivar -w2-, -en_out1- *w2 = 0, en_out1 = 0*.
+   15. Para mostrar activar -en_out- de R2 *en_out2 = 1*
+
 
 
 
