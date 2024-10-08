@@ -141,7 +141,11 @@ Dado que el *opCode* es un código único representado por 5 bits para cada inst
 - **Microinstrucciones necesarias para realizar el ADD y para realizar el salto**
 
   Sabemos que en el micro **OrgaSmall** el ciclo de instrucción es *fetch, decode y execute* para ejecutar cualquier instrucción. A partir de la información del *microCode.ops* vemos que el ciclo de *fetch y decode* requiere 5 microinstrucciones. Entonces, para realizar el **ADD** serán necesarias: 5 microinstrucciones para el *fetch y decode* + 5 microinstrucciones para el *execute*, en total 10 microinstrucciones.
-  Luego, para realizar el **JMP** se necesitan 5 microinstrucciones (*fetch y decode*) y otras 2 microinstrucciones (*execute*), es decir 7 en total.
+
+  Luego, para realizar el **JMP** *no condicional* se necesitan 5 microinstrucciones (*fetch y decode*) y otras 2 microinstrucciones (*execute*), es decir 7 en total.
+
+  En cambio, para realizar los *saltos condicionales*, como **JMP C**, la cantidad de microinstrucciones necesarias para realizarlos depende del valor de las flags asociadas. En general, si la señal de la flag asociada está apagada se necesitan 2 microinstrucciones (*execute*). Cuando la señal está prendida serán 3 microinstrucciones (*execute*). Por lo tanto serán: 2 + 5 = 7 microinstrucciones si no se da la condición de salto y 3 + 5 = 8 si se da la condición. 
+  
 
 
 
