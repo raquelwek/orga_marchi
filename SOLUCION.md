@@ -2,6 +2,36 @@
 # Organización del Computador
 
 ## Secuenciales
+El componente *regZ* es un registro que guarda un valor dependiendo de las señales que reciba. Tiene varias entradas y salidas que controlan cómo y cuándo se almacena o se lee
+ese valor. A continuación, detallo sus componentes.
+- Entradas:
+    1. *clk - clock*
+    Permite sincronizar las operaciones manteniendo el orden para que tenga un funcionamiento correcto; cuando -clk- está activo se actualiza el valor o estado de -regZ-.
+    
+    2. *Reg_in*
+    Es el valor que se quiere guardar en el registro. Este es el valor que se actualizará cuando haya un clock.
+
+    3. *w*
+    Modo "write", es decir, si w está activo entonces el registro está habilitado para recibir una actualización del valor recibido en -Reg_in-, de lo contrario no está habilitado.
+
+    4. *en_out*
+    Se encarga de mostrar el valor a la salida. Si no está activo no muestra ningún valor.
+
+- Salida:
+    1. *Reg_out*
+    Es la salida encargada de mostrar el valor almacenado, sin embargo, solo se puede ver si -en_out- está activa.
+
+    2. *Reg_debug*
+    Salida de debug, pues permite ver el valor almacenado directamente sin depender de otro componente.
+
+- Entradas consideradas como **Control**
+
+   De las 4 entradas, 3 pueden ser consideradas de control porque son fundamentales para el funcionamiento; además, gestionan "permisos". A continuación las menciono:
+
+   1. *clk - clock*: Encargado de actualizar el registro y gestionar cambios. Sin clk no hay actualizaciones.
+   2. *w - write* : Encargado de permitir si se puede actualizar o no.
+   3. *en_out* : Encargado de permitir mostrar el resultado o no mostrarlo.
+
 ## OrgaSmall
 ### 1. Análisis
 - Características generales de **OrgaSmall**
