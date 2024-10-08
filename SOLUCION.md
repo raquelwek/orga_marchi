@@ -70,7 +70,7 @@ Dado que el *opCode* es un código único representado por 5 bits para cada inst
   
   En caso de que `flag_C = 0` el `PC` apuntará hacia la instrucción `JMP halt`, que cargará en el `PC` la dirección de `halt`.Caso contrario, se vuelve a la instrucción del **ADD** 
 
-  En particular, si `R0 <- 0xFF` y `R1 <- 0x11`, al ejecutarse el **ADD** `R0 <- 0x10` y `flag_C = 1`. Como se encendió la señal de *carry*, el `PC` apuntará hacia la instrucción **ADD** y la misma se ejecutará de nuevo, con `R0 <- 0x10`. Ahora, una vez que se hace la suma, `R0 <- 0x21` y ahora `flag_C = 0`. Esta vez no hay *carry*, entonces el `PC` apunta hacia la siguiente instrucción, que carga en el PC el valor de la etiqueta `halt`.
+  En particular, si `R0 <- 0xFF` y `R1 <- 0x11`, al ejecutarse el **ADD** `R0 <- 0x10` y `flag_C = 1`. Como se encendió la señal de *carry*, el `PC` apuntará hacia la instrucción **ADD** y la misma se ejecutará de nuevo, con `R0 <- 0x10`. Ahora, una vez que se hace la suma, `R0 <- 0x21` y`flag_C = 0`. Esta vez no hay *carry*, entonces el `PC` apunta hacia la siguiente instrucción, que carga en el PC el valor de la etiqueta `halt`. 
 
 - **Memoria e instrucciones. Valores de las etiquetas:**
 
@@ -102,76 +102,41 @@ Dado que el *opCode* es un código único representado por 5 bits para cada inst
 
   Dicho lo anterior, analicemos cuántos ciclos de clock se necesitan para el *fetch y decode*:
 
-  `PC_enOut MM_enAddr` -> habilita la salida del PC y permite que se lea del componente de Memory (*Fetch*)
+   - `PC_enOut MM_enAddr` -> habilita la salida del PC y permite que se lea del componente Memory (*Fetch*, **1 clock**)
 
-  `MM_enOut DE_loadH PC_inc` -> carga la parte alta de la instrucción y se incrementa el PC (*Decode*)
+   - `MM_enOut DE_loadH PC_inc` -> carga la parte alta de la instrucción y se incrementa el PC (*Decode* , **1 clock**)
 
-  `PC_enOut MM_enAddr` -> habilita que se cargue el valor del PC en el path y carga la direccion en Memory (*Fetch*)
+   - `PC_enOut MM_enAddr` -> habilita que se cargue el valor del PC en el path y carga la direccion en Memory (*Fetch*, **1 clock**)
 
-  `MM_enOut DE_loadL PC_inc` -> carga la parte baja de la instrucción y se incrementa el PC (*Decode*)
+   - `MM_enOut DE_loadL PC_inc` -> carga la parte baja de la instrucción y se incrementa el PC (*Decode*, **1 clock**)
 
-  `load_microOp` -> se redirige el flujo del programa para ejecutar la instrucción
+   - `load_microOp` -> se redirige el flujo del programa para ejecutar la instrucción (**1 clock**)
 
-  `reset_microOp`
+   - `reset_microOp`
 
   Entonces, vemos que el ciclo de *fetch y decode* requiere de 5 clocks, pues la microinstrucción `load_microOp` redirige el flujo del programa para realizar el `execute` de la instrucción correspondiente. Como cada instrucción en el *microCode.ops* finaliza con la línea `reset_microOp`, dicha línea no llegará a ejecutarse en el *fetch y decode*.
 
-  Entonces las intrucciones a ejecutarse con sus respectivos clocks son:
-    - **JMP**: 2 clocks + 5 clocks = 7 clocks
-    - **SET**: 2 clocks + 5 = 7 clocks
-    - **ADD**: 5 clocks + 5 = 10 clocks -> *se ejecuta 2 veces* = 20 clocks
-    - **JC**:  4 clocks + 5 = 9 clocks -> *se ejecuta 2 veces* = 18 clocks
+  Entonces las intrucciones a ejecutarse para el programa dado con sus respectivos clocks son: (Considerando para cada una los clocks para el *fetch y decode*)
+    - **JMP**: 2 clocks + *5 clocks* = 7 clocks
+    - **SET**: 2 clocks + *5* = 7 clocks
+    - **ADD**: 5 clocks + *5* = 10 clocks  ->  *se ejecuta 2 veces* = 20 clocks
+    - **JC (C = 1)**: 3 clocks + *5* = 8 clocks
+    - **JC (C = 0)**: 2 clocks + *5* = 7 clocks
 
-  Entonces, el flujo del programa sería: 
+  Vale la pena analizar los clocks para la instrucción **JC**:
 
- 
-  
-    ```mermaid
-      stateDiagram-v2
-        direction LR
-        [*] --> JMP_seguir: Fetch-Decode
-        JMP_seguir --> SET_R0,0xFF: F-D
+  ```mermaid
+       stateDiagram-v2
+    state if_state <<choice>>
+    [*] --> JC
+    JC --> if_state
+    if_state --> 2_clocks: si flag_C = 0
+    if_state --> 3_clocks : si flag_C = 1
+  ```
+  Vemos entonces que la primera vez que se ejecuta el **ADD**, como se analizó anteriormente, `flag_C = 1`. En este caso, se necesitan 3 clocks. Luego, se vuelve a ejecutar el **ADD** y `flag_C = 0`, como no se da la condición de salto, se tarda 2 clocks.
 
-        note right of SET_R0,0xFF
-             Asociada con la etiqueta seguir
-        end note
-
-        SET_R0,0xFF--> SET_R1,0x11 : F-D
-        SET_R1,0x11 --> ADD_R0,R1 : F-D
-
-        note right of ADD_R0,R1
-             Asociada a la etiqueta siguiente
-        end note
-
-        ADD_R0,R1 --> JC_siguiente : F-D
-
-        note right of JC_siguiente
-            En este punto, flac_C = 1
-        end note
-
-    ```
-
-    ```mermaid
-      stateDiagram-v2
-        direction LR
-        JC_siguiente --> ADD_R0,R1: F-D
-
-        note left of JC_siguiente
-            Recordar que: flag_C = 1
-        end note
-
-        ADD_R0,R1 --> JC_siguiente_: F-D
-        JC_siguiente_ --> JMP_halt: F-D
-
-        note left of JC_siguiente_
-            En este punto flag_C = 0
-        end note
-
-        JMP_halt --> [*]
-
-    ```
   Por lo tanto, para llegar a la instrucción `JMP halt` son necesarios:
-  *7 + 7 + 20 + 18* -> 52 clocks
+  *7 + 7 + 20 + 8 + 7* -> 49 clocks
 
 - **Microinstrucciones necesarias para realizar el ADD y para realizar el salto**
 
