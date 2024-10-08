@@ -2,8 +2,7 @@
 # Organización del Computador
 
 ## Secuenciales
-El componente *regZ* es un registro que guarda un valor dependiendo de las señales que reciba. Tiene varias entradas y salidas que controlan cómo y cuándo se almacena o se lee
-ese valor. A continuación, detallo sus componentes.
+El componente *regZ* es un registro que guarda un valor dependiendo de las señales que reciba. Tiene varias entradas y salidas que controlan cómo y cuándo se almacena o se lee ese valor. A continuación, detallo sus componentes.
 - Entradas:
     1. *clk - clock*
     Permite sincronizar las operaciones manteniendo el orden para que tenga un funcionamiento correcto; cuando -clk- está activo se actualiza el valor o estado de -regZ-.
