@@ -31,6 +31,27 @@ El componente *regZ* es un registro que guarda un valor dependiendo de las seña
    2. *w - write* : Encargado de permitir si se puede actualizar o no.
    3. *en_out* : Encargado de permitir mostrar el resultado o no mostrarlo.
 
+
+- Escribir una secuencia de activación y desactivación de entradas para que el registro R1 pase a tener el valor 1.
+   Pasos Activar:
+   1. Establecer -input_bit- en 1, valor que quiero almacenar.
+   2. Habilitar -en_input_bit- => 1.
+   3. Habilitar -w- de R1 => 1.
+   4. Aplicar un clock => clk = 1.
+   5. Una vez almacenado el valor desactivar -w- para no tener cambios en futuros clocks.
+
+   Pasos Desactivar:
+   1. Establecer -input_bit- en 0, valor que quiero almacenar.
+   2. Habilitar -en_input_bit- => 1.
+   3. Habilitar -w- de R1 => 1.
+   4. Aplicar un clock => clk = 1.
+   5. Una vez almacenado el valor desactivar -w- para no tener cambios en futuros clocks.
+
+
+- Dar una secuencia de activaciones que inicialmente ponga un valor 1 en R0, luego que este valor se transfiera a R1, luego que el valor de R2 pase a R0 y finalmente el valor de R1 a R2.
+
+
+
 ## OrgaSmall
 ### 1. Análisis
 - Características generales de **OrgaSmall**
