@@ -33,7 +33,7 @@ El componente *regZ* es un registro que guarda un valor dependiendo de las seña
 
 
 - Escribir una secuencia de activación y desactivación de entradas para que el registro R1 pase a tener el valor 1.
-   Pasos Activar:
+   Pasos Activar (\imagenes IMG1.jpg):
    1. Establecer -input_bit- en 1, valor que quiero almacenar => *input_bit = 1*.
    2. Habilitar -en_input_bit- *en_input_bit = 1*.
    3. Habilitar -w- de R1 => *w = 1*.
