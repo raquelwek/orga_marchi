@@ -33,26 +33,28 @@ El componente *regZ* es un registro que guarda un valor dependiendo de las seña
 
 
 - Escribir una secuencia de activación y desactivación de entradas para que el registro R1 pase a tener el valor 1.
-   Pasos Activar (\imagenes IMG1.jpg):
+   Pasos Activar:
+   ![Pasos Activar](/imagenes/IMG1.png)
    1. Establecer -input_bit- en 1, valor que quiero almacenar => *input_bit = 1*.
    2. Habilitar -en_input_bit- *en_input_bit = 1*.
    3. Habilitar -w- de R1 => *w = 1*.
    4. Aplicar un clock => *clk = 1*.
    5. Una vez almacenado el valor desactivar -w- para no tener cambios en futuros clocks => *w = 0*.
 
-   Pasos Desactivar:
+   Pasos Desactivar (Teniendo en cuenta que estaba activo):
+   ![Pasos Desactivar](/imagenes/IMG2.png)
    1. Establecer -input_bit- en 0, valor que quiero almacenar => *input_bit = 0*.
-   2. Habilitar -en_input_bit- => *en_input_bit = 1*.
-   3. Habilitar -w- de R1 => *w = 1*.
+   2. Habilitar -en_input_bit- => *en_input_bit = 1*. (Ya estaba en 1)
+   3. Habilitar -w- de R1 => *w = 1*. 
    4. Aplicar un clock => *clk = 1*.
    5. Una vez almacenado el valor desactivar -w- para no tener cambios en futuros clocks => *w = 0*.
 
 
 - Dar una secuencia de activaciones que inicialmente ponga un valor 1 en R0, luego que este valor se transfiera a R1, luego que el valor de R2 pase a R0 y finalmente el valor de R1 a R2.
-
+  ![Pasos Secuencia](/imagenes/IMG3.png)
    1. Establecer -input_bit- en 1, valor que quiero almacenar => *input_bit = 1*.
    2. Habilitar -en_input_bit- *en_input_bit = 1*.
-   3. Habilitar -w- de R0 => *w = 1*.
+   3. Habilitar -w- de R0 => *w0 = 1*.
    4. Aplicar un clock => *clk = 1, => R0 = 1*.
    5. Una vez almacenado el valor desactivar -w0- para no tener cambios en futuros clocks => *w0= 0*.
    6. Activar -en_out- de R0 => *en_out0 = 1*.
