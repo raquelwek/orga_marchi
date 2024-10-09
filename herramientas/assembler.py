@@ -20,7 +20,7 @@ opcodes = {
     "CMP": 7,
     "MOV": 8,
     "SIG": 9,
-    "MIX": 10,
+    "MIX": 11,
     "STR": 16,
     "LOAD": 17,
     "STRr": 18,

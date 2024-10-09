@@ -66,7 +66,7 @@
     RB_enIn ALU_enOut RB_selectIndexIn=0
     reset_microOp
 
-01010: ; MIX
+01011: ; MIX
     RB_enOut  ALU_enA  RB_selectIndexOut=0
     RB_enOut  ALU_enB  RB_selectIndexOut=1
     ALU_OP=MIX ALU_opW
