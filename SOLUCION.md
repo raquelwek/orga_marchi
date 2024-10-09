@@ -175,7 +175,7 @@ Dado que el *opCode* es un código único representado por 5 bits para cada inst
 
    - `MM_enOut DE_loadH PC_inc` -> carga la parte alta de la instrucción y se incrementa el PC (*Decode* , **1 clock**)
 
-   - `PC_enOut MM_enAddr` -> habilita que se cargue el valor del PC en el path y carga la direccion en Memory (*Fetch*, **1 clock**)
+   - `PC_enOut MM_enAddr` -> habilita la salida del PC en el y permite que se lea del componente Memory (*Fetch*, **1 clock**)
 
    - `MM_enOut DE_loadL PC_inc` -> carga la parte baja de la instrucción y se incrementa el PC (*Decode*, **1 clock**)
 
