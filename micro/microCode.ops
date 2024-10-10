@@ -66,6 +66,21 @@
     RB_enIn ALU_enOut RB_selectIndexIn=0
     reset_microOp
 
+01010: ; NEG
+    RB_enOut ALU_enA RB_selectIndexOut=0    ; Cargar el valor de R0 en ALU A
+    ALU_OP=cte0xFF                         ; Preparar constante 0xFF en ALU B
+    ALU_enOut ALU_enB                       ; Ejecutar XOR con 0xFF
+    ALU_OP=XOR                              ; XOR con 0xFF
+    RB_enIn ALU_enOut RB_selectIndexIn=0    ; Guardar el resultado temporal en R0
+
+    RB_enOut ALU_enA RB_selectIndexOut=0    ; Cargar nuevamente el valor de R0 en ALU A
+    ALU_OP=cte0x01                          ; Preparar constante 0x01 en ALU B para el ADD
+    ALU_enOut ALU_enB                       
+    ALU_OP=ADD                              
+    RB_enIn ALU_enOut RB_selectIndexIn=0    ; Guardar el resultado final en R0
+
+    reset_microOp
+
 01011: ; MIX
     RB_enOut  ALU_enA  RB_selectIndexOut=0
     RB_enOut  ALU_enB  RB_selectIndexOut=1
