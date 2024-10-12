@@ -187,7 +187,7 @@ Dado que el *opCode* es un código único representado por 5 bits para cada inst
 
   Entonces las intrucciones a ejecutarse para el programa dado con sus respectivos clocks son: (Considerando para cada una los clocks para el *fetch y decode*)
     - **JMP**: 2 clocks + *5 clocks* = 7 clocks
-    - **SET**: 2 clocks + *5* = 7 clocks
+    - **SET**: 2 clocks + *5* = 7 clocks   -> *se ejecuta par R0 y para R1* = 14 clocks
     - **ADD**: 5 clocks + *5* = 10 clocks  ->  *se ejecuta 2 veces* = 20 clocks
     - **JC (C = 1)**: 3 clocks + *5* = 8 clocks
     - **JC (C = 0)**: 2 clocks + *5* = 7 clocks
@@ -205,7 +205,7 @@ Dado que el *opCode* es un código único representado por 5 bits para cada inst
   Vemos entonces que la primera vez que se ejecuta el **ADD**, como se analizó anteriormente, `flag_C = 1`. En este caso, se necesitan 3 clocks. Luego, se vuelve a ejecutar el **ADD** y `flag_C = 0`, como no se da la condición de salto, se tarda 2 clocks.
 
   Por lo tanto, para llegar a la instrucción `JMP halt` son necesarios:
-  *7 + 7 + 20 + 8 + 7* -> 49 clocks
+  *7 + 14 + 20 + 8 + 7* -> 56 clocks
 
 - **Microinstrucciones necesarias para realizar el ADD y para realizar el salto**
 
