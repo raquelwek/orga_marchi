@@ -1,0 +1,6 @@
+start |00| SET R0 , 0x08
+      |02| SET R1 , 0x08
+      |04| CALL R7 , suma
+ halt |06| JMP halt
+ suma |08| ADD R0 , R1
+      |0a| RET R7
