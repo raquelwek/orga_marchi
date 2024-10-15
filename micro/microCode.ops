@@ -108,6 +108,10 @@
     MM_enAddr RB_enOut RB_selectIndexOut=1 ; Cargar la dirección apuntada por R7 en MM
     PC_load MM_enOut                      ; Cargar PC con el valor de la pila
     reset_microOp
+    
+01110: ;JMPR
+    RB_enOut PC_load RB_selectIndexOut=1 MM_enAddr
+    reset_microOp
 
 10000: ; STR [M] <- Rx
     DE_enOutImm MM_enAddr
