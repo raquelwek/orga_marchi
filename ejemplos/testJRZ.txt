@@ -1,0 +1,8 @@
+ start |00| SET R0 , 0x00
+       |02| SET R1 , 0x00
+       |04| SET R2 , 0x08
+       |06| SET R3 , prueba
+       |08| ADD R0 , R1
+       |0a| JRZ R3
+  halt |0c| JMP halt
+prueba |0e| ADD R0 , R2

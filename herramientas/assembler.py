@@ -5,7 +5,7 @@ from common import *
 type_RR = ["ADD", "ADC", "SUB", "AND", "OR", "XOR", "CMP", "MOV", "MIX"]
 type_RM = ["STR", "LOAD"]
 type_M = ["JMP", "JC", "JZ", "JN"]
-type_R = ["INC", "DEC", "SIG", "NEG", "RET"]
+type_R = ["INC", "DEC", "SIG", "NEG", "RET", "JRC", "JRN", "JRZ"]
 type_RS = ["SHR", "SHL"]
 type_RI = ["SET", "CALL"]
 def_DB = ["DB"]
@@ -36,6 +36,9 @@ opcodes = {
     "DEC": 25,
     "SHR": 26,
     "SHL": 27,
+    "JRZ": 28,
+    "JRC": 29,
+    "JRN": 30,
     "SET": 31
 }
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
