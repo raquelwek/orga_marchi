@@ -110,7 +110,7 @@
     reset_microOp
     
 01110: ;JMPR
-    RB_enOut PC_load RB_selectIndexOut=1 MM_enAddr
+    RB_enOut PC_load RB_selectIndexOut=0
     reset_microOp
 
 10000: ; STR [M] <- Rx
@@ -186,19 +186,19 @@
 11100: ; JRZ (opcode 28)
     JZ_microOp load_microOp
     reset_microOp
-    RB_enOut PC_load RB_selectIndexOut=1 MM_enAddr
+    RB_enOut PC_load RB_selectIndexOut=0
     reset_microOp
 
 11101: ; JRC (opcode 29)
     JC_microOp load_microOp
     reset_microOp
-    RB_enOut PC_load RB_selectIndexOut=1 MM_enAddr
+    RB_enOut PC_load RB_selectIndexOut=0
     reset_microOp
 
 11110: ; JRN (opcode 30)
     JN_microOp load_microOp
     reset_microOp
-    RB_enOut PC_load RB_selectIndexOut=1 MM_enAddr
+    RB_enOut PC_load RB_selectIndexOut=0
     reset_microOp
 
 11111: ; SET
