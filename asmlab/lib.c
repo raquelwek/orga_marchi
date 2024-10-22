@@ -117,7 +117,7 @@ uint8_t listGetSize(list_t *l)
 
 void *listGet(list_t *l, uint8_t i)
 {
-    nodo_t* n = l->first;
+    listElem_t*  n = l->first;
     for (uint8_t j = 0; j < i; j++){
         n = n -> next;
     }
@@ -130,7 +130,7 @@ void listAddFirst(list_t *l, void *data)
 
 void listAddLast(list_t *l, void *data)
 {
-    node_t* n = malloc(sizeof(nodo_t));
+    listElem_t* n = malloc(sizeof(listElem_t));
     switch(l->type){
         case TypeInt:
             n -> data = (void*) intClone(data);
