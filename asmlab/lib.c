@@ -76,7 +76,14 @@ funcPrint_t *getPrintFunction(type_t t)
 /** Int **/
 
 int32_t intCmp(int32_t *a, int32_t *b)
-{
+{   
+   if (*a > *b){
+    return -1;
+   }else if (*a < *b){
+    return 1;
+   }else {
+    return 0;
+   }
 }
 
 void intDelete(int32_t *a)
