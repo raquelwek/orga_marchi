@@ -104,9 +104,6 @@ int32_t *intClone(int32_t *a)
 list_t *listNew(type_t t)
 {
     list_t* l  =  malloc(sizeof(list_t));
-    if (l == NULL){
-        return NULL;
-    }
     l -> type = t;
     l -> size = 0;
     l -> first = NULL;
@@ -133,6 +130,29 @@ void listAddFirst(list_t *l, void *data)
 
 void listAddLast(list_t *l, void *data)
 {
+    node_t* n = malloc(sizeof(nodo_t));
+    switch(l->type){
+        case TypeInt:
+            n -> data = (void*) intClone(data);
+            break;
+        case TypeString:
+            n -> data = (void*)strClone(data);
+            break;
+        case TypeCard:
+            n -> data = (void*)cardClone(data);
+            break;
+    
+    }
+    n -> next = NULL;
+    n -> prev = l -> last;
+
+    if (l->last == NULL) { // La lista está vacía
+        l->first = n;
+    } else {
+        l->last->next = n;
+    }
+    l -> last = n;
+    l -> size++;
 }
 
 list_t *listClone(list_t *l)
