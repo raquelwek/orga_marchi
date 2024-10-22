@@ -103,6 +103,15 @@ int32_t *intClone(int32_t *a)
 
 list_t *listNew(type_t t)
 {
+    list_t* l  =  malloc(sizeof(list_t));
+    if (l == NULL){
+        return NULL;
+    }
+    l -> type = t;
+    l -> size = 0;
+    l -> first = NULL;
+    l -> last = NULL;
+    return l;
 }
 
 uint8_t listGetSize(list_t *l)
