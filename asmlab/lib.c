@@ -92,6 +92,7 @@ void intDelete(int32_t *a)
 
 void intPrint(int32_t *a, FILE *pFile)
 {
+    fprintf(pFile,"%d", *a );
 }
 
 int32_t *intClone(int32_t *a)
