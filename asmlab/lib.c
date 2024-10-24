@@ -180,7 +180,24 @@ void listSwap(list_t *l, uint8_t i, uint8_t j)
 
 void listDelete(list_t *l)
 {
+    funcDelete_t* borrar = getDeleteFunction(l->type);
+    listElem_t* actual = l->first;
+
+    // Eliminar cada nodo de la lista antes de hacer el free del structs
+    while (actual != NULL) {
+        listElem_t* proximo = actual->next;
+        
+        if (borrar != NULL && actual->data != NULL) {
+            borrar(actual->data);
+        }
+        
+        free(actual);
+        actual = proximo;
+    }
+
+    free(l);
 }
+
 
 void listPrint(list_t *l, FILE *pFile)
 {
