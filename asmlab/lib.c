@@ -160,7 +160,14 @@ void listAddLast(list_t *l, void *data)
 }
 
 list_t *listClone(list_t *l)
-{
+{   
+    list_t* copia = listNew(l->type);
+    listElem_t* actual = l -> first;
+    while (actual != NULL) {
+        listAddFirst(copia, actual->data);
+        actual = actual -> next;
+    }
+    return copia;
 }
 
 void *listRemove(list_t *l, uint8_t i)
