@@ -97,6 +97,10 @@ void intPrint(int32_t *a, FILE *pFile)
 
 int32_t *intClone(int32_t *a)
 {
+    int32_t* copia = malloc(sizeof(int32_t));
+    *copia = *a;
+    return copia;
+    
 }
 
 /** Lista **/
