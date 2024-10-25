@@ -7,7 +7,14 @@
 
 #include "lib.h"
 
-int main (void){    
+void testStrPrint() {
+    printf("INICIO PRUEBA TESTSTRPRINT\n");
+    char* a = "elfo magico";
+    strPrint(a, stdout);  // Llama a la función ensamblador
+    printf("\nFIN PRUEBA TESTSTRPRINT\n");
+}
+int main (void){ 
+    testStrPrint();   
     return 0;
 }
 

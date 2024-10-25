@@ -24,16 +24,48 @@ global cardGetStacked
 global cardPrint
 global cardNew
 
+
 section .text
+extern fputc
 
 ; ** String **
 ;char* strClone(char* a);
 strClone:
 ret
 
-;void strPrint(char* a, FILE* pFile)
+;void strPrint(char* a, FILE* pFile) LOGICA A REPLICAR:
+;   size_t acum = 0;
+;   while (char[acum] != '\0' )
+;       fprintf(pFile, "%s",char[acum])
+;       acum++
+;   fprintf(pFile, "\n",char[acum])
+
 strPrint:
-ret
+    push r12    ;preservar valor de posible funcion anterior
+    mov r12, 0  ;inicializar contador
+
+    .while:
+        mov dl, [rdi+r12] ; obtener caracter actual
+        ; preparar parametros para fputc  char -> rdi y PFILE -> RSI
+        cmp dl, 0
+        je .fin       ; si llego al final termino de iterar
+
+        ;sino preparo el proximo caracter a ser impreso cambiando rdi
+        push rdi
+        mov dil, dl       
+        call fputc
+        pop rdi
+        inc r12
+        jmp .while
+        
+    
+    .fin:
+        push rdi
+        mov dil, 10 ; 10 es el cdg ASCII para '\n'       
+        call fputc
+        pop rdi
+        pop r12
+        ret
 
 ;uint32_t strLen(char* a);
 strLen:
