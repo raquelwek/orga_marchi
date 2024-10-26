@@ -27,6 +27,7 @@ global cardNew
 
 section .text
 extern fputc
+extern free
 
 ; ** String **
 ;char* strClone(char* a);
@@ -81,8 +82,17 @@ strCmp:
 ret
 
 ;void strDelete(char* a);
+;   free(a);
+
 strDelete:
-ret
+    push rbp                
+    mov rbp, rsp            ; establecer el nuevo marco de pila
+
+    mov rdi, rdi            ; `a` ya debe estar en rdi, solo aseguramos
+    call free               ; llamar a `free` para liberar `a`
+
+    pop rbp                
+    ret
 
 
 ; ** Array **

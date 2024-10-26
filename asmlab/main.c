@@ -15,8 +15,23 @@ void testStrPrint() {
     strPrint(b, stdout);  // Llama a la función ensamblador
     printf("\nFIN PRUEBA TESTSTRPRINT\n");
 }
+
+void testStrDelete() {
+    char* str = (char*)malloc(20 * sizeof(char));
+    if (str == NULL) {
+        perror("Error en malloc");
+        return;
+    }
+
+    snprintf(str, 20, "Hola, mundo!");
+    printf("Cadena antes de strDelete: %s\n", str);
+
+    strDelete(str);
+    printf("Los datos fueron liberados%s\n");
+}
 int main (void){ 
-    testStrPrint();   
+    //testStrPrint();
+    testStrDelete();
     return 0;
 }
 
