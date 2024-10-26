@@ -32,4 +32,3 @@ clean:
 	rm -f $(TARGETS)
 	rm -f salida.propios.caso*
 	rm -f gameResult*
-

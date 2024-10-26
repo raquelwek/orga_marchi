@@ -36,36 +36,41 @@ ret
 ;void strPrint(char* a, FILE* pFile) LOGICA A REPLICAR:
 ;   size_t acum = 0;
 ;   while (char[acum] != '\0' )
-;       fprintf(pFile, "%s",char[acum])
+;       fputc(char[acum], pFile)
 ;       acum++
-;   fprintf(pFile, "\n",char[acum])
 
 strPrint:
-    push r12    ;preservar valor de posible funcion anterior
-    mov r12, 0  ;inicializar contador
+    push rbp
+    mov rbp, rsp           ; establecer el marco de pila
+    push r12               ; preservar r12
+    push r13               ; preservar r13 (para pFile)
+    push r14               ; preservar r14 (para char* a)
+
+    mov r13, rsi           ; guardar pFile en r13
+    mov r14, rdi           ; guardar el puntero a la cadena en r14
+    mov r12, 0             ; inicializar contador (acum)
 
     .while:
-        mov dl, [rdi+r12] ; obtener caracter actual
-        ; preparar parametros para fputc  char -> rdi y PFILE -> RSI
+        mov dl, [r14 + r12] ; obtener el carácter actual de la cadena
         cmp dl, 0
-        je .fin       ; si llego al final termino de iterar
+        je .finalPrint      ; si es '\0', saltar a la impresión final
 
-        ;sino preparo el proximo caracter a ser impreso cambiando rdi
-        push rdi
-        mov dil, dl       
+        ; imprimir el carácter actual
+        mov edi, edx        ; poner el carácter en edi
+        mov rsi, r13        ; pasar pFile en rsi desde r13
         call fputc
-        pop rdi
-        inc r12
+
+        inc r12             ; acum++
         jmp .while
-        
-    
-    .fin:
-        push rdi
-        mov dil, 10 ; 10 es el cdg ASCII para '\n'       
-        call fputc
-        pop rdi
+
+    .finalPrint:
+        ; restaurar los registros no volátiles
+        pop r14
+        pop r13
         pop r12
+        pop rbp
         ret
+
 
 ;uint32_t strLen(char* a);
 strLen:

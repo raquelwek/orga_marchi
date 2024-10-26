@@ -11,6 +11,8 @@ void testStrPrint() {
     printf("INICIO PRUEBA TESTSTRPRINT\n");
     char* a = "elfo magico";
     strPrint(a, stdout);  // Llama a la función ensamblador
+    char* b = "pato enojado";
+    strPrint(b, stdout);  // Llama a la función ensamblador
     printf("\nFIN PRUEBA TESTSTRPRINT\n");
 }
 int main (void){ 
