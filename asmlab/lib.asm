@@ -3,9 +3,9 @@
 ;## ARRAY ##
 %define ARRAY_TYPE_OFFSET 0
 %define ARRAY_SIZE_OFFSET 4
-%define ARRAY_CAPACITY_OFFSET 8
-%define ARRAY_DATA_OFFSET 16
-%define ARRAY_SIZE 24
+%define ARRAY_CAPACITY_OFFSET 5
+%define ARRAY_DATA_OFFSET 8
+%define ARRAY_SIZE 16
 
 global strClone
 global strPrint
@@ -37,6 +37,7 @@ section .text
 extern fputc
 extern free
 extern getCloneFunction
+extern getDeleteFunction
 
 ; ** String **
 ;char* strClone(char* a);
@@ -169,9 +170,49 @@ ret
 arraySwap:
 ret
 
-; void arrayDelete(array_t* a) {
+; void arrayDelete(array_t* a) 
+;   funcBorrar = getDeleteFunction(a->type)
+;   for i=0;i< a->size, i++ 
+;       funcBorrar(a->data[i])
+;   free(a->data)
+;   free(a)
 arrayDelete:
-ret
+    push rbp
+    mov rbp, rsp
+    push rbx
+    push r12
+    push r13
+    sub rsp, 8      ;alinear pila
+
+    xor r13,r13  ;inicializar contador en 0
+    mov rbx, rdi ;preservo puntero a struct
+
+    mov rdi, [rbx + ARRAY_TYPE_OFFSET]  ;preparo param para obtner func de borrar
+    call getDeleteFunction
+    mov r12, rax                        ;preservo puntero a funcion de borrar
+
+    .for:
+        cmp r13b, BYTE[rbx + ARRAY_SIZE]
+        jge .ultimoPaso                        ;si el contador es mayor o igual termino iteracion
+
+        mov rdi, [rbx +ARRAY_DATA_OFFSET + r13*8]   ;colocar params para eliminar el dato
+        call r12
+        inc r13
+        jmp .for 
+
+    .ultimoPaso:
+        mov rdi, [rbx+ARRAY_DATA_OFFSET]
+        call free
+
+        mov rdi, rbx
+        call free
+
+    .fin:
+        add rsp, 8
+        pop r12
+        pop rbx
+        pop rbp
+        ret
 
 ;void arrayPrint(array_t* a, FILE* pFile)
 arrayPrint:
