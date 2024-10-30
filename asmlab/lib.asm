@@ -1,4 +1,4 @@
-;## DEFINICIÓN DE OFFSETS ##
+;### DEFINICIÓN DE OFFSETS ###
 
 ;## ARRAY ##
 %define ARRAY_TYPE_OFFSET 0
@@ -12,6 +12,34 @@
 %define CARD_NUMBER_OFFSET 8
 %define CARD_STACKED_OFFSET 16
 %define CARD_SIZE 24
+
+;## LIST ##
+%define LIST_TYPE_OFFSET 0
+%define LIST_SIZE_OFFSET 4
+%define LIST_FIRST_OFFSET 8
+%define LIST_LAST_OFFSET 16
+%define ARRAY_SIZE 24
+
+;## NODO LIST ##
+%define NODE_DATA_OFFSET 0
+%define NODE_NEXT_OFFSET 8
+%define NODE_PREV_OFFSET 16
+%define NODE_SIZE_OFFSET 24
+
+
+;### CONSTANTES PARA LOS PRINTS ###
+section .data
+; Símbolos ASCII
+CHAR_OPENING_BRACE    db '{'        
+CHAR_CLOSING_BRACE    db '}'        
+CHAR_OPENING_BRACKET  db '['        
+CHAR_CLOSING_BRACKET  db ']'       
+CHAR_GUION            db '-' 
+CHAR_COMA             db','      
+
+; Strings literales para los nombres de los símbolos
+STR_PLACEHOLDER    db "%s", 0        
+         
 
 global strClone
 global strPrint
@@ -40,6 +68,7 @@ global cardNew
 
 
 section .text
+extern intPrint
 extern fputc
 extern free
 extern getCloneFunction
@@ -63,6 +92,7 @@ strPrint:
     push r13               ; preservar r13 (para pFile)
     push r14               ; preservar r14 (para char* a)
 
+    sub rsp, 8
     mov r13, rsi           ; guardar pFile en r13
     mov r14, rdi           ; guardar el puntero a la cadena en r14
     mov r12, 0             ; inicializar contador (acum)
@@ -81,6 +111,7 @@ strPrint:
         jmp .while
 
     .finalPrint:
+        add rsp, 8
         ; restaurar los registros no volátiles
         pop r14
         pop r13
@@ -245,10 +276,110 @@ cardGetStacked:
 ret
 
 
-;void cardPrint(card_t* c, FILE* pFile)
-cardPrint:
-ret
+;void cardPrint(card_t* c, FILE* pFile) 
+;RES->{suit-number-[cartas en el stack]}:  ejemplo {espada-7-[{oro-2-[]}, {basto-7-[]}]}
+;   fputc('{', pFile)
+;   strPrint(c->suit, pfile)
+;   fputc('-', pFile)
+;   intPrint(c->number, pFile)
+;   fputc('-', pFile)
+;   fputc('[', pFile)
+;   actual = (c->stacked) -> first
+;   while actual != 0 
+;       cardPrint(actual -> dato, pFile)
+;       actual = actual -> next
+;       if actual != 0 
+;            fputc(',',pFile)
+;   fputc(']', pFile)
+;   fputc('}', pFile)
 
+cardPrint:
+    push rbp
+    push r12
+    push r13
+    push r14
+    mov rbp, rsp
+    sub rsp, 8                  ; Alinear pila
+
+    ; Preservar parámetros
+    mov r12, rdi                ; `c` (card)
+    mov r13, rsi                ; `pFile`
+
+    ; Imprimir '{'
+    mov rsi, r13
+    mov dil, CHAR_OPENING_BRACE
+    call fputc
+
+    ; Imprimir `suit`
+    mov rdi, [r12 + CARD_SUIT_OFFSET]
+    mov rsi, r13
+    call strPrint
+
+    ; Imprimir '-'
+    mov rsi, r13
+    mov dil, CHAR_GUION
+    call fputc
+
+    ; Imprimir `number`
+    mov rdi, [r12 + CARD_NUMBER_OFFSET]
+    mov rsi, r13
+    call intPrint
+
+    ; Imprimir '-'
+    mov rsi, r13
+    mov dil, CHAR_GUION
+    call fputc
+
+    ; Imprimir '['
+    mov rsi, r13
+    mov dil, CHAR_OPENING_BRACKET
+    call fputc
+
+    ; Obtener el primer nodo de `stacked`
+    mov r14, [r12 + CARD_STACKED_OFFSET]
+    mov r14, [r14 + LIST_FIRST_OFFSET]  ; `actual` = primer nodo en la lista
+
+    ; Iterar sobre la lista de cartas en `stacked`
+    .while:
+        cmp r14, 0                      ; ¿actual == NULL?
+        je .end_while                   ; Si no hay más nodos, salir
+
+        ; Imprimir la carta actual
+        mov rdi, [r14 + NODE_DATA_OFFSET]
+        mov rsi, r13
+        call cardPrint
+
+        ; Avanzar al siguiente nodo
+        mov r14, [r14 + NODE_NEXT_OFFSET]
+        cmp r14, 0                      ; ¿actual != NULL?
+        je .ultimoNodo                  ; Si es el último nodo, omitir coma
+
+        ; Imprimir ','
+        mov rsi, r13
+        mov dil, CHAR_COMA
+        call fputc
+
+    .ultimoNodo:
+        jmp .while                      ; Volver al inicio del bucle
+
+    .end_while:
+    ; Imprimir ']'
+    mov rsi, r13
+    mov dil, CHAR_CLOSING_BRACKET
+    call fputc
+
+    ; Imprimir '}'
+    mov rsi, r13
+    mov dil, CHAR_CLOSING_BRACE
+    call fputc
+
+    ; Restaurar registros y finalizar
+    add rsp, 8
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
+    ret
 
 ;int32_t cardCmp(card_t* a, card_t* b)
 cardCmp:
