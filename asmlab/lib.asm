@@ -1,3 +1,11 @@
+;## DEFINICIÓN DE OFFSETS ##
+
+;## ARRAY ##
+%define ARRAY_TYPE_OFFSET 0
+%define ARRAY_SIZE_OFFSET 4
+%define ARRAY_CAPACITY_OFFSET 8
+%define ARRAY_DATA_OFFSET 16
+%define ARRAY_SIZE 24
 
 global strClone
 global strPrint
@@ -28,6 +36,7 @@ global cardNew
 section .text
 extern fputc
 extern free
+extern getCloneFunction
 
 ; ** String **
 ;char* strClone(char* a);
@@ -102,8 +111,47 @@ arrayGetSize:
 ret
 
 ; void arrayAddLast(array_t* a, void* data)
+;   tam = a->size
+;   
+;   if (a->size == a->capacity) 
+;       return
+;   funcCopia = getCloneFunction(a->type)
+;   a->data[tam] = funcCopia(data)
+;   a->size++
 arrayAddLast:
-ret
+    push rbp
+    mov rbp, rsp
+    push r12
+    push r13
+    push r14
+    sub rsp, 8                              ;alinear pila
+    mov r12, rdi                            ;preservar el puntero al struct array_t en r12
+    mov r13, rsi                            ;preservar el puntero al dato a agregar en r13
+    mov r14, [r12 + ARRAY_SIZE_OFFSET]      ;preservar SIZE en r14
+    
+    ;comprobar que tengo espacio libre
+    cmp r14, [r12 + ARRAY_CAPACITY_OFFSET]
+    jge .fin
+
+    ;obtener la función de clonado
+    mov rdi, [r12 + ARRAY_TYPE_OFFSET]
+    call getCloneFunction
+
+    ;clonar el dato
+    mov rdi, r13
+    call rax
+
+    ;guardar el dato clonado en la última posición
+    mov [r12 + ARRAY_DATA_OFFSET + r14 * 8], rax
+    inc BYTE[r12 + ARRAY_SIZE_OFFSET]
+
+    .fin:
+    add rsp, 8                          ;restaurar pila
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
+    ret
 
 ; void* arrayGet(array_t* a, uint8_t i)
 arrayGet:

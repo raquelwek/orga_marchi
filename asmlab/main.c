@@ -31,7 +31,7 @@ void testStrDelete() {
 }
 int main (void){ 
     //testStrPrint();
-    testStrDelete();
+    //testStrDelete();
     return 0;
 }
 
