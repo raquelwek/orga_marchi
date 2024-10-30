@@ -7,6 +7,12 @@
 %define ARRAY_DATA_OFFSET 8
 %define ARRAY_SIZE 16
 
+;## CARD ##
+%define CARD_SUIT_OFFSET 0
+%define CARD_NUMBER_OFFSET 8
+%define CARD_STACKED_OFFSET 16
+%define CARD_SIZE 24
+
 global strClone
 global strPrint
 global strCmp
@@ -225,8 +231,10 @@ cardNew:
 ret
 
 ;char* cardGetSuit(card_t* c)
+;   return c->suit;
 cardGetSuit:
-ret
+    mov rax, [rdi + CARD_SUIT_OFFSET]
+    ret
 
 ;int32_t* cardGetNumber(card_t* c)
 cardGetNumber:
