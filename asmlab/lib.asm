@@ -386,8 +386,64 @@ cardCmp:
 ret
 
 ;card_t* cardClone(card_t* c)
+;   card_t* copiaCarta = malloc(sizeof(card_t))
+;   list_t* copiaLista = malloc(sizeof((list_t)))
+;   
+;   listElem_t* actual = (c->stacked) -> primero
+;   while actual != 0 
+;       listAddLast(copiaLista, actual->data)
+;       actual=actual -> next
+;   copiaCarta-> stacked = copiaLista
+;   copiaCarta -> number = c->number
+;   copiaCarta -> suit = c->suit
 cardClone:
-ret
+    push rbp
+    push r12
+    push rbx
+    push r13
+    push r14
+    mov rbp, rsp
+    mov r12, rdi            ;reservo puntero a datos a clonar
+
+    mov rdi, CARD_SIZE
+    call malloc
+    mov rbx, rax        ; guardarnos la nueva pos de mem -copiaCarta-
+
+    mov rdi, LIST_SIZE_OFFSET
+    call malloc
+    mov r13, rax        ;guardamos puntero al stacked a copiar
+
+    mov r14, [rbx + CARD_NUMBER_OFFSET]
+    mov r14, [r14 + LIST_FIRST_OFFSET] ;Inicializar actual
+
+    .while:
+        cmp r14, 0
+        je .fin
+
+        mov rdi, r13
+        mov rsi, [r14 + NODE_DATA_OFFSET]
+        call listAddLast
+        
+        mov r14, [r14 + NODE_NEXT_OFFSET]
+        jmp .while
+
+    .fin:
+    mov [rbx + CARD_STACKED_OFFSET], r13
+
+    mov r9, [r12 +CARD_NUMBER_OFFSET]                 ;uso de auxiliar r9 volatil
+    mov [rbx + CARD_NUMBER_OFFSET], r9
+
+    mov r9, [r12 + CARD_SUIT_OFFSET]
+    mov [rbx + CARD_SUIT_OFFSET], r9
+
+    mov rax, rbx
+    
+    push r14
+    push r13
+    pop rbx
+    pop r12
+    pop rbp
+    ret
 
 ;void cardAddStacked(card_t* c, card_t* card)
 cardAddStacked:
