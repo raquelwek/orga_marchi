@@ -117,6 +117,7 @@ list_t *listNew(type_t t)
 
 uint8_t listGetSize(list_t *l)
 {
+    return l->size;
 }
 
 void *listGet(list_t *l, uint8_t i)
@@ -187,7 +188,7 @@ void listDelete(list_t *l)
     while (actual != NULL) {
         listElem_t* proximo = actual->next;
         
-        if (borrar != NULL && actual->data != NULL) {
+        if (actual->data != NULL) {
             borrar(actual->data);
         }
         

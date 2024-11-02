@@ -76,8 +76,47 @@ extern getDeleteFunction
 
 ; ** String **
 ;char* strClone(char* a);
+;   int length = strlen(a) + 1   ; obtener longitud de la cadena incluyendo el carácter nulo
+;   char* copia = malloc(length) 
+;   for (int i = 0; i < length; i++)
+;       copia[i] = a[i]          ; copiar cada carácter, incluyendo el carácter nulo
+;   return copia
+
 strClone:
-ret
+    push rbp
+    push r12
+    push r13
+    mov rbp, rsp
+    mov r12, rdi            ;preservar puntero a char
+    xor r13, r13            ;registro para alamacenar longitud del char
+
+    call strLen              ; como recibe mismo parametro no cambio rdi
+    mov r13, rax             ; alamceno longitud obtenida
+    inc r13
+
+    mov rdi, [r13]           ; movemos longitud a almacenar como param de malloc
+    call malloc              ; dejo en rax el puntero a devolver
+    
+    ;inicializar valores de la copia
+    xor eax, eax             ; registro volatil como contador del for
+
+    .loop:
+        cp eax, r13
+        jge .fin
+        
+        mov r9, [r12 + ARRAY_DATA_OFFSET + eax] ;uso como auxiliar registro no volatil
+        mov [rax + ARRAY_DATA_OFFSET + eax], r9
+
+        inc eax
+        jmp .loop
+
+
+    .fin:
+    mov BYTE[rax + ARRAY_DATA_OFFSET + eax], 0          ; caracter nulo al final
+    pop r13
+    pop r12
+    pop rbp
+    ret
 
 ;void strPrint(char* a, FILE* pFile) LOGICA A REPLICAR:
 ;   size_t acum = 0;
