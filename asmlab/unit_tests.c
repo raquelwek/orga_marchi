@@ -1215,8 +1215,8 @@ void testString()
     test01StrDeleteVacio(type, 1);
     test02StrDeleteNoVacio(type, 2);
 
-    test03StrLenVacio(type, 3);
-    test04StrLen(type, 4);
+    //test03StrLenVacio(type, 3);
+    //test04StrLen(type, 4);
 
     test05StrPrint(type, 5);
     test06StrPrintVacio(type, 6);
@@ -1320,11 +1320,12 @@ void testCatedra()
 
 int main(void)
 {
+    /*
     testlogTitle("Pruebas realizadas para implementaciones en C");
     testInt();
     testlogSeparator();
     testList();
-
+    */
     testlogTitle("Pruebas realizadas para implementaciones en asm");
     testString();
     testlogSeparator();

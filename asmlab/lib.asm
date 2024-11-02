@@ -37,8 +37,9 @@ CHAR_CLOSING_BRACKET  db ']'
 CHAR_GUION            db '-' 
 CHAR_COMA             db','      
 
-; Strings literales para los nombres de los símbolos
-STR_PLACEHOLDER    db "%s", 0        
+; Strings literales
+STR_PLACEHOLDER    db "%s", 0
+NULL_str db "NULL", 0       
          
 
 global strClone
@@ -68,6 +69,8 @@ global cardNew
 
 
 section .text
+extern malloc
+extern listAddLast
 extern intPrint
 extern fputc
 extern free
@@ -84,9 +87,10 @@ extern getDeleteFunction
 
 strClone:
     push rbp
+    mov rbp, rsp
     push r12
     push r13
-    mov rbp, rsp
+    
     mov r12, rdi            ;preservar puntero a char
     xor r13, r13            ;registro para alamacenar longitud del char
 
@@ -94,25 +98,25 @@ strClone:
     mov r13, rax             ; alamceno longitud obtenida
     inc r13
 
-    mov rdi, [r13]           ; movemos longitud a almacenar como param de malloc
+    mov rdi, r13           ; movemos longitud a almacenar como param de malloc
     call malloc              ; dejo en rax el puntero a devolver
     
     ;inicializar valores de la copia
-    xor eax, eax             ; registro volatil como contador del for
+    xor r9, r9             ; registro volatil como contador del for
 
     .loop:
-        cp eax, r13
+        cmp r9, r13
         jge .fin
         
-        mov r9, [r12 + ARRAY_DATA_OFFSET + eax] ;uso como auxiliar registro no volatil
-        mov [rax + ARRAY_DATA_OFFSET + eax], r9
+        mov r10, [r12+ r9] ;uso como auxiliar registro no volatil
+        mov [rax + r9], r10
 
-        inc eax
+        inc r9
         jmp .loop
 
 
     .fin:
-    mov BYTE[rax + ARRAY_DATA_OFFSET + eax], 0          ; caracter nulo al final
+    mov BYTE[rax + r9], 0          ; caracter nulo al final
     pop r13
     pop r12
     pop rbp
@@ -139,7 +143,7 @@ strPrint:
     .while:
         mov dl, [r14 + r12] ; obtener el carácter actual de la cadena
         cmp dl, 0
-        je .finalPrint      ; si es '\0', saltar a la impresión final
+        je .printNull      ; si es '\0', saltar a la impresión final
 
         ; imprimir el carácter actual
         mov edi, edx        ; poner el carácter en edi
@@ -149,6 +153,14 @@ strPrint:
         inc r12             ; acum++
         jmp .while
 
+    .printNull:
+        cmp r12,0
+        jne .finalPrint
+
+        lea rdi, [rel NULL_str] ; Cargar la dirección de "NULL" en rdi
+        mov rsi, r13
+        call strPrint
+
     .finalPrint:
         add rsp, 8
         ; restaurar los registros no volátiles
@@ -157,7 +169,8 @@ strPrint:
         pop r12
         pop rbp
         ret
-
+    
+        
 
 ;uint32_t strLen(char* a);
 strLen:
@@ -346,7 +359,8 @@ cardPrint:
 
     ; Imprimir '{'
     mov rsi, r13
-    mov dil, CHAR_OPENING_BRACE
+    mov al, BYTE[CHAR_OPENING_BRACE] 
+    mov rdi, rax
     call fputc
 
     ; Imprimir `suit`
@@ -356,7 +370,8 @@ cardPrint:
 
     ; Imprimir '-'
     mov rsi, r13
-    mov dil, CHAR_GUION
+    mov al, BYTE[CHAR_GUION] 
+    mov rdi, rax
     call fputc
 
     ; Imprimir `number`
@@ -366,12 +381,14 @@ cardPrint:
 
     ; Imprimir '-'
     mov rsi, r13
-    mov dil, CHAR_GUION
+    mov al, BYTE[CHAR_GUION] 
+    mov rdi, rax
     call fputc
 
     ; Imprimir '['
     mov rsi, r13
-    mov dil, CHAR_OPENING_BRACKET
+    mov al, byte[CHAR_OPENING_BRACKET]
+    mov rdi, rax
     call fputc
 
     ; Obtener el primer nodo de `stacked`
@@ -395,7 +412,8 @@ cardPrint:
 
         ; Imprimir ','
         mov rsi, r13
-        mov dil, CHAR_COMA
+        mov al, BYTE[CHAR_COMA]
+        mov rdi, rax
         call fputc
 
     .ultimoNodo:
@@ -404,12 +422,14 @@ cardPrint:
     .end_while:
     ; Imprimir ']'
     mov rsi, r13
-    mov dil, CHAR_CLOSING_BRACKET
+    mov al, BYTE[CHAR_CLOSING_BRACKET]
+    mov rdi, rax
     call fputc
 
     ; Imprimir '}'
     mov rsi, r13
-    mov dil, CHAR_CLOSING_BRACE
+    mov al, BYTE[CHAR_CLOSING_BRACE]
+    mov rdi, rax
     call fputc
 
     ; Restaurar registros y finalizar
