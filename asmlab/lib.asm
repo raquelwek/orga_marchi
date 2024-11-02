@@ -178,7 +178,44 @@ ret
 
 ;int32_t strCmp(char* a, char* b);
 strCmp:
-ret
+    push rbp
+    mov rbp, rsp
+    sub rsp, 8
+    
+    xor rax, rax    ;inicializar contador
+
+    .while:
+        mov dl, [rdi + rax] ;caracter del char a
+        mov al, [rsi + rax] ;caracter del char b
+        cmp dl, 0           ; chequear si es nulo
+        je .finA
+        cmp al, 0
+        je .bMenorQueA      ;pues A no termino aun
+        cmp dl, al
+        jne .noIguales
+        inc rcx
+        jmp .while
+    .finA: 
+        cmp al, 0           ; terminan al mismo tiempo?
+        je .iguales
+        jmp .aMenorQueB
+    .noIguales:
+        cmp dl,al
+        jl .aMenorQueB
+        jmp .bMenorQueA
+    .iguales:
+        mov rax, 0
+        jmp .fin
+    .aMenorQueB:
+        mov rax, 1
+        jmp .fin
+    .bMenorQueA:
+        mov rax, -1
+        jmp .fin
+    .fin:
+        add rsp, 8
+        pop rbp
+        ret
 
 ;void strDelete(char* a);
 ;   free(a);
