@@ -546,6 +546,33 @@ cardAddStacked:
 ret
 
 ;void cardDelete(card_t* c)
+;   listDelete(c->stacked)
+;   intDelete(c->number)
+;   strDelete(c->suit)
+;   free(c)
 cardDelete:
-ret
+    push rbp
+    push r12
+    mov rbp, rsp
+    mov r12, rdi            ;guardar puntero a carta
+
+    ;borrar stacked
+    mov rdi, [r12 + CARD_STACKED_OFFSET]
+    call listDelete
+
+    ;borrar number
+    mov rdi,[r12 + CARD_NUMBER_OFFSET]
+    call intDelete
+
+    ;borrar suit
+    mov rdi, [r12 + CARD_SUIT_OFFSET]
+    call strDelete
+
+    ;borrar struct
+    mov rdi, r12
+    call free
+
+    pop r12
+    pop rbp
+    ret
 

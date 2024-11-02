@@ -187,10 +187,8 @@ void listDelete(list_t *l)
     // Eliminar cada nodo de la lista antes de hacer el free del structs
     while (actual != NULL) {
         listElem_t* proximo = actual->next;
-        
-        if (actual->data != NULL) {
-            borrar(actual->data);
-        }
+
+        borrar(actual->data);
         
         free(actual);
         actual = proximo;
