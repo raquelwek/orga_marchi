@@ -88,6 +88,7 @@ int32_t intCmp(int32_t *a, int32_t *b)
 
 void intDelete(int32_t *a)
 {
+    free(a);
 }
 
 void intPrint(int32_t *a, FILE *pFile)
