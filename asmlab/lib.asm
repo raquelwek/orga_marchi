@@ -76,6 +76,8 @@ extern fputc
 extern free
 extern getCloneFunction
 extern getDeleteFunction
+extern intDelete
+extern listDelete
 
 ; ** String **
 ;char* strClone(char* a);
