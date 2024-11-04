@@ -118,7 +118,7 @@ list_t *listNew(type_t t)
 
 uint8_t listGetSize(list_t *l)
 {
-   return l->size
+   return l->size;
 }
 
 void *listGet(list_t *l, uint8_t i)
@@ -189,6 +189,23 @@ list_t *listClone(list_t *l)
 
 void *listRemove(list_t *l, uint8_t i)
 {
+    listElem_t* tmp = NULL;
+    void* data = NULL;
+    if(i==0){
+        data = l->first->data;
+        tmp = l->first;
+        l->first = l->first->next;
+    }else{
+        listElem_t* n = l->first;
+        for(uint8_t j = 0; j < i - 1; j++)
+          n = n->next;
+        data = n->next->data;
+        tmp = n->next;
+        n->next =n->next->next;
+    }
+    free(tmp);
+    l->size--;
+    return data;
 }
 
 void listSwap(list_t *l, uint8_t i, uint8_t j)
@@ -203,10 +220,8 @@ void listDelete(list_t *l)
     // Eliminar cada nodo de la lista antes de hacer el free del structs
     while (actual != NULL) {
         listElem_t* proximo = actual->next;
-        
-        if (borrar != NULL && actual->data != NULL) {
-            borrar(actual->data);
-        }
+
+        borrar(actual->data);
         
         free(actual);
         actual = proximo;
