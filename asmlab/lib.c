@@ -117,7 +117,7 @@ list_t *listNew(type_t t)
 
 uint8_t listGetSize(list_t *l)
 {
-    return l->size
+   return l->size
 }
 
 void *listGet(list_t *l, uint8_t i)
@@ -131,6 +131,21 @@ void *listGet(list_t *l, uint8_t i)
 
 void listAddFirst(list_t *l, void *data)
 {
+    listElem_t* n = malloc(sizeof(listElem_t));
+    switch (l->type){
+    case TypeNone:
+        n->data = (void*) intClone(data);
+        break;
+    case TypeInt:
+        n->data = (void*) strClone(data);
+        break;
+    case TypeCard:
+        n->data = (void*) cardClone(data);
+        break;
+    }
+    n->next = l->first;
+    l->first = n;
+    l->size++;
 }
 
 void listAddLast(list_t *l, void *data)
