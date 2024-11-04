@@ -117,6 +117,7 @@ list_t *listNew(type_t t)
 
 uint8_t listGetSize(list_t *l)
 {
+    return l->size
 }
 
 void *listGet(list_t *l, uint8_t i)
