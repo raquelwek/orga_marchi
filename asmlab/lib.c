@@ -133,37 +133,28 @@ void *listGet(list_t *l, uint8_t i)
 void listAddFirst(list_t *l, void *data)
 {
     listElem_t* n = malloc(sizeof(listElem_t));
-    switch (l->type){
-    case TypeNone:
-        n->data = (void*) intClone(data);
-        break;
-    case TypeInt:
-        n->data = (void*) strClone(data);
-        break;
-    case TypeCard:
-        n->data = (void*) cardClone(data);
-        break;
-    }
+    funcClone_t* clonar = getCloneFunction(l->type);
+    n -> data = clonar(data);
+    n -> prev = NULL;
     n->next = l->first;
+    
+
+    // Si la lista estaba vacía, también actualizamos el último elemento
+    if (l->last == NULL) {
+        l->last = n;
+    }else {
+        l->first->prev = n; 
+    }
     l->first = n;
     l->size++;
 }
+    
 
 void listAddLast(list_t *l, void *data)
 {
     listElem_t* n = malloc(sizeof(listElem_t));
-    switch(l->type){
-        case TypeInt:
-            n -> data = (void*) intClone(data);
-            break;
-        case TypeString:
-            n -> data = (void*)strClone(data);
-            break;
-        case TypeCard:
-            n -> data = (void*)cardClone(data);
-            break;
-    
-    }
+    funcClone_t* clonar = getCloneFunction(l->type);
+    n -> data = clonar(data);
     n -> next = NULL;
     n -> prev = l -> last;
 
@@ -197,11 +188,13 @@ void *listRemove(list_t *l, uint8_t i)
         l->first = l->first->next;
     }else{
         listElem_t* n = l->first;
-        for(uint8_t j = 0; j < i - 1; j++)
-          n = n->next;
-        data = n->next->data;
-        tmp = n->next;
-        n->next =n->next->next;
+        for(uint8_t j = 0; j < i - 1; j++){
+            n = n->next;
+            data = n->next->data;
+            tmp = n->next;
+            n->next =n->next->next;
+        }
+        
     }
     free(tmp);
     l->size--;
@@ -226,6 +219,9 @@ void listDelete(list_t *l)
         free(actual);
         actual = proximo;
     }
+    l->first = NULL;
+    l->last = NULL;
+    l->size = 0;
 
     free(l);
 }
