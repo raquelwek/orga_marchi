@@ -215,6 +215,24 @@ void *listRemove(list_t *l, uint8_t i)
 
 void listSwap(list_t *l, uint8_t i, uint8_t j)
 {
+    if (i >= l->size || j >= l->size || i == j) {
+        return; //índices son inválidos o son iguales
+    }
+
+    listElem_t *nodeI = l->first;
+    listElem_t *nodeJ = l->first;
+
+    for (uint8_t index = 0; index < i; index++) {
+        nodeI = nodeI->next;
+    }
+
+    for (uint8_t index = 0; index < j; index++) {
+        nodeJ = nodeJ->next;
+    }
+
+    void *tempData = nodeI->data;
+    nodeI->data = nodeJ->data;
+    nodeJ->data = tempData;
 }
 
 void listDelete(list_t *l)
