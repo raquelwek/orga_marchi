@@ -230,9 +230,9 @@ void listSwap(list_t *l, uint8_t i, uint8_t j)
         nodeJ = nodeJ->next;
     }
 
-    void *tempData = nodeI->data;
+    void *tmp = nodeI->data;
     nodeI->data = nodeJ->data;
-    nodeJ->data = tempData;
+    nodeJ->data = tmp;
 }
 
 void listDelete(list_t *l)
