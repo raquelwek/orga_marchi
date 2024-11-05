@@ -180,22 +180,34 @@ list_t *listClone(list_t *l)
 
 void *listRemove(list_t *l, uint8_t i)
 {
-    listElem_t* tmp = NULL;
-    void* data = NULL;
-    if(i==0){
-        data = l->first->data;
-        tmp = l->first;
-        l->first = l->first->next;
-    }else{
-        listElem_t* n = l->first;
-        for(uint8_t j = 0; j < i - 1; j++){
-            n = n->next;
-            data = n->next->data;
-            tmp = n->next;
-            n->next =n->next->next;
-        }
-        
+    if (l->size == 0 || i >= l->size) {
+        return NULL; // Lista vacía o si el índice es inválido
     }
+
+    listElem_t *tmp = l->first;
+    void *data = NULL;
+
+    if (i == 0) {
+        data = tmp->data;
+        l->first = tmp->next;
+        if (l->first != NULL) {
+            l->first->prev = NULL;
+        } else {
+            l->last = NULL; // La lista queda vacía
+        }
+    } else {
+        for (uint8_t j = 0; j < i; j++) {
+            tmp = tmp->next;
+        }
+        data = tmp->data;
+        tmp->prev->next = tmp->next;
+        if (tmp->next != NULL) {
+            tmp->next->prev = tmp->prev;
+        } else {
+            l->last = tmp->prev; // Actualizar el último elemento
+        }
+    }
+
     free(tmp);
     l->size--;
     return data;
