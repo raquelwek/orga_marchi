@@ -262,6 +262,26 @@ void listDelete(list_t *l)
 
 void listPrint(list_t *l, FILE *pFile)
 {
+    
+    if (!l || !pFile) return; // Verifico si la lista o el archivo es NULL
+    
+    funcPrint_t *printFunction = getPrintFunction(l->type);
+    if (!printFunction) return; // Verifico si se obtuvo la función de impresión adecuada
+
+    fprintf(pFile, "[");
+    
+    listElem_t *current = l->first;
+    while (current != NULL)
+    {
+        printFunction(current->data, pFile);
+        current = current->next;
+        if (current != NULL)
+        {
+            fprintf(pFile, ", ");
+        }
+    }
+    
+    fprintf(pFile, "]");
 }
 
 /** Game **/
