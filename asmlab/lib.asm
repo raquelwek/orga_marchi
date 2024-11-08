@@ -176,7 +176,24 @@ strPrint:
 
 ;uint32_t strLen(char* a);
 strLen:
-ret
+    
+    push r12         
+    mov r12, 0       ; Inicializar contador en 0 
+
+    .while:
+        mov dl, [rdi + r12] ; Leer el caracter en la posición rdi + r12
+        cmp dl, 0           ; Comparar si es el carácter nulo (\0)
+        je .fuera_de_loop   ; Si es \0, salimos del loop
+        inc r12             ; Si no, incrementamos el contador y seguimos
+        jmp .while
+
+    .fuera_de_loop:
+    ; En este punto, r12 contiene la longitud de la cadena (sin el \0)
+
+    mov eax, r12d    ; Guardar el resultado en eax para retornarlo
+    pop r12          ; Restaurr el valor original de r12
+    ret              ; Retornar el valor en eax
+
 
 ;int32_t strCmp(char* a, char* b);
 strCmp:
