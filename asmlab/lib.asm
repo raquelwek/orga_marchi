@@ -254,7 +254,13 @@ strDelete:
 
 ; uint8_t arrayGetSize(array_t* a)
 arrayGetSize:
-ret
+    push rbp                      ; Guardar el valor original de rbp
+    mov rbp, rsp                  ; Establecer el nuevo marco de pila
+
+    mov al, [rdi + ARRAY_SIZE_OFFSET] ; Obtener el tamaño actual (a->size) en al
+
+    pop rbp                       ; Restaurar el valor de rbp
+    ret     
 
 ; void arrayAddLast(array_t* a, void* data)
 ;   tam = a->size
