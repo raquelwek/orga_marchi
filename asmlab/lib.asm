@@ -307,7 +307,24 @@ arrayAddLast:
 
 ; void* arrayGet(array_t* a, uint8_t i)
 arrayGet:
-ret
+    push rbp
+    mov rbp, rsp
+
+    mov dl, [rdi + ARRAY_SIZE_OFFSET]   ;size
+    cmp sil, dl
+    jl .obtener    ;Si i esta dentro del size, obtiene dato sino fin
+    mov rax, 0
+    jmp .fin
+
+
+    .obtener:
+    mov rdx, [rdi + ARRAY_SIZE_OFFSET]  ;size
+    imul rsi, rsi, 8              ;shl rsi, 3
+    mov rax, [rdx + rsi]
+
+    .fin:
+    pop rbp
+    ret
 
 ; array_t* arrayNew(type_t t, uint8_t capacity)
 arrayNew:
