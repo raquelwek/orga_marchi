@@ -79,6 +79,7 @@ extern getDeleteFunction
 extern getPrintFunction
 extern intDelete
 extern listDelete
+extern listNew
 
 ; ** String **
 ;char* strClone(char* a);
@@ -522,10 +523,50 @@ arrayPrint:
     ret
 
 ; ** Card **
+ push rbp
+    mov rbp, rsp
+    push r12
+    push r13
+    mov r12d, edi ; t
+    mov r13b, sil  ; capacity
+
+    mov rdi, ARRAY_SIZE
+    call malloc ;Devuelve en rax el puntero
+
+    mov dword [rax + ARRAY_TYPE_OFFSET], r12d
+    mov BYTE [rax + ARRAY_CAPACITY_OFFSET], r13b
+    mov BYTE [rax + ARRAY_SIZE_OFFSET], BYTE 0
+
+    pop r13
+    pop r12
+    pop rbp
+    ret
 
 ; card_t* cardNew(char* suit, int32_t* number)
 cardNew:
-ret
+    push rbp
+    mov rbp, rsp
+    push r12
+    push r13
+    push r14
+    mov r12, rdi ; suit
+    mov r13, rsi  ; number
+
+    mov rsi, 3 ;=>type_card
+    call listNew
+
+    mov r14, rax
+    mov rdi, CARD_SIZE
+    call malloc ;Devuelve en rax el puntero
+    mov [rax + CARD_NUMBER_OFFSET], r13
+    mov [rax + CARD_SUIT_OFFSET], r12
+    mov [rax + CARD_STACKED_OFFSET], r14
+
+    pop r14
+    pop r13
+    pop r12
+    pop rbp   
+    ret
 
 ;char* cardGetSuit(card_t* c)
 ;   return c->suit;
