@@ -410,7 +410,17 @@ arrayRemove:
 
 ; void arraySwap(array_t* a, uint8_t i, uint8_t j)
 arraySwap:
-ret
+   push rbp
+   mov rbp, rsp
+   mov r9, [rdi + ARRAY_DATA_OFFSET] ;primer dato
+   mov r8, [r9 + sil * 8]; Array[i]
+   mov r10, [r9 + dl * 8]; Array[j]
+
+   mov [r9 + sil * 8], r10
+   mov [r9 + dl * 8], r8
+
+   pop rbp
+   ret
 
 ; void arrayDelete(array_t* a) 
 ;   funcBorrar = getDeleteFunction(a->type)
