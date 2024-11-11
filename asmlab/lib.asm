@@ -76,6 +76,7 @@ extern fputc
 extern free
 extern getCloneFunction
 extern getDeleteFunction
+extern getPrintFunction
 extern intDelete
 extern listDelete
 
@@ -388,7 +389,7 @@ arrayRemove:
    jge .fin
    mov r15, [rdi + ARRAY_DATA_OFFSET + r13b * 8] ;rdi + OFFSET => PRIMER ELEMENTO. => ELEMENTO A eliminar
    dec r12b 
-   .loop
+   .loop:
    cmp r13b, r12b 
    jge .fin
    mov rdi, r14
@@ -399,7 +400,7 @@ arrayRemove:
    call arraySwap
    jmp .loop
 
-   .fin
+   .fin:
    mov rax, r15
    pop r15
    pop r14
@@ -468,7 +469,57 @@ arrayDelete:
 
 ;void arrayPrint(array_t* a, FILE* pFile)
 arrayPrint:
-ret
+    push rbp
+    mov rbp, rsp
+    push r12
+    push r13
+    push r14
+    push r15
+    mov r12, rdi; Puntero a la estructura del array
+    mov r13, rsi; Archivo donde quiero imprimir
+    
+    mov edi, [r12 + ARRAY_TYPE_OFFSET] ;
+    call getPrintFunction
+    mov r14, rax ; Guardo la funcion
+
+    mov dil, CHAR_OPENING_BRACKET
+    mov rsi, r13
+    call fputc
+
+    xor r15, r15 ;contador
+
+
+    .loop:
+    
+    cmp r15b, BYTE [r12 + ARRAY_SIZE_OFFSET]
+    jge .fin
+
+    mov rdi, [r12 + ARRAY_DATA_OFFSET + r15 * 8]
+    mov rsi, r13
+    call r14
+
+    mov r8b,BYTE [r12 + ARRAY_SIZE_OFFSET]
+    dec r8b
+    cmp r15b, r8b
+    je .fin
+
+    mov dil, CHAR_COMA
+    mov rsi, r13
+    call fputc
+
+
+    .fin
+
+    mov dil, CHAR_CLOSING_BRACKET
+    mov rsi, r13
+    call fputc
+
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbp
+    ret
 
 ; ** Card **
 
