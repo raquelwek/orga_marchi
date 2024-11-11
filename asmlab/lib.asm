@@ -326,9 +326,31 @@ arrayGet:
     pop rbp
     ret
 
-; array_t* arrayNew(type_t t, uint8_t capacity)
+; array_t* arrayNew(type_t t, uint8_t capacity){
+;    array_t* a = malloc(capacity);
+;    a -> type = t;
+;    a -> size = 0;
+;    a -> capacity = capacity;
+;}
 arrayNew:
-ret
+    push rbp;
+    mov rbp, rsp
+    push r12
+    push r13
+    mov r12d, edi ; t
+    mov r13b, sil  ; capacity
+
+    mov rdi, ARRAY_SIZE
+    call malloc ;Devuelve en rax el puntero
+
+    mov dword [rax + ARRAY_TYPE_OFFSET], r12d
+    mov BYTE [rax + ARRAY_CAPACITY_OFFSET], r13b
+    mov BYTE [rax + ARRAY_SIZE_OFFSET], BYTE 0
+
+    pop r13
+    pop r12
+    pop rbp
+    ret
 
 ; void* arrayRemove(array_t* a, uint8_t i)
 arrayRemove:
