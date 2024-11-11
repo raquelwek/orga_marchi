@@ -571,12 +571,17 @@ cardNew:
 ;char* cardGetSuit(card_t* c)
 ;   return c->suit;
 cardGetSuit:
+    
     mov rax, [rdi + CARD_SUIT_OFFSET]
     ret
 
 ;int32_t* cardGetNumber(card_t* c)
 cardGetNumber:
-ret
+    push rbp
+    mov rbp, rsp
+    mov rax, [rdi + CARD_NUMBER_OFFSET]
+    pop rbp
+    ret
 
 ;list_t* cardGetStacked(card_t* c)
 cardGetStacked:
