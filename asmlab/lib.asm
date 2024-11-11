@@ -585,7 +585,10 @@ cardGetNumber:
 
 ;list_t* cardGetStacked(card_t* c)
 cardGetStacked:
-ret
+ push rbp
+    mov rbp, rsp
+    mov rax, [rdi + CARD_STACKED_OFFSET]
+    ret
 
 
 ;void cardPrint(card_t* c, FILE* pFile) 
