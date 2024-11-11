@@ -461,7 +461,7 @@ void test04StrLen(char *testType, int testNum)
 
 void test05StrPrint(char *testType, int testNum)
 {
-    char str[10] = "hola mundo";
+    char str[] = "hola mundo";
     FILE *file = fopen("outStr.txt", "w");
     strPrint(str, file);
     fclose(file);
@@ -903,7 +903,7 @@ void test22ArrayGetDeUnaPosicionInvalida(char *testType, int testNum)
 void test01CardNew(char *testType, int testNum)
 {
     int32_t number = 12;
-    char str[6] = "espada";
+    char str[] = "espada";
     card_t *card = cardNew(str, &number);
     assert(strcmp(card->suit, str) == 0);
     assert(*(card->number) == 12);
@@ -953,7 +953,7 @@ void test04CardDeleteConStacked(char *testType, int testNum)
     *number = 10;
     card_t *card = cardNew("espada", number);
     int32_t number2 = 4;
-    char str2[6] = "oro";
+    char str2[] = "oro";
     card_t *card2 = cardNew(str2, &number2);
 
     cardAddStacked(card, card2);
@@ -967,7 +967,7 @@ void test04CardDeleteConStacked(char *testType, int testNum)
 void test05CardGetNumber(char *testType, int testNum)
 {
     int32_t number = 12;
-    char str[6] = "espada";
+    char str[] = "espada";
     card_t *card = cardNew(str, &number);
 
     int32_t *cardNumber = cardGetNumber(card);
@@ -980,7 +980,7 @@ void test05CardGetNumber(char *testType, int testNum)
 void test06CardGetStackedVacio(char *testType, int testNum)
 {
     int32_t number = 12;
-    char str[6] = "espada";
+    char str[] = "espada";
     card_t *card = cardNew(str, &number);
 
     list_t *stacked = cardGetStacked(card);
@@ -1086,7 +1086,7 @@ void test13CardClone(char *testType, int testNum)
 void test14CardPrint(char *testType, int testNum)
 {
     int32_t number = 12;
-    char str[6] = "espada";
+    char str[] = "espada";
     card_t *card = cardNew(str, &number);
     FILE *frame = fopen("outCard.txt", "w");
 
