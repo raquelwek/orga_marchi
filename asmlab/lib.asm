@@ -278,18 +278,19 @@ arrayAddLast:
     push r14
     sub rsp, 8                              ;alinear pila
     mov r12, rdi                            ;preservar el puntero al struct array_t en r12
-    mov r13, rsi                            ;preservar el puntero al dato a agregar en r13
-    mov r14, [r12 + ARRAY_SIZE_OFFSET]      ;preservar SIZE en r14
+    mov r13, rsi                           ;preservar el puntero al dato a agregar en r13
+    xor r14, r14
+    mov r14b, BYTE [r12 + ARRAY_SIZE_OFFSET]      ;preservar SIZE en r14
     
     ;comprobar que tengo espacio libre
-    cmp r14, [r12 + ARRAY_CAPACITY_OFFSET]
+    cmp r14b, BYTE [r12 + ARRAY_CAPACITY_OFFSET]
     jge .fin
 
     ;obtener la función de clonado
-    mov rdi, [r12 + ARRAY_TYPE_OFFSET]
+    mov edi, dword[r12 + ARRAY_TYPE_OFFSET]
     call getCloneFunction
 
-    ;clonar el dato
+    ;clonar el dato 
     mov rdi, r13
     call rax
 
@@ -333,7 +334,7 @@ arrayGet:
 ;    a -> capacity = capacity;
 ;}
 arrayNew:
-    push rbp;
+    push rbp
     mov rbp, rsp
     push r12
     push r13
@@ -353,8 +354,59 @@ arrayNew:
     ret
 
 ; void* arrayRemove(array_t* a, uint8_t i)
+void* arrayRemove(array_t* a, uint8_t i) {
+    // Verificar si el índice está fuera de rango
+    if (i >= a->size) {
+        return NULL; // Retorna 0 si está fuera de rango
+    }
+
+    // Obtener el elemento a eliminar
+    void* removedData = a->data[i];
+
+    // Mover los elementos a la izquierda para llenar el espacio vacío
+    for (uint8_t j = i; j < a->size - 1; j++) {
+        a->data[j] = a->data[j + 1];
+    }
+
+    // Disminuir el tamaño del arreglo
+    a->size--;
+
+    // Retornar el elemento eliminado
+;   return removedData;
+;}
 arrayRemove:
-ret
+   push rbp
+   mov rbp, rsp
+   push r12
+   push r13
+   push r14
+   push r15
+   mov r14, rdi
+   mov r12b, BYTE [rdi + ARRAY_SIZE_OFFSET] ;Preservo el size
+   mov r13b, sil
+   cmp r13b, r12b
+   jge .fin
+   mov r15, [rdi + ARRAY_DATA_OFFSET + r13b * 8] ;rdi + OFFSET => PRIMER ELEMENTO. => ELEMENTO A eliminar
+   dec r12b 
+   .loop
+   cmp r13b, r12b 
+   jge .fin
+   mov rdi, r14
+   mov sil, r13b
+   inc r13b
+   mov dl, r13b 
+
+   call arraySwap
+   jmp .loop
+
+   .fin
+   mov rax, r15
+   pop r15
+   pop r14
+   pop r13
+   pop r12
+   pop rbp
+   ret
 
 ; void arraySwap(array_t* a, uint8_t i, uint8_t j)
 arraySwap:
