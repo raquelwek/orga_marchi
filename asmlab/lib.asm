@@ -279,11 +279,12 @@ arrayAddLast:
     push r13
     push r14
     sub rsp, 8                              ;alinear pila
+
     mov r12, rdi                            ;preservar el puntero al struct array_t en r12
     mov r13, rsi                           ;preservar el puntero al dato a agregar en r13
     xor r14, r14
     mov r14b, BYTE [r12 + ARRAY_SIZE_OFFSET]      ;preservar SIZE en r14
-    
+
     ;comprobar que tengo espacio libre
     mov cl, [r12 + ARRAY_CAPACITY_OFFSET]
     cmp r14b, cl
@@ -298,18 +299,17 @@ arrayAddLast:
     call rax
 
     ;guardar el dato clonado en la última posición
-    xor rcx,rcx
-    mov cl,[r12 + ARRAY_SIZE_OFFSET]
+    xor rcx, rcx
+    mov cl, [r12 + ARRAY_SIZE_OFFSET]
     mov rdx, [r12 + ARRAY_DATA_OFFSET]
-    shl rcx,3
-    mov [rdx + rcx], rax
-    
-    ;incrementar el tamaño
-     xor rcx, rcx
+    shl rcx, 3
+    mov [rdx + rcx], rax                       ; a->data[a->size] = clon;
+
+    xor rcx, rcx
     mov cl, [r12 + ARRAY_SIZE_OFFSET]
     inc cl
-    mov [r12 + ARRAY_SIZE_OFFSET], cl 
-    
+    mov [r12 + ARRAY_SIZE_OFFSET], cl          ; a->size++;
+
     .fin:
     add rsp, 8                          ;restaurar pila
     pop r14
@@ -350,15 +350,24 @@ arrayNew:
     mov rbp, rsp
     push r12
     push r13
-    mov r12d, edi ; t
-    mov r13b, sil  ; capacity
 
-    mov rdi, ARRAY_SIZE
-    call malloc ;Devuelve en rax el puntero
+    mov r12, rdi
+    movzx r13, sil
+    mov rdi, ARRAY_SIZE                        ; se reserva memoria para la estructura
+    call malloc
 
-    mov dword [rax + ARRAY_TYPE_OFFSET], r12d
-    mov BYTE [rax + ARRAY_CAPACITY_OFFSET], r13b
-    mov BYTE [rax + ARRAY_SIZE_OFFSET], BYTE 0
+    mov [rax + ARRAY_TYPE_OFFSET], r12         ; INICALIZAR ATRIBUTOS
+    xor rcx, rcx
+    mov [rax + ARRAY_SIZE_OFFSET], cl          
+    mov [rax + ARRAY_CAPACITY_OFFSET], r13     
+    mov r12, rax
+        
+    shl r13, 3
+    mov rdi, r13
+    call malloc                               ; se reserva memoria para el array de datos
+    mov [r12 + ARRAY_DATA_OFFSET], rax         
+
+    mov rax, r12
 
     pop r13
     pop r12
