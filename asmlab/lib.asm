@@ -454,20 +454,25 @@ arrayDelete:
     push rbx
     push r12
     push r13
-    sub rsp, 8      ;alinear pila
+    push r14
 
-    xor r13,r13  ;inicializar contador en 0
-    mov rbx, rdi ;preservo puntero a struct
+    xor r13,r13                         ;inicializar contador en 0
+    mov rbx, rdi                        ;preservo puntero a struct
+    mov r14, [rbx + ARRAY_DATA_OFFSET]  ;preservo PUNTERO A PRIMER ELEMENTO DE LOS DATOS
 
-    mov rdi, [rbx + ARRAY_TYPE_OFFSET]  ;preparo param para obtner func de borrar
+    mov edi, [rbx + ARRAY_TYPE_OFFSET]  ;preparo param para obtner func de borrar
     call getDeleteFunction
     mov r12, rax                        ;preservo puntero a funcion de borrar
 
     .for:
-        cmp r13b, BYTE[rbx + ARRAY_SIZE]
-        jge .ultimoPaso                        ;si el contador es mayor o igual termino iteracion
+        xor rcx, rcx
+        mov cl, [rbx + ARRAY_SIZE_OFFSET]
+        cmp r13b, cl
+        jge .ultimoPaso                             ;si el contador es mayor o igual termino iteracion
 
-        mov rdi, [rbx +ARRAY_DATA_OFFSET + r13*8]   ;colocar params para eliminar el dato
+        mov rax, r13
+        shl rax, 3
+        mov rdi, [r14 +rax]                         ;colocar params para eliminar el dato
         call r12
         inc r13
         jmp .for 
@@ -480,7 +485,8 @@ arrayDelete:
         call free
 
     .fin:
-        add rsp, 8
+        pop r14
+        pop r13
         pop r12
         pop rbx
         pop rbp
