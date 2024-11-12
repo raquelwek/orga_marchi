@@ -285,11 +285,12 @@ arrayAddLast:
     mov r14b, BYTE [r12 + ARRAY_SIZE_OFFSET]      ;preservar SIZE en r14
     
     ;comprobar que tengo espacio libre
-    cmp r14b, BYTE [r12 + ARRAY_CAPACITY_OFFSET]
-    jge .fin
+    mov cl, [r12 + ARRAY_CAPACITY_OFFSET]
+    cmp r14b, cl
+    jz .fin
 
     ;obtener la función de clonado
-    mov edi, dword[r12 + ARRAY_TYPE_OFFSET]
+    mov edi, [r12 + ARRAY_TYPE_OFFSET]
     call getCloneFunction
 
     ;clonar el dato 
@@ -297,9 +298,18 @@ arrayAddLast:
     call rax
 
     ;guardar el dato clonado en la última posición
-    mov [r12 + ARRAY_DATA_OFFSET + r14 * 8], rax
-    inc BYTE[r12 + ARRAY_SIZE_OFFSET]
-
+    xor rcx,rcx
+    mov cl,[r12 + ARRAY_SIZE_OFFSET]
+    mov rdx, [r12 + ARRAY_DATA_OFFSET]
+    shl rcx,3
+    mov [rdx + rcx], rax
+    
+    ;incrementar el tamaño
+     xor rcx, rcx
+    mov cl, [r12 + ARRAY_SIZE_OFFSET]
+    inc cl
+    mov [r12 + ARRAY_SIZE_OFFSET], cl 
+    
     .fin:
     add rsp, 8                          ;restaurar pila
     pop r14
@@ -356,24 +366,22 @@ arrayNew:
     ret
 
 ; void* arrayRemove(array_t* a, uint8_t i)
-void* arrayRemove(array_t* a, uint8_t i) {
-    // Verificar si el índice está fuera de rango
-    if (i >= a->size) {
-        return NULL; // Retorna 0 si está fuera de rango
-    }
-
-    // Obtener el elemento a eliminar
-    void* removedData = a->data[i];
-
-    // Mover los elementos a la izquierda para llenar el espacio vacío
-    for (uint8_t j = i; j < a->size - 1; j++) {
-        a->data[j] = a->data[j + 1];
-    }
-
-    // Disminuir el tamaño del arreglo
-    a->size--;
-
-    // Retornar el elemento eliminado
+;   // Verificar si el índice está fuera de rango
+;    if (i >= a->size) {
+;        return NULL; // Retorna 0 si está fuera de rango
+;    }
+;    // Obtener el elemento a eliminar
+;    void* removedData = a->data[i];
+;
+;    // Mover los elementos a la izquierda para llenar el espacio vacío
+;    for (uint8_t j = i; j < a->size - 1; j++) {
+;        a->data[j] = a->data[j + 1];
+;    }
+;
+;    // Disminuir el tamaño del arreglo
+;    a->size--;
+;
+;    // Retornar el elemento eliminado
 ;   return removedData;
 ;}
 arrayRemove:
@@ -385,10 +393,11 @@ arrayRemove:
    push r15
    mov r14, rdi
    mov r12b, BYTE [rdi + ARRAY_SIZE_OFFSET] ;Preservo el size
+   xor r13, r13
    mov r13b, sil
    cmp r13b, r12b
    jge .fin
-   mov r15, [rdi + ARRAY_DATA_OFFSET + r13b * 8] ;rdi + OFFSET => PRIMER ELEMENTO. => ELEMENTO A eliminar
+   mov r15, [rdi + ARRAY_DATA_OFFSET + r13 * 8] ;rdi + OFFSET => PRIMER ELEMENTO. => ELEMENTO A eliminar
    dec r12b 
    .loop:
    cmp r13b, r12b 
@@ -415,11 +424,11 @@ arraySwap:
    push rbp
    mov rbp, rsp
    mov r9, [rdi + ARRAY_DATA_OFFSET] ;primer dato
-   mov r8, [r9 + sil * 8]; Array[i]
-   mov r10, [r9 + dl * 8]; Array[j]
+   mov r8, [r9 + rsi * 8]; Array[i]
+   mov r10, [r9 + rdi * 8]; Array[j]
 
-   mov [r9 + sil * 8], r10
-   mov [r9 + dl * 8], r8
+   mov [r9 + rsi * 8], r10
+   mov [r9 + rdi * 8], r8
 
    pop rbp
    ret
@@ -483,7 +492,7 @@ arrayPrint:
     call getPrintFunction
     mov r14, rax ; Guardo la funcion
 
-    mov dil, CHAR_OPENING_BRACKET
+    mov dil, BYTE[CHAR_OPENING_BRACKET] 
     mov rsi, r13
     call fputc
 
@@ -504,14 +513,14 @@ arrayPrint:
     cmp r15b, r8b
     je .fin
 
-    mov dil, CHAR_COMA
+    mov dil,BYTE[CHAR_COMA]
     mov rsi, r13
     call fputc
 
 
     .fin
 
-    mov dil, CHAR_CLOSING_BRACKET
+    mov dil, BYTE[CHAR_CLOSING_BRACKET]
     mov rsi, r13
     call fputc
 
@@ -549,6 +558,7 @@ cardNew:
     push r12
     push r13
     push r14
+    sub rsp, 8 ; Alinear pila
     mov r12, rdi ; suit
     mov r13, rsi  ; number
 
@@ -562,6 +572,7 @@ cardNew:
     mov [rax + CARD_SUIT_OFFSET], r12
     mov [rax + CARD_STACKED_OFFSET], r14
 
+    add rsp, 8 ; Alinear pila
     pop r14
     pop r13
     pop r12
@@ -571,8 +582,12 @@ cardNew:
 ;char* cardGetSuit(card_t* c)
 ;   return c->suit;
 cardGetSuit:
+    push rbp
+    mov rbp, rsp
     
     mov rax, [rdi + CARD_SUIT_OFFSET]
+
+    pop rbp
     ret
 
 ;int32_t* cardGetNumber(card_t* c)
