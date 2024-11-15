@@ -356,24 +356,24 @@ arrayNew:
     ret
 
 ; void* arrayRemove(array_t* a, uint8_t i)
-void* arrayRemove(array_t* a, uint8_t i) {
-    // Verificar si el índice está fuera de rango
-    if (i >= a->size) {
-        return NULL; // Retorna 0 si está fuera de rango
-    }
-
-    // Obtener el elemento a eliminar
-    void* removedData = a->data[i];
-
-    // Mover los elementos a la izquierda para llenar el espacio vacío
-    for (uint8_t j = i; j < a->size - 1; j++) {
-        a->data[j] = a->data[j + 1];
-    }
-
-    // Disminuir el tamaño del arreglo
-    a->size--;
-
-    // Retornar el elemento eliminado
+;  {
+;    // Verificar si el índice está fuera de rango
+;    if (i >= a->size) {
+;        return NULL; // Retorna 0 si está fuera de rango
+;    }
+;
+;    // Obtener el elemento a eliminar
+;    void* removedData = a->data[i];
+;
+;    // Mover los elementos a la izquierda para llenar el espacio vacío
+;    for (uint8_t j = i; j < a->size - 1; j++) {
+;        a->data[j] = a->data[j + 1];
+;    }
+;
+;    // Disminuir el tamaño del arreglo
+;    a->size--;
+;
+;   // Retornar el elemento eliminado
 ;   return removedData;
 ;}
 arrayRemove:
@@ -385,14 +385,22 @@ arrayRemove:
    push r15
    mov r14, rdi
    mov r12b, BYTE [rdi + ARRAY_SIZE_OFFSET] ;Preservo el size
-   mov r13b, sil
+
+   xor r13, r13 ;limpio r13
+   mov r13b, sil  ;guardo indice
+
+   cmp r13b, r12b  
+   jg .fueraRango    ; indice > size
    cmp r13b, r12b
-   jge .fin
-   mov r15, [rdi + ARRAY_DATA_OFFSET + r13b * 8] ;rdi + OFFSET => PRIMER ELEMENTO. => ELEMENTO A eliminar
-   dec r12b 
+   jl .loop            ;indice < size
+   cmp r13b, r12b
+   je .devolverUltimo            ;indice = size
+   mov r15, [r13 * 8]
+   mov r15, [rdi + ARRAY_DATA_OFFSET + r13 * 8] ;rdi + OFFSET => PRIMER ELEMENTO. => ELEMENTO A eliminar ponerloenrax
+    
    .loop:
    cmp r13b, r12b 
-   jge .fin
+   je .devolverUltimo
    mov rdi, r14
    mov sil, r13b
    inc r13b
@@ -401,8 +409,17 @@ arrayRemove:
    call arraySwap
    jmp .loop
 
-   .fin:
+
+
+   .fueraRango:
+   mov rax, 0
+   jmp .fin
+   
+   .devolverUltimo:
+   dec r12b
    mov rax, r15
+   
+   .fin:
    pop r15
    pop r14
    pop r13
@@ -478,7 +495,7 @@ arrayPrint:
     push r15
     mov r12, rdi; Puntero a la estructura del array
     mov r13, rsi; Archivo donde quiero imprimir
-    
+
     mov edi, [r12 + ARRAY_TYPE_OFFSET] ;
     call getPrintFunction
     mov r14, rax ; Guardo la funcion
@@ -509,7 +526,7 @@ arrayPrint:
     call fputc
 
 
-    .fin
+    .fin:
 
     mov dil, CHAR_CLOSING_BRACKET
     mov rsi, r13
@@ -705,7 +722,25 @@ cardPrint:
 
 ;int32_t cardCmp(card_t* a, card_t* b)
 cardCmp:
-ret
+    push rbp
+    push r12
+    push r13
+    push r14
+    push r15
+    mov rbp, rsp
+    mov r12, rdi   ;Guardo A
+    mov r13, rsi   ;Guardo B
+    mov r14, [r12 + CARD_SUIT_OFFSET] ;suit a
+    mov r15, [r13 + CARD_SUIT_OFFSET] ;suit b
+
+
+
+
+    pop r13
+    pop r12
+    pop rbp
+    ret
+
 
 ;card_t* cardClone(card_t* c)
 ;   card_t* copiaCarta = malloc(sizeof(card_t))
