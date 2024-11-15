@@ -79,6 +79,7 @@ extern malloc
 extern listClone
 extern listAddLast
 extern intPrint
+extern intCmp
 extern fputc
 extern free
 extern getCloneFunction
@@ -421,12 +422,11 @@ arrayRemove:
    jl .loop            ;indice < size
    cmp r13b, r12b
    je .devolverUltimo            ;indice = size
-   mov r15, [r13 * 8]
-   mov r15, [rdi + ARRAY_DATA_OFFSET + r13 * 8] ;rdi + OFFSET => PRIMER ELEMENTO. => ELEMENTO A eliminar ponerloenrax
+   mov r15, [rdi + ARRAY_DATA_OFFSET + r13 * 8] ; rdi + OFFSET => PRIMER ELEMENTO
     
    .loop:
    cmp r13b, r12b 
-   je .devolverUltimo
+   jge .devolverUltimo
    mov rdi, r14
    mov sil, r13b
    inc r13b
@@ -435,14 +435,15 @@ arrayRemove:
    call arraySwap
    jmp .loop
 
-
-
    .fueraRango:
-   mov rax, 0
+   xor rax, rax
    jmp .fin
    
    .devolverUltimo:
    dec r12b
+   mov BYTE [r14 + ARRAY_SIZE_OFFSET], r12b ;guardo size decrementado
+
+   xor rax, rax  ;limpio rax
    mov rax, r15
    
    .fin:
@@ -561,7 +562,7 @@ arrayPrint:
 
     .fin:
 
-    mov dil, CHAR_CLOSING_BRACKET
+    mov dil, BYTE [CHAR_CLOSING_BRACKET]
     mov rsi, r13
     call fputc
 
@@ -754,9 +755,22 @@ cardCmp:
     mov r14, [r12 + CARD_SUIT_OFFSET] ;suit a
     mov r15, [r13 + CARD_SUIT_OFFSET] ;suit b
 
+    mov rdi, r14
+    mov rsi, r15
+    call strCmp
+    cmp rax,0
+    jne .fin
 
+    xor r14, r14
+    xor r15, r15
+    mov r14, [r12 + CARD_NUMBER_OFFSET] ;number a
+    mov r15, [r13 + CARD_NUMBER_OFFSET] ;number b
 
-
+    mov rdi, r14
+    mov rsi, r15
+    call intCmp
+    
+    .fin:
     pop r13
     pop r12
     pop rbp
