@@ -26,7 +26,13 @@
 %define NODE_PREV_OFFSET 16
 %define NODE_SIZE_OFFSET 24
 
+;## TIPOS DE DATOS ###
+%define TYPE_INT 1
+%define TYPE_STRING 2
+%define TYPE_CARD 3
 
+;## SIZE INICIAL ##
+%define INITIAL_SIZE 0
 ;### CONSTANTES PARA LOS PRINTS ###
 section .data
 ; Símbolos ASCII
@@ -70,6 +76,7 @@ global cardNew
 
 section .text
 extern malloc
+extern listClone
 extern listAddLast
 extern intPrint
 extern fputc
@@ -278,18 +285,20 @@ arrayAddLast:
     push r12
     push r13
     push r14
-    sub rsp, 8                              ;alinear pila
-    mov r12, rdi                            ;preservar el puntero al struct array_t en r12
-    mov r13, rsi                           ;preservar el puntero al dato a agregar en r13
+    sub rsp, 8                                      ;alinear pila
+
+    mov r12, rdi                                    ;preservar el puntero al struct array_t en r12
+    mov r13, rsi                                    ;preservar el puntero al dato a agregar en r13
     xor r14, r14
-    mov r14b, BYTE [r12 + ARRAY_SIZE_OFFSET]      ;preservar SIZE en r14
-    
+    mov r14b, BYTE [r12 + ARRAY_SIZE_OFFSET]        ;preservar SIZE en r14
+
     ;comprobar que tengo espacio libre
-    cmp r14b, BYTE [r12 + ARRAY_CAPACITY_OFFSET]
-    jge .fin
+    mov cl, [r12 + ARRAY_CAPACITY_OFFSET]
+    cmp r14b, cl
+    jz .fin
 
     ;obtener la función de clonado
-    mov edi, dword[r12 + ARRAY_TYPE_OFFSET]
+    mov edi, [r12 + ARRAY_TYPE_OFFSET]
     call getCloneFunction
 
     ;clonar el dato 
@@ -297,11 +306,19 @@ arrayAddLast:
     call rax
 
     ;guardar el dato clonado en la última posición
-    mov [r12 + ARRAY_DATA_OFFSET + r14 * 8], rax
-    inc BYTE[r12 + ARRAY_SIZE_OFFSET]
+    xor rcx, rcx
+    mov cl, [r12 + ARRAY_SIZE_OFFSET]
+    mov rdx, [r12 + ARRAY_DATA_OFFSET]
+    shl rcx, 3
+    mov [rdx + rcx], rax                       ; a->data[a->size] = clon;
+
+    xor rcx, rcx
+    mov cl, [r12 + ARRAY_SIZE_OFFSET]
+    inc cl
+    mov [r12 + ARRAY_SIZE_OFFSET], cl          ; a->size++;
 
     .fin:
-    add rsp, 8                          ;restaurar pila
+    add rsp, 8                          
     pop r14
     pop r13
     pop r12
@@ -315,14 +332,14 @@ arrayGet:
 
     mov dl, [rdi + ARRAY_SIZE_OFFSET]   ;size
     cmp sil, dl
-    jl .obtener    ;Si i esta dentro del size, obtiene dato sino fin
+    jl .obtener                         ;Si i esta dentro del size, obtiene dato sino fin
     mov rax, 0
     jmp .fin
 
 
     .obtener:
     mov rdx, [rdi + ARRAY_SIZE_OFFSET]  ;size
-    imul rsi, rsi, 8              ;shl rsi, 3
+    imul rsi, rsi, 8                    ;shl rsi, 3
     mov rax, [rdx + rsi]
 
     .fin:
@@ -330,25 +347,34 @@ arrayGet:
     ret
 
 ; array_t* arrayNew(type_t t, uint8_t capacity){
-;    array_t* a = malloc(capacity);
+;    array_t* a = malloc(sizeof(array_t));
 ;    a -> type = t;
 ;    a -> size = 0;
 ;    a -> capacity = capacity;
-;}
+;    a -> data = malloc(capacity * sizeof(void*));
+;
 arrayNew:
     push rbp
     mov rbp, rsp
     push r12
     push r13
-    mov r12d, edi ; t
-    mov r13b, sil  ; capacity
 
-    mov rdi, ARRAY_SIZE
-    call malloc ;Devuelve en rax el puntero
+    mov r12, rdi
+    movzx r13, sil
+    mov rdi, ARRAY_SIZE                        ; se reserva memoria para la estructura
+    call malloc
 
-    mov dword [rax + ARRAY_TYPE_OFFSET], r12d
-    mov BYTE [rax + ARRAY_CAPACITY_OFFSET], r13b
-    mov BYTE [rax + ARRAY_SIZE_OFFSET], BYTE 0
+    mov [rax + ARRAY_TYPE_OFFSET], r12         ; INICALIZAR ATRIBUTOS
+    mov byte[rax + ARRAY_SIZE_OFFSET],  INITIAL_SIZE          
+    mov [rax + ARRAY_CAPACITY_OFFSET], r13     
+    mov r12, rax
+        
+    shl r13, 3
+    mov rdi, r13
+    call malloc                               ; se reserva memoria para el array de datos
+    mov [r12 + ARRAY_DATA_OFFSET], rax         
+
+    mov rax, r12
 
     pop r13
     pop r12
@@ -432,11 +458,11 @@ arraySwap:
    push rbp
    mov rbp, rsp
    mov r9, [rdi + ARRAY_DATA_OFFSET] ;primer dato
-   mov r8, [r9 + sil * 8]; Array[i]
-   mov r10, [r9 + dl * 8]; Array[j]
+   mov r8, [r9 + rsi * 8]; Array[i]
+   mov r10, [r9 + rdi * 8]; Array[j]
 
-   mov [r9 + sil * 8], r10
-   mov [r9 + dl * 8], r8
+   mov [r9 + rsi * 8], r10
+   mov [r9 + rdi * 8], r8
 
    pop rbp
    ret
@@ -453,20 +479,25 @@ arrayDelete:
     push rbx
     push r12
     push r13
-    sub rsp, 8      ;alinear pila
+    push r14
 
-    xor r13,r13  ;inicializar contador en 0
-    mov rbx, rdi ;preservo puntero a struct
+    xor r13,r13                         ;inicializar contador en 0
+    mov rbx, rdi                        ;preservo puntero a struct
+    mov r14, [rbx + ARRAY_DATA_OFFSET]  ;preservo PUNTERO A PRIMER ELEMENTO DE LOS DATOS
 
-    mov rdi, [rbx + ARRAY_TYPE_OFFSET]  ;preparo param para obtner func de borrar
+    mov edi, [rbx + ARRAY_TYPE_OFFSET]  ;preparo param para obtner func de borrar
     call getDeleteFunction
     mov r12, rax                        ;preservo puntero a funcion de borrar
 
     .for:
-        cmp r13b, BYTE[rbx + ARRAY_SIZE]
-        jge .ultimoPaso                        ;si el contador es mayor o igual termino iteracion
+        xor rcx, rcx
+        mov cl, [rbx + ARRAY_SIZE_OFFSET]
+        cmp r13b, cl
+        jge .ultimoPaso                             ;si el contador es mayor o igual termino iteracion
 
-        mov rdi, [rbx +ARRAY_DATA_OFFSET + r13*8]   ;colocar params para eliminar el dato
+        mov rax, r13
+        shl rax, 3
+        mov rdi, [r14 +rax]                         ;colocar params para eliminar el dato
         call r12
         inc r13
         jmp .for 
@@ -479,7 +510,8 @@ arrayDelete:
         call free
 
     .fin:
-        add rsp, 8
+        pop r14
+        pop r13
         pop r12
         pop rbx
         pop rbp
@@ -500,7 +532,7 @@ arrayPrint:
     call getPrintFunction
     mov r14, rax ; Guardo la funcion
 
-    mov dil, CHAR_OPENING_BRACKET
+    mov dil, BYTE[CHAR_OPENING_BRACKET] 
     mov rsi, r13
     call fputc
 
@@ -509,21 +541,22 @@ arrayPrint:
 
     .loop:
     
-    cmp r15b, BYTE [r12 + ARRAY_SIZE_OFFSET]
-    jge .fin
+        cmp r15b, BYTE [r12 + ARRAY_SIZE_OFFSET]
+        jge .fin
 
-    mov rdi, [r12 + ARRAY_DATA_OFFSET + r15 * 8]
-    mov rsi, r13
-    call r14
+        mov rdi, [r12 + ARRAY_DATA_OFFSET + r15 * 8]
+        mov rsi, r13
+        call r14
 
-    mov r8b,BYTE [r12 + ARRAY_SIZE_OFFSET]
-    dec r8b
-    cmp r15b, r8b
-    je .fin
+        mov r8b,BYTE [r12 + ARRAY_SIZE_OFFSET]
+        dec r8b
+        cmp r15b, r8b
+        je .fin
 
-    mov dil, CHAR_COMA
-    mov rsi, r13
-    call fputc
+        mov dil,BYTE[CHAR_COMA]
+        mov rsi, r13
+        call fputc
+        jmp .loop
 
 
     .fin:
@@ -540,25 +573,6 @@ arrayPrint:
     ret
 
 ; ** Card **
- push rbp
-    mov rbp, rsp
-    push r12
-    push r13
-    mov r12d, edi ; t
-    mov r13b, sil  ; capacity
-
-    mov rdi, ARRAY_SIZE
-    call malloc ;Devuelve en rax el puntero
-
-    mov dword [rax + ARRAY_TYPE_OFFSET], r12d
-    mov BYTE [rax + ARRAY_CAPACITY_OFFSET], r13b
-    mov BYTE [rax + ARRAY_SIZE_OFFSET], BYTE 0
-
-    pop r13
-    pop r12
-    pop rbp
-    ret
-
 ; card_t* cardNew(char* suit, int32_t* number)
 cardNew:
     push rbp
@@ -566,6 +580,7 @@ cardNew:
     push r12
     push r13
     push r14
+    sub rsp, 8 ; Alinear pila
     mov r12, rdi ; suit
     mov r13, rsi  ; number
 
@@ -579,6 +594,7 @@ cardNew:
     mov [rax + CARD_SUIT_OFFSET], r12
     mov [rax + CARD_STACKED_OFFSET], r14
 
+    add rsp, 8 ; Alinear pila
     pop r14
     pop r13
     pop r12
@@ -588,8 +604,12 @@ cardNew:
 ;char* cardGetSuit(card_t* c)
 ;   return c->suit;
 cardGetSuit:
+    push rbp
+    mov rbp, rsp
     
     mov rax, [rdi + CARD_SUIT_OFFSET]
+
+    pop rbp
     ret
 
 ;int32_t* cardGetNumber(card_t* c)
@@ -602,9 +622,10 @@ cardGetNumber:
 
 ;list_t* cardGetStacked(card_t* c)
 cardGetStacked:
- push rbp
+    push rbp
     mov rbp, rsp
     mov rax, [rdi + CARD_STACKED_OFFSET]
+    pop rbp
     ret
 
 
@@ -743,60 +764,30 @@ cardCmp:
 
 
 ;card_t* cardClone(card_t* c)
-;   card_t* copiaCarta = malloc(sizeof(card_t))
-;   list_t* copiaLista = malloc(sizeof((list_t)))
-;   
-;   listElem_t* actual = (c->stacked) -> primero
-;   while actual != 0 
-;       listAddLast(copiaLista, actual->data)
-;       actual=actual -> next
-;   copiaCarta-> stacked = copiaLista
-;   copiaCarta -> number = c->number
-;   copiaCarta -> suit = c->suit
+;   card_t* copiaCarta = cardNew(c->suit, c->number)
+;   list_t* copiaLista = listClone(c->stacked)
+;   copiaCarta->stacked = copiaLista
+;   return copiaCarta
 cardClone:
     push rbp
     push r12
     push rbx
-    push r13
-    push r14
-    mov rbp, rsp
-    mov r12, rdi            ;reservo puntero a datos a clonar
-
-    mov rdi, CARD_SIZE
-    call malloc
-    mov rbx, rax        ; guardarnos la nueva pos de mem -copiaCarta-
-
-    mov rdi, LIST_SIZE_OFFSET
-    call malloc
-    mov r13, rax        ;guardamos puntero al stacked a copiar
-
-    mov r14, [rbx + CARD_NUMBER_OFFSET]
-    mov r14, [r14 + LIST_FIRST_OFFSET] ;Inicializar actual
-
-    .while:
-        cmp r14, 0
-        je .fin
-
-        mov rdi, r13
-        mov rsi, [r14 + NODE_DATA_OFFSET]
-        call listAddLast
-        
-        mov r14, [r14 + NODE_NEXT_OFFSET]
-        jmp .while
-
-    .fin:
-    mov [rbx + CARD_STACKED_OFFSET], r13
-
-    mov r9, [r12 +CARD_NUMBER_OFFSET]                 ;uso de auxiliar r9 volatil
-    mov [rbx + CARD_NUMBER_OFFSET], r9
-
-    mov r9, [r12 + CARD_SUIT_OFFSET]
-    mov [rbx + CARD_SUIT_OFFSET], r9
-
-    mov rax, rbx
     
-    push r14
-    push r13
+    mov rbp, rsp
+    mov r12, rdi            ;guardar puntero a carta a copiar
+
+    mov dil, [r12 + CARD_SUIT_OFFSET]
+    mov esi, [r12 + CARD_NUMBER_OFFSET]
+    call cardNew
+
+    mov rbx, rax            ;guardar puntero a la copia de la carta
+
+    mov rdi, [r12 + CARD_STACKED_OFFSET]
+    call listClone
+    mov [rbx + CARD_STACKED_OFFSET], rax
+    
+    mov rax, rbx
+    .fin:
     pop rbx
     pop r12
     pop rbp
@@ -816,6 +807,7 @@ cardDelete:
     push r12
     mov rbp, rsp
     mov r12, rdi            ;guardar puntero a carta
+    sub rsp, 8
 
     ;borrar stacked
     mov rdi, [r12 + CARD_STACKED_OFFSET]
@@ -833,6 +825,7 @@ cardDelete:
     mov rdi, r12
     call free
 
+    add rsp, 8
     pop r12
     pop rbp
     ret
