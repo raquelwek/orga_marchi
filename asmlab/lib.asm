@@ -422,11 +422,17 @@ arrayRemove:
    
    ;verifico si esta fuera de rango
    cmp r13b, r12b  
-   jg .fueraRango    ; indice > size
+   jge .fueraRango    ; indice >= size
 
    
    ;obtengo elemento a eliminar
-   mov r15, [rdi + ARRAY_DATA_OFFSET + r13 * 8] ; rdi + OFFSET => PRIMER ELEMENTO
+
+   xor r8,r8
+   xor r9,r9
+   mov r8, [r14 + ARRAY_DATA_OFFSET]
+   mov r9b,  r13b
+   shl r9, 3
+   mov r15, [r8 + r9] ; elemento para remover
 
    ;verifico si size = 1
    cmp r12b, BYTE 1
@@ -434,21 +440,21 @@ arrayRemove:
 
 
    ;Verifico si es el ultimo
-   xor r9, r9
-   mov r9b, r12b
-   dec r9b
-   cmp r13b, r9b 
+   xor r10, r10
+   mov r10b, r12b
+   dec r10b
+   cmp r13b, r10b 
    je .devolverUltimo            ;indice = size -1
 
- 
-   cmp r13b, r12b
-   jl .loop            ;indice < size
- 
-
-    
+   
    .loop:
-   cmp r13b, r12b 
+   xor r11, r11
+   mov r11b, r12b
+   dec r11b
+
+   cmp r13b, r11b 
    jge .devolverUltimo
+   
    mov rdi, r14  ;Puntero al array
    mov sil, r13b ;indice i
    inc r13b
