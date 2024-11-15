@@ -387,7 +387,7 @@ arrayNew:
 ;    // Verificar si el índice está fuera de rango
 ;    if (i >= a->size) {
 ;        return NULL; // Retorna 0 si está fuera de rango
-;    }
+;    } 
 ;
 ;    // Obtener el elemento a eliminar
 ;    void* removedData = a->data[i];
@@ -410,25 +410,47 @@ arrayRemove:
    push r13
    push r14
    push r15
+
    mov r14, rdi
    mov r12b, BYTE [rdi + ARRAY_SIZE_OFFSET] ;Preservo el size
-
    xor r13, r13 ;limpio r13
    mov r13b, sil  ;guardo indice
 
+   ;verifico si el size = 0
+   cmp r12b, BYTE INITIAL_SIZE
+   je .fin
+   
+   ;verifico si esta fuera de rango
    cmp r13b, r12b  
    jg .fueraRango    ; indice > size
+
+   
+   ;obtengo elemento a eliminar
+   mov r15, [rdi + ARRAY_DATA_OFFSET + r13 * 8] ; rdi + OFFSET => PRIMER ELEMENTO
+
+   ;verifico si size = 1
+   cmp r12b, BYTE 1
+   je .devolverUltimo
+
+
+   ;Verifico si es el ultimo
+   xor r9, r9
+   mov r9b, r12b
+   dec r9b
+   cmp r13b, r9b 
+   je .devolverUltimo            ;indice = size -1
+
+ 
    cmp r13b, r12b
    jl .loop            ;indice < size
-   cmp r13b, r12b
-   je .devolverUltimo            ;indice = size
-   mov r15, [rdi + ARRAY_DATA_OFFSET + r13 * 8] ; rdi + OFFSET => PRIMER ELEMENTO
+ 
+
     
    .loop:
    cmp r13b, r12b 
    jge .devolverUltimo
-   mov rdi, r14
-   mov sil, r13b
+   mov rdi, r14  ;Puntero al array
+   mov sil, r13b ;indice i
    inc r13b
    mov dl, r13b 
 
@@ -459,12 +481,24 @@ arraySwap:
    push rbp
    mov rbp, rsp
    mov r9, [rdi + ARRAY_DATA_OFFSET] ;primer dato
-   mov r8, [r9 + rsi * 8]; Array[i]
-   mov r10, [r9 + rdi * 8]; Array[j]
+   mov r11b, BYTE [rdi + ARRAY_SIZE_OFFSET]
 
-   mov [r9 + rsi * 8], r10
-   mov [r9 + rdi * 8], r8
+   cmp sil, r11b
+   jge .fin
+   cmp dl, r11b
+   jg .fin
 
+   shl rsi, 3
+   shl rdx, 3
+
+
+   mov r8, [r9 + rsi]; Array[i]
+   mov r10, [r9 + rdx]; Array[j]
+
+   mov [r9 + rsi], r10
+   mov [r9 + rdx], r8
+
+   .fin:
    pop rbp
    ret
 
@@ -807,9 +841,16 @@ cardClone:
     pop rbp
     ret
 
-;void cardAddStacked(card_t* c, card_t* card)
+;void cardAddStacked(card_t* c)
 cardAddStacked:
-ret
+    push rbp
+    mov rbp, rsp
+    
+    mov r10, [rdi + CARD_STACKED_OFFSET]
+    mov rax, r10
+    
+    pop rbp
+    ret
 
 ;void cardDelete(card_t* c)
 ;   listDelete(c->stacked)
