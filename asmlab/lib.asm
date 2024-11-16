@@ -566,10 +566,16 @@ arrayPrint:
 
     .loop:
     
-        cmp r15b, BYTE [r12 + ARRAY_SIZE_OFFSET]
+        mov r9b, BYTE [r12 + ARRAY_SIZE_OFFSET]
+        cmp r15b, r9b
         jge .fin
 
-        mov rdi, [r12 + ARRAY_DATA_OFFSET + r15 * 8]
+
+        mov r10, r15
+        shl r10, 3
+
+        mov r11, [r12 + ARRAY_DATA_OFFSET]
+        mov rdi, [r11 + r10]
         mov rsi, r13
         call r14
 
@@ -578,6 +584,8 @@ arrayPrint:
         cmp r15b, r8b
         je .fin
 
+
+        xor rdi, rdi
         mov dil,BYTE[CHAR_COMA]
         mov rsi, r13
         call fputc
