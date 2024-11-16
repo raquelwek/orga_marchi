@@ -99,11 +99,13 @@ void testObtenerElemento(){
 
     int num2 = 2;
     arrayAddLast(nums, &num2);
-
-    printf("El resultado esperado es 1, obtenido: %d\n",arrayGet(nums, 0));
+    
+    int res0 = arrayGet(nums, 0);
+    printf("El resultado esperado es 1, obtenido: %d\n",(int *)res0);
     printf("El resultado esperado es 2, obtenido: %d\n",arrayGet(nums, 1));
 
-    printf("Que devueleve fuera de rango: %d\n",arrayGet(nums, 2));
+    int res2 = arrayGet(nums, 2);
+    printf("Que devueleve fuera de rango: %d\n",(int *)res2);
     arrayDelete(nums);
 }
 int main (void){ 

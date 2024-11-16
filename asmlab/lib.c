@@ -123,6 +123,9 @@ uint8_t listGetSize(list_t *l)
 
 void *listGet(list_t *l, uint8_t i)
 {
+    if (i >= l->size) {
+        return NULL; // Índice inválido
+    }
     listElem_t*  n = l->first;
     for (uint8_t j = 0; j < i; j++){
         n = n -> next;
@@ -277,7 +280,7 @@ void listPrint(list_t *l, FILE *pFile)
         current = current->next;
         if (current != NULL)
         {
-            fprintf(pFile, ", ");
+            fprintf(pFile, ",");
         }
     }
     
