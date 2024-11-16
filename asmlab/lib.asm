@@ -809,6 +809,9 @@ cardCmp:
     push r14
     push r15
     mov rbp, rsp
+
+    xor r12, r12
+    xor r13, r13
     mov r12, rdi   ;Guardo A
     mov r13, rsi   ;Guardo B
     mov r14, [r12 + CARD_SUIT_OFFSET] ;suit a
@@ -830,6 +833,8 @@ cardCmp:
     call intCmp
     
     .fin:
+    pop r15
+    pop r14
     pop r13
     pop r12
     pop rbp
