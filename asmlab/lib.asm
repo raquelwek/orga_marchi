@@ -350,7 +350,7 @@ arrayGet:
     jmp .fin
 
     .fueraRango:
-    mov rax, 0
+    xor rax,rax
 
     .fin:
     add rsp, 8
