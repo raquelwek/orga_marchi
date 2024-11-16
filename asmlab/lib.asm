@@ -78,7 +78,9 @@ section .text
 extern malloc
 extern listClone
 extern listAddLast
+extern listAddFirst
 extern intPrint
+extern intClone
 extern intCmp
 extern fputc
 extern free
@@ -632,21 +634,31 @@ cardNew:
     push r12
     push r13
     push r14
-    sub rsp, 8 ; Alinear pila
+    sub rsp, 8
+
     mov r12, rdi ; suit
     mov r13, rsi  ; number
 
-    mov rsi, 3 ;=>type_card
-    call listNew
-
-    mov r14, rax
     mov rdi, CARD_SIZE
-    call malloc ;Devuelve en rax el puntero
-    mov [rax + CARD_NUMBER_OFFSET], r13
-    mov [rax + CARD_SUIT_OFFSET], r12
-    mov [rax + CARD_STACKED_OFFSET], r14
+    call malloc
 
-    add rsp, 8 ; Alinear pila
+    mov r14, rax            ;puntero a la estructura card_t A DEVOLVER
+
+    mov rdi, r12
+    call strClone
+    mov [r14 + CARD_SUIT_OFFSET], rax
+
+    mov rdi, r13
+    call intClone
+    mov [r14 + CARD_NUMBER_OFFSET], rax
+
+    xor rdi, rdi
+    mov rdi, TYPE_CARD ;=>type_card
+    call listNew
+    mov [r14 + CARD_STACKED_OFFSET], rax
+
+    mov rax, r14
+    add rsp, 8
     pop r14
     pop r13
     pop r12
@@ -841,8 +853,8 @@ cardClone:
     mov rbp, rsp
     mov r12, rdi            ;guardar puntero a carta a copiar
 
-    mov dil, [r12 + CARD_SUIT_OFFSET]
-    mov esi, [r12 + CARD_NUMBER_OFFSET]
+    mov rdi, [r12 + CARD_SUIT_OFFSET]
+    mov rsi, [r12 + CARD_NUMBER_OFFSET]
     call cardNew
 
     mov rbx, rax            ;guardar puntero a la copia de la carta
@@ -858,14 +870,24 @@ cardClone:
     pop rbp
     ret
 
-;void cardAddStacked(card_t* c)
+;void cardAddStacked(card_t* c, card_t* card)
+;   copia = cardClone(card)
+;   listAddFirst(c->stacked, copia)
 cardAddStacked:
     push rbp
     mov rbp, rsp
+    push r12
+    sub rsp, 8
     
-    mov r10, [rdi + CARD_STACKED_OFFSET]
-    mov rax, r10
-    
+    mov r12, [rdi + CARD_STACKED_OFFSET]
+    mov rdi, rsi
+    call cardClone
+    mov rdi, r12
+    mov rsi, rax
+    call listAddFirst
+
+    add rsp, 8
+    pop r12
     pop rbp
     ret
 
