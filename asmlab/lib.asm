@@ -412,13 +412,10 @@ arrayRemove:
    push r15
 
    mov r14, rdi
+   xor r12, r12
    mov r12b, BYTE [rdi + ARRAY_SIZE_OFFSET] ;Preservo el size
    xor r13, r13 ;limpio r13
    mov r13b, sil  ;guardo indice
-
-   ;verifico si el size = 0
-   cmp r12b, BYTE INITIAL_SIZE
-   je .fin
    
    ;verifico si esta fuera de rango
    cmp r13b, r12b  
@@ -426,38 +423,26 @@ arrayRemove:
 
    
    ;obtengo elemento a eliminar
-
-   xor r8,r8
    xor r9,r9
    mov r8, [r14 + ARRAY_DATA_OFFSET]
    mov r9b,  r13b
    shl r9, 3
    mov r15, [r8 + r9] ; elemento para remover
 
-   ;verifico si size = 1
-   cmp r12b, BYTE 1
-   je .devolverUltimo
-
-
-   ;Verifico si es el ultimo
-   xor r10, r10
-   mov r10b, r12b
-   dec r10b
-   cmp r13b, r10b 
+   dec r12              ;decremento size
+   cmp r13b, r12b 
    je .devolverUltimo            ;indice = size -1
 
    
    .loop:
-   xor r11, r11
-   mov r11b, r12b
-   dec r11b
-
-   cmp r13b, r11b 
+   cmp r13b, r12b 
    jge .devolverUltimo
    
    mov rdi, r14  ;Puntero al array
+   xor rsi, rsi
    mov sil, r13b ;indice i
    inc r13b
+   xor rdx, rdx
    mov dl, r13b 
 
    call arraySwap
@@ -468,7 +453,6 @@ arrayRemove:
    jmp .fin
    
    .devolverUltimo:
-   dec r12b
    mov BYTE [r14 + ARRAY_SIZE_OFFSET], r12b ;guardo size decrementado
 
    xor rax, rax  ;limpio rax
