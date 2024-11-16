@@ -329,21 +329,26 @@ arrayAddLast:
 ; void* arrayGet(array_t* a, uint8_t i)
 arrayGet:
     push rbp
+    push r12
+    sub rsp, 8
     mov rbp, rsp
+    mov r12, [rdi + ARRAY_DATA_OFFSET] ;Primer elemento
 
-    mov dl, [rdi + ARRAY_SIZE_OFFSET]   ;size
-    cmp sil, dl
+
+    xor r8, r8
+    mov r8b, BYTE [rdi + ARRAY_SIZE_OFFSET]   ;size
+    cmp sil, r8b
     jl .obtener                         ;Si i esta dentro del size, obtiene dato sino fin
     mov rax, 0
     jmp .fin
 
 
     .obtener:
-    mov rdx, [rdi + ARRAY_SIZE_OFFSET]  ;size
-    imul rsi, rsi, 8                    ;shl rsi, 3
-    mov rax, [rdx + rsi]
+    shl r8, 3
+    mov rax, [r12 + r8]
 
     .fin:
+    add rsp, 8
     pop rbp
     ret
 
