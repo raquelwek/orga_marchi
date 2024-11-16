@@ -33,6 +33,7 @@
 
 ;## SIZE INICIAL ##
 %define INITIAL_SIZE 0
+%define FIN_CHAR 0
 ;### CONSTANTES PARA LOS PRINTS ###
 section .data
 ; Símbolos ASCII
@@ -148,15 +149,15 @@ strPrint:
     push r12               ; preservar r12
     push r13               ; preservar r13 (para pFile)
     push r14               ; preservar r14 (para char* a)
-
     sub rsp, 8
+
     mov r13, rsi           ; guardar pFile en r13
     mov r14, rdi           ; guardar el puntero a la cadena en r14
-    mov r12, 0             ; inicializar contador (acum)
+    xor r12,r12             ; inicializar contador (acum)
 
     .while:
         mov dl, [r14 + r12] ; obtener el carácter actual de la cadena
-        cmp dl, 0
+        cmp dl, FIN_CHAR
         je .printNull      ; si es '\0', saltar a la impresión final
 
         ; imprimir el carácter actual
@@ -177,7 +178,6 @@ strPrint:
 
     .finalPrint:
         add rsp, 8
-        ; restaurar los registros no volátiles
         pop r14
         pop r13
         pop r12
@@ -211,40 +211,36 @@ strLen:
 strCmp:
     push rbp
     mov rbp, rsp
-    sub rsp, 8
+    
     
     xor rax, rax    ;inicializar contador
+    xor rcx, rcx    ;placeholder para char a
+    xor rdx, rdx    ;idem para char b
 
     .while:
-        mov dl, [rdi + rax] ;caracter del char a
-        mov al, [rsi + rax] ;caracter del char b
-        cmp dl, 0           ; chequear si es nulo
-        je .finA
-        cmp al, 0
-        je .bMenorQueA      ;pues A no termino aun
-        cmp dl, al
-        jne .noIguales
-        inc rcx
-        jmp .while
-    .finA: 
-        cmp al, 0           ; terminan al mismo tiempo?
-        je .iguales
-        jmp .aMenorQueB
+        mov cl, [rdi + rax] ; Cargar carácter de la cadena a
+        mov dl, [rsi + rax] ; Cargar carácter de la cadena b
+        cmp cl, dl          
+        jne .noIguales      
+        test cl, cl          ; Son nulos?
+        je .iguales          
+        inc rax              
+        jmp .while           
     .noIguales:
-        cmp dl,al
-        jl .aMenorQueB
-        jmp .bMenorQueA
+        jl .aMenorQueB       ; Si cl < dl, A es menor que B
+        jmp .bMenorQueA      ; De lo contrario, B es menor que A
+
     .iguales:
-        mov rax, 0
+        xor rax, rax         ; Retornar 0 (iguales)
         jmp .fin
+
     .aMenorQueB:
-        mov rax, 1
+        mov rax, 1           ; Retornar 1 (A menor que B)
         jmp .fin
+
     .bMenorQueA:
-        mov rax, -1
-        jmp .fin
+        mov rax, -1          ; Retornar -1 (B menor que A)
     .fin:
-        add rsp, 8
         pop rbp
         ret
 
