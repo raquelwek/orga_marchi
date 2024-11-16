@@ -553,10 +553,12 @@ arrayPrint:
     mov r12, rdi; Puntero a la estructura del array
     mov r13, rsi; Archivo donde quiero imprimir
 
+    xor rdi, rdi
     mov edi, [r12 + ARRAY_TYPE_OFFSET] ;
     call getPrintFunction
     mov r14, rax ; Guardo la funcion
 
+    xor rdi, rdi
     mov dil, BYTE[CHAR_OPENING_BRACKET] 
     mov rsi, r13
     call fputc
@@ -565,7 +567,7 @@ arrayPrint:
 
 
     .loop:
-    
+        xor r9, r9
         mov r9b, BYTE [r12 + ARRAY_SIZE_OFFSET]
         cmp r15b, r9b
         jge .fin
@@ -579,6 +581,7 @@ arrayPrint:
         mov rsi, r13
         call r14
 
+        xor r8, r8
         mov r8b,BYTE [r12 + ARRAY_SIZE_OFFSET]
         dec r8b
         cmp r15b, r8b
@@ -589,11 +592,12 @@ arrayPrint:
         mov dil,BYTE[CHAR_COMA]
         mov rsi, r13
         call fputc
+        inc r15
         jmp .loop
 
 
     .fin:
-
+    xor rdi, rdi
     mov dil, BYTE [CHAR_CLOSING_BRACKET]
     mov rsi, r13
     call fputc
