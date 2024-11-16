@@ -330,25 +330,35 @@ arrayAddLast:
 arrayGet:
     push rbp
     push r12
+    push r13
+    push r14
     sub rsp, 8
     mov rbp, rsp
+
+    
     mov r12, [rdi + ARRAY_DATA_OFFSET] ;Primer elemento
 
+    xor r13, r13
+    mov r13b, BYTE [rdi + ARRAY_SIZE_OFFSET]   ;size
 
-    xor r8, r8
-    mov r8b, BYTE [rdi + ARRAY_SIZE_OFFSET]   ;size
-    cmp sil, r8b
-    jl .obtener                         ;Si i esta dentro del size, obtiene dato sino fin
-    mov rax, 0
+    xor r14, r14 ;limpio r13
+    mov r14b, sil  ;guardo indice
+
+    
+    cmp r14b, r13b
+    jge .fueraRango                        ;indice >= size => fueraRango
+    shl r14, 3
+    mov rax, [r12 + r14]
     jmp .fin
 
-
-    .obtener:
-    shl r8, 3
-    mov rax, [r12 + r8]
+    .fueraRango:
+    mov rax, 0
 
     .fin:
     add rsp, 8
+    pop r14
+    pop r13
+    pop r12
     pop rbp
     ret
 
