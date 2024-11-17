@@ -98,7 +98,7 @@ void intPrint(int32_t *a, FILE *pFile)
 
 int32_t *intClone(int32_t *a)
 {
-    int32_t* copia = malloc(sizeof(int32_t));
+    int32_t* copia = malloc(4);
     *copia = *a;
     return copia;
     
@@ -173,11 +173,14 @@ void listAddLast(list_t *l, void *data)
 list_t *listClone(list_t *l)
 {   
 
-     list_t* copia = listNew(l->type);
+    list_t* copia = listNew(l->type);
     listElem_t* actual = l->first;
+    funcClone_t* clonar = getCloneFunction(l->type);
+    void* cp;
 
     while (actual != NULL) {
-        listAddLast(copia, actual->data); 
+        cp = clonar(actual->data);
+        listAddLast(copia, cp); 
         actual = actual->next;
     }
 

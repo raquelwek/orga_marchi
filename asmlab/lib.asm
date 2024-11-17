@@ -45,7 +45,6 @@ CHAR_GUION            db '-'
 CHAR_COMA             db','      
 
 ; Strings literales
-STR_PLACEHOLDER    db "%s", 0
 NULL_str db "NULL", 0       
          
 
@@ -109,29 +108,27 @@ strClone:
     mov r12, rdi            ;preservar puntero a char
     xor r13, r13            ;registro para alamacenar longitud del char
 
-    call strLen              ; como recibe mismo parametro no cambio rdi
-    mov r13, rax             ; alamceno longitud obtenida
-    inc r13
+    call strLen               ; como recibe mismo parametro no cambio rdi
+    mov r13d, eax             ; alamceno longitud obtenida
+    inc r13d
 
-    mov rdi, r13           ; movemos longitud a almacenar como param de malloc
+    xor rdi, rdi
+    mov edi, r13d          ; movemos longitud a almacenar como param de malloc
     call malloc              ; dejo en rax el puntero a devolver
     
     ;inicializar valores de la copia
     xor r9, r9             ; registro volatil como contador del for
+    xor r10,r10
 
     .loop:
-        cmp r9, r13
-        jge .fin
-        
-        mov r10, [r12+ r9] ;uso como auxiliar registro no volatil
-        mov [rax + r9], r10
-
-        inc r9
-        jmp .loop
+    mov r10b, byte [r12 + r9] ; Copiar carácter desde el original
+    mov byte [rax + r9], r10b ; Escribir carácter en la copia
+    inc r9                   ; Incrementar el contador
+    cmp r9d, r13d            ; Comparar con la longitud total (incluye '\0')
+    jl .loop                 ; Continuar si aún no hemos alcanzado el final
 
 
     .fin:
-    mov BYTE[rax + r9], 0          ; caracter nulo al final
     pop r13
     pop r12
     pop rbp
@@ -188,22 +185,22 @@ strPrint:
 
 ;uint32_t strLen(char* a);
 strLen:
-    
-    push r12         
-    mov r12, 0       ; Inicializar contador en 0 
+    push rbp
+    mov rbp, rsp
+    xor rcx, rcx       ; Inicializar contador en 0 
+    xor rdx, rdx
 
     .while:
-        mov dl, [rdi + r12] ; Leer el caracter en la posición rdi + r12
+        mov dl, [rdi + rcx] ; Leer el caracter en la posición rdi + r12
         cmp dl, 0           ; Comparar si es el carácter nulo (\0)
         je .fuera_de_loop   ; Si es \0, salimos del loop
-        inc r12             ; Si no, incrementamos el contador y seguimos
+        inc rcx             ; Si no, incrementamos el contador y seguimos
         jmp .while
 
     .fuera_de_loop:
-    ; En este punto, r12 contiene la longitud de la cadena (sin el \0)
-
-    mov eax, r12d    ; Guardar el resultado en eax para retornarlo
-    pop r12          ; Restaurr el valor original de r12
+    xor rax, rax
+    mov eax, ecx    ; Guardar el resultado en eax para retornarlo
+    pop rbp          ; Restaurar el valor original de rbp
     ret              ; Retornar el valor en eax
 
 
