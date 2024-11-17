@@ -135,6 +135,15 @@ void agregarUnaCartaAlStacked(){
     
     cardDelete(carta);
 }
+void clonarCarta(){
+    int32_t number = 12;
+    char palo[] = "espada";
+    card_t *carta = cardNew(palo, &number);
+    card_t *clon = cardClone(carta);
+    cardPrint(clon, stdout);
+    cardDelete(carta);
+    cardDelete(clon);
+}
 //valgrind --leak-check=full ./main
 int main (void){ 
     //testStrPrint();
@@ -142,6 +151,7 @@ int main (void){
     //testMazoConLista();
     //testObtenerElemento();
     //crearCarta();
+    clonarCarta();
     //agregarUnaCartaAlStacked();
     return 0;
 }
