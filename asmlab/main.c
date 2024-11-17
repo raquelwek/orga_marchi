@@ -45,31 +45,33 @@ void CrearMazoCincoCartas2(){
     int32_t num1 = 7;
     card_t* carta1 = cardNew(palo1, &num1);
     listAddLast(mazo,carta1);
-
-
-    /*
+    cardDelete(carta1);
+    
     char palo2[] = "basto";
     int32_t num2 = 1;
     card_t* carta2 = cardNew(palo2, &num2);
     listAddLast(mazo,carta2);
-    
+    cardDelete(carta2);
 
     char palo3[] = "oro";
     int32_t num3 = 5;
     card_t* carta3 = cardNew(palo3, &num3);
     listAddLast(mazo,carta3);
+    cardDelete(carta3);
 
     char palo4[] = "copa";
     int32_t num4 = 4;
     card_t* carta4 = cardNew(palo4,&num4);
     listAddLast(mazo,carta4);
+    cardDelete(carta4);
 
     char palo5[] = "espada";
     int32_t num5 = 3;
     card_t* carta5 = cardNew(palo5, &num5);
     listAddLast(mazo,carta5);
-    */
-    cardDelete(carta1);
+    cardDelete(carta5);
+    
+    
     listPrint(mazo, stdout);
     listDelete(mazo);
     

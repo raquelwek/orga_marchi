@@ -846,9 +846,13 @@ cardCmp:
 
 
 ;card_t* cardClone(card_t* c)
-;   card_t* copiaCarta = cardNew(c->suit, c->number)
-;   list_t* copiaLista = listClone(c->stacked)
-;   copiaCarta->stacked = copiaLista
+;   copiaCarta = malloc(sizeof(card_t))
+;   copiaSuit = strClone(c->suit)
+;   copiaCarta -> suit = copiaSuit
+;   copiaNumber = intClone(c->number)
+;   copiaCarta -> number = copiaNumber
+;   copiaStacked = listClone(c->stacked)
+;   copiaCarta->stacked = copiaStacked
 ;   return copiaCarta
 cardClone:
     push rbp
@@ -858,17 +862,29 @@ cardClone:
     
     mov r12, rdi            ;guardar puntero a carta a copiar
 
-    mov rdi, [r12 + CARD_SUIT_OFFSET]
-    mov rsi, [r12 + CARD_NUMBER_OFFSET]
-    call cardNew
+    ;reservar memoria para la nueva carta
+    xor rdi, rdi
+    mov edi, CARD_SIZE
+    call malloc
+    mov rbx, rax            ;guardar puntero a la nueva carta
 
-    mov rbx, rax            ;guardar puntero a la copia de la carta
+    ;copiar suit
+    mov rdi,[r12 + CARD_SUIT_OFFSET]
+    call strClone
+    mov [rbx + CARD_SUIT_OFFSET], rax
 
+    ;copiar num
+    mov rdi, [r12+CARD_NUMBER_OFFSET]
+    call intClone
+    mov [rbx + CARD_NUMBER_OFFSET], rax
+
+    ;copiar stacked
     mov rdi, [r12 + CARD_STACKED_OFFSET]
     call listClone
     mov [rbx + CARD_STACKED_OFFSET], rax
-    
-    mov rax, rbx
+
+    mov rax, rbx    
+
     .fin:
     pop rbx
     pop r12
