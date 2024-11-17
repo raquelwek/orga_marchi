@@ -892,23 +892,15 @@ cardClone:
     ret
 
 ;void cardAddStacked(card_t* c, card_t* card)
-;   copia = cardClone(card)
-;   listAddFirst(c->stacked, copia)
+;   listAddFirst(c->stacked, card)
 cardAddStacked:
     push rbp
     mov rbp, rsp
-    push r12
-    sub rsp, 8
     
-    mov r12, [rdi + CARD_STACKED_OFFSET]
-    mov rdi, rsi
-    call cardClone
-    mov rdi, r12
-    mov rsi, rax
+    mov rcx, [rdi + CARD_STACKED_OFFSET]
+    mov rdi, rcx
     call listAddFirst
 
-    add rsp, 8
-    pop r12
     pop rbp
     ret
 

@@ -10,77 +10,47 @@
 list_t* CrearMazoCincoCartas(){
 
     list_t* mazo = listNew(TypeCard); //Crear mazo de cartas enlazadas
-    char* palo1 = "espada";
-    int32_t* num1 = 7;
-    card_t* carta1 = cardNew(palo1, num1);
-    listAddLast(mazo,carta1);
-
-    char* palo2 = "basto";
-    int32_t* num2 = 1;
-    card_t* carta2 = cardNew(palo2, num2);
-    listAddLast(mazo,carta2);
-
-    char* palo3 = "oro";
-    int32_t* num3 = 5;
-    card_t* carta3 = cardNew(palo3, num3);
-    listAddLast(mazo,carta3);
-
-    char* palo4 = "copa";
-    int32_t* num4 = 4;
-    card_t* carta4 = cardNew(palo4, num4);
-    listAddLast(mazo,carta4);
-
-    char* palo5 = "espada";
-    int32_t* num5 = 3;
-    card_t* carta5 = cardNew(palo5, num5);
-    listAddLast(mazo,carta5);
-
-    return mazo;
-
-}
-void CrearMazoCincoCartas2(){
-
-    list_t* mazo = listNew(TypeCard); //Crear mazo de cartas enlazadas
     char palo1[] = "espada";
     int32_t num1 = 7;
     card_t* carta1 = cardNew(palo1, &num1);
     listAddLast(mazo,carta1);
-    cardDelete(carta1);
-    
+
     char palo2[] = "basto";
     int32_t num2 = 1;
     card_t* carta2 = cardNew(palo2, &num2);
     listAddLast(mazo,carta2);
-    cardDelete(carta2);
 
     char palo3[] = "oro";
     int32_t num3 = 5;
     card_t* carta3 = cardNew(palo3, &num3);
     listAddLast(mazo,carta3);
-    cardDelete(carta3);
 
     char palo4[] = "copa";
     int32_t num4 = 4;
-    card_t* carta4 = cardNew(palo4,&num4);
+    card_t* carta4 = cardNew(palo4, &num4);
     listAddLast(mazo,carta4);
-    cardDelete(carta4);
 
     char palo5[] = "espada";
     int32_t num5 = 3;
     card_t* carta5 = cardNew(palo5, &num5);
     listAddLast(mazo,carta5);
+
+    cardDelete(carta1);
+    cardDelete(carta2);
+    cardDelete(carta3);
+    cardDelete(carta4);
     cardDelete(carta5);
-    
-    
-    listPrint(mazo, stdout);
-    listDelete(mazo);
-    
+
+    return mazo;
+
 }
+
 void ImprimirMazoLista(list_t* mazo){
     listElem_t* actual = mazo->first;
     while (actual != 0) {
         cardPrint(actual -> data, stdout);
         actual = actual -> next;
+        printf("\n");
     }
 }
 
@@ -92,12 +62,13 @@ void testMazoConLista(){
     printf("\n");
     
     printf("----se  apila una carta a la primera del mazo ----\n");
-    char* palo2 = "basto";
-    int32_t* num2 = 1;
+    char palo2[] = "basto";
+    int32_t num2 = 1;
 
-    card_t* carta2 = cardNew(palo2, num2);
+    card_t* carta2 = cardNew(palo2, &num2);
     listElem_t* primera = listGet(mazo,0);
-    cardAddStacked(primera->data,carta2);
+    cardAddStacked(primera,carta2);
+    cardDelete(carta2);
 
     printf("----se  espera ver la subcarta agregada ----\n");
     ImprimirMazoLista(mazo);
@@ -166,9 +137,11 @@ void agregarUnaCartaAlStacked(){
     int32_t number2 = 4;
     char palo2[] = "oro";
     card_t *carta2 = cardNew(palo2, &number2);
+    
 
     cardAddStacked(carta, carta2);
     printf("Carta despues de agregar al stacked\n");
+    cardDelete(carta2);
     cardPrint(carta, stdout);
     
     cardDelete(carta);
@@ -177,7 +150,10 @@ void clonarCarta(){
     int32_t number = 12;
     char palo[] = "espada";
     card_t *carta = cardNew(palo, &number);
+
     card_t *clon = cardClone(carta);
+    cardAddStacked(carta,clon);
+
     cardPrint(clon, stdout);
     cardDelete(carta);
     cardDelete(clon);
@@ -199,13 +175,13 @@ int main (void){
 
     //testStrPrint();
     //testStrDelete();
-    //testMazoConLista();
+    testMazoConLista();
     //testObtenerElemento();
     //crearCarta();cand new y card delete ok
     //clonarCarta();
     //agregarUnaCartaAlStacked();
     //clonarLista();
-    CrearMazoCincoCartas2();
+    //CrearMazoCincoCartas2();
     return 0;
 }
 
