@@ -108,11 +108,41 @@ void testObtenerElemento(){
     printf("Que devueleve fuera de rango: %d\n",(int *)res2);
     arrayDelete(nums);
 }
+
+void crearCarta(){
+    int32_t number = 12;
+    char palo[] = "espada";
+    card_t *carta = cardNew(palo, &number);
+    cardPrint(carta, stdout);
+    cardDelete(carta);
+}
+
+void agregarUnaCartaAlStacked(){
+    int32_t number = 12;
+    char palo[] = "espada";
+    card_t *carta = cardNew(palo, &number);
+
+    printf("Carta antes de agregar al stacked\n");
+    cardPrint(carta, stdout);
+
+    int32_t number2 = 4;
+    char palo2[] = "oro";
+    card_t *carta2 = cardNew(palo2, &number2);
+
+    cardAddStacked(carta, carta2);
+    printf("Carta despues de agregar al stacked\n");
+    cardPrint(carta, stdout);
+    
+    cardDelete(carta);
+}
+//valgrind --leak-check=full ./main
 int main (void){ 
     //testStrPrint();
     //testStrDelete();
     //testMazoConLista();
-    testObtenerElemento();
+    //testObtenerElemento();
+    //crearCarta();
+    //agregarUnaCartaAlStacked();
     return 0;
 }
 
