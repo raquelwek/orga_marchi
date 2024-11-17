@@ -9,7 +9,7 @@
 /*  CASO LISTA */
 list_t* CrearMazoCincoCartas(){
 
-    list_t* mazo = listNew(3); //Crear mazo de cartas enlazadas
+    list_t* mazo = listNew(TypeCard); //Crear mazo de cartas enlazadas
     char* palo1 = "espada";
     int32_t* num1 = 7;
     card_t* carta1 = cardNew(palo1, num1);
@@ -37,6 +37,42 @@ list_t* CrearMazoCincoCartas(){
 
     return mazo;
 
+}
+void CrearMazoCincoCartas2(){
+
+    list_t* mazo = listNew(TypeCard); //Crear mazo de cartas enlazadas
+    char palo1[] = "espada";
+    int32_t num1 = 7;
+    card_t* carta1 = cardNew(palo1, &num1);
+    listAddLast(mazo,carta1);
+
+
+    /*
+    char palo2[] = "basto";
+    int32_t num2 = 1;
+    card_t* carta2 = cardNew(palo2, &num2);
+    listAddLast(mazo,carta2);
+    
+
+    char palo3[] = "oro";
+    int32_t num3 = 5;
+    card_t* carta3 = cardNew(palo3, &num3);
+    listAddLast(mazo,carta3);
+
+    char palo4[] = "copa";
+    int32_t num4 = 4;
+    card_t* carta4 = cardNew(palo4,&num4);
+    listAddLast(mazo,carta4);
+
+    char palo5[] = "espada";
+    int32_t num5 = 3;
+    card_t* carta5 = cardNew(palo5, &num5);
+    listAddLast(mazo,carta5);
+    */
+    cardDelete(carta1);
+    listPrint(mazo, stdout);
+    listDelete(mazo);
+    
 }
 void ImprimirMazoLista(list_t* mazo){
     listElem_t* actual = mazo->first;
@@ -144,15 +180,30 @@ void clonarCarta(){
     cardDelete(carta);
     cardDelete(clon);
 }
+void clonarLista(){
+    list_t* lista = listNew(TypeInt);
+    
+    for (int32_t i = 0; i < 100; i++) {
+        listAddFirst(lista, &i);
+    }
+    list_t* clon = listClone(lista);
+    listPrint(clon, stdout);
+    listDelete(lista);
+    listDelete(clon);
+}
+
 //valgrind --leak-check=full ./main
 int main (void){ 
+
     //testStrPrint();
     //testStrDelete();
     //testMazoConLista();
     //testObtenerElemento();
-    //crearCarta();
-    clonarCarta();
+    //crearCarta();cand new y card delete ok
+    //clonarCarta();
     //agregarUnaCartaAlStacked();
+    //clonarLista();
+    CrearMazoCincoCartas2();
     return 0;
 }
 

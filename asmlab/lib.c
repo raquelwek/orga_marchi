@@ -170,22 +170,18 @@ void listAddLast(list_t *l, void *data)
     l -> size++;
 }
 
-list_t *listClone(list_t *l)
-{   
+list_t* listClone(list_t* l) {
+    list_t *copia = listNew(l->type);
 
-    list_t* copia = listNew(l->type);
-    listElem_t* actual = l->first;
-    funcClone_t* clonar = getCloneFunction(l->type);
-    void* cp;
+    listElem_t *act = l->first;
 
-    while (actual != NULL) {
-        cp = clonar(actual->data);
-        listAddLast(copia, cp); 
-        actual = actual->next;
-
+    while(act) {
+        listAddLast(copia,act->data);
+        act = act->next;
     }
-    return copia;
-}
+
+	return copia;
+} 
 
 void *listRemove(list_t *l, uint8_t i)
 {
@@ -244,24 +240,18 @@ void listSwap(list_t *l, uint8_t i, uint8_t j)
     nodeJ->data = tmp;
 }
 
-void listDelete(list_t *l)
-{
+void listDelete(list_t* l) {
     funcDelete_t* borrar = getDeleteFunction(l->type);
-    listElem_t* actual = l->first;
 
-    // Eliminar cada nodo de la lista antes de hacer el free del structs
-    while (actual != NULL) {
-        listElem_t* proximo = actual->next;
-
-        borrar(actual->data);
+    while (l->first) {
+        listElem_t* act = l->first->next;
         
-        free(actual);
-        actual = proximo;
-    }
-    l->first = NULL;
-    l->last = NULL;
-    l->size = 0;
+        borrar(l->first->data);
 
+        free(l->first);
+        l->first = act;
+        l->size--;
+    }
     free(l);
 }
 

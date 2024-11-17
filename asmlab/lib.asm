@@ -18,7 +18,7 @@
 %define LIST_SIZE_OFFSET 4
 %define LIST_FIRST_OFFSET 8
 %define LIST_LAST_OFFSET 16
-%define ARRAY_SIZE 24
+%define LIST_SIZE 24
 
 ;## NODO LIST ##
 %define NODE_DATA_OFFSET 0
