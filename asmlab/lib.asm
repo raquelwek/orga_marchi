@@ -324,24 +324,24 @@ arrayAddLast:
 ; void* arrayGet(array_t* a, uint8_t i)
 arrayGet:
     push rbp
+    mov rbp, rsp
     push r12
     push r13
     push r14
     sub rsp, 8
-    mov rbp, rsp
 
-    
-    mov r12, [rdi + ARRAY_DATA_OFFSET] ;Primer elemento
+    xor r14, r14        
+    mov r14b, sil       ;guardo indice
 
     xor r13, r13
     mov r13b, BYTE [rdi + ARRAY_SIZE_OFFSET]   ;size
 
-    xor r14, r14 ;limpio r13
-    mov r14b, sil  ;guardo indice
-
+    cmp r14b, r13b      ;indice >= size => fueraRango
+    jge .fueraRango
+    cmp r14b, 0         ;indice < 0 => fueraRango
+    jl .fueraRango
     
-    cmp r14b, r13b
-    jge .fueraRango                        ;indice >= size => fueraRango
+    mov r12, [rdi + ARRAY_DATA_OFFSET] ;Primer elemento                
     shl r14, 3
     mov rax, [r12 + r14]
     jmp .fin
@@ -370,17 +370,23 @@ arrayNew:
     push r12
     push r13
 
-    mov r12, rdi
-    movzx r13, sil
+    xor r12, r12
+    xor r13, r13
+
+    mov r12d, edi
+    mov r13b, sil
+
+    xor rdi, rdi
     mov rdi, ARRAY_SIZE                        ; se reserva memoria para la estructura
     call malloc
 
-    mov [rax + ARRAY_TYPE_OFFSET], r12         ; INICALIZAR ATRIBUTOS
+    mov dword[rax + ARRAY_TYPE_OFFSET], r12d         ; INICALIZAR ATRIBUTOS
     mov byte[rax + ARRAY_SIZE_OFFSET],  INITIAL_SIZE          
-    mov [rax + ARRAY_CAPACITY_OFFSET], r13     
+    mov byte[rax + ARRAY_CAPACITY_OFFSET], r13b     
     mov r12, rax
         
     shl r13, 3
+    xor rdi, rdi
     mov rdi, r13
     call malloc                               ; se reserva memoria para el array de datos
     mov [r12 + ARRAY_DATA_OFFSET], rax         
@@ -632,7 +638,8 @@ cardNew:
     mov r12, rdi ; suit
     mov r13, rsi  ; number
 
-    mov rdi, CARD_SIZE
+    xor rdi, rdi
+    mov edi, CARD_SIZE
     call malloc
 
     mov r14, rax            ;puntero a la estructura card_t A DEVOLVER
@@ -646,13 +653,13 @@ cardNew:
     mov [r14 + CARD_NUMBER_OFFSET], rax
 
     xor rdi, rdi
-    mov rdi, TYPE_CARD ;=>type_card
+    mov edi, TYPE_CARD 
     call listNew
     mov [r14 + CARD_STACKED_OFFSET], rax
 
     mov rax, r14
     add rsp, 8
-    pop r14
+    pop r14 
     pop r13
     pop r12
     pop rbp   
@@ -845,10 +852,10 @@ cardCmp:
 ;   return copiaCarta
 cardClone:
     push rbp
+    mov rbp, rsp
     push r12
     push rbx
     
-    mov rbp, rsp
     mov r12, rdi            ;guardar puntero a carta a copiar
 
     mov rdi, [r12 + CARD_SUIT_OFFSET]

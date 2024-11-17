@@ -98,7 +98,7 @@ void intPrint(int32_t *a, FILE *pFile)
 
 int32_t *intClone(int32_t *a)
 {
-    int32_t* copia = malloc(4);
+    int32_t* copia = malloc(sizeof(int32_t));
     *copia = *a;
     return copia;
     
@@ -182,8 +182,8 @@ list_t *listClone(list_t *l)
         cp = clonar(actual->data);
         listAddLast(copia, cp); 
         actual = actual->next;
-    }
 
+    }
     return copia;
 }
 
