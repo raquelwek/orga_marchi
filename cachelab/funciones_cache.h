@@ -10,9 +10,9 @@
  * configuraciones de tamaño, políticas de reemplazo, y los conjuntos.
  */
 typedef struct {
-    int tamanio_cache;      // Tamaño total de la caché (en bytes)
-    int tamanio_bloque;     // Tamaño de cada bloque (en bytes)
-    int num_conjuntos;      // Número de conjuntos en la caché
+    uint32_t tamanio_cache;      // Tamaño total de la caché (en bytes)
+    uint32_t tamanio_bloque;     // Tamaño de cada bloque (en bytes)
+    uint32_t num_conjuntos;      // Número de conjuntos en la caché
     hash_t* contador;
     hash_t** sets;
 } Cache;
