@@ -34,17 +34,43 @@ bool es_hit(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_
             hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
             hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1);
         }
+        return true;
         
-        
-    } return true;
+    } 
     return false;
 }
 bool es_dirty_miss(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address){
     hash_t* set = cache->sets[set_index];
     if (!hash_pertenece(set, &tag)) return false;//El tag no se encuentra en el set
     line_t* linea = hash_obtener(set, &tag);
-    if (linea->valido == 1 && linea->dirty == 1) return true;
-    return false;
+    if (linea->valido == 1 && linea->dirty == 1) 
+    {
+        if (operacion == 'R' )
+        {
+            hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
+            hash_guardar(contador , "dirty-rmiss", hash_obtener(contador,"dirty-rmiss") + 1);
+            hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1 + (2 * penalty));
+        } else if (operacion == 'W')
+        {
+            hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
+            hash_guardar(contador , "dirty-wmiss", hash_obtener(contador,"dirty-wmiss") + 1);
+            hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1 + (2 * penalty));
+        }
+        return true;
+    }
+    else{
+        if (operacion == 'R' )
+        {
+            hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
+            hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1 + penalty);
+        } else if (operacion == 'W')
+        {
+            hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
+            hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1 + penalty);
+        }
+        return false;
+    }
+    
 }
 void añadir_tag(Cache* cache, uint32_t set_index, char tag, char OP){
     
