@@ -1,8 +1,9 @@
 /********* ANALISIS DE RESULTADOS  *********/
 #include "analisis_resultados.h"
 #include <stdio.h>
+#define penalty 100
 
-void imprimir_metricas(const Cache* cache, int penalty) {
+void imprimir_metricas(const Cache* cache) {
     // Obtenemos los contadores de la caché
     int* loads = (int*)hash_obtener(cache->contador, "loads");
     int* stores = (int*)hash_obtener(cache->contador, "stores");

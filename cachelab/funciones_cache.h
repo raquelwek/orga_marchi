@@ -2,7 +2,7 @@
 #define FUNCIONES_CACHE_H
 #include <stdint.h> // Dependencia para usar uint32_t
 #include "funciones_cache.h" // Dependencia para manejar la estructura de la caché
-#include <hash.h>
+#include "hash.h"
 /**
  * @brief Estructura que representa una caché.
  * 
@@ -41,6 +41,7 @@ typedef struct acceso{
  */
 
 Cache* crear_cache(uint32_t tamanio_cache, uint32_t lineas, uint32_t num_sets);
+void destruir_cache(Cache* cache);
 /**
  * @brief Procesa una línea de traza y actualiza la caché.
  * 
@@ -56,5 +57,15 @@ void procesar_linea_traza(Cache* cache, char linea, uint32_t direccion);
  * @param cache Puntero a la estructura de la caché que se va a liberar.
  */
 void liberar_cache(Cache* cache);
+
+bool es_hit(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address);
+bool es_dirty_miss(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address);
+void agg_tag(Cache* cache, uint32_t set_index, char tag, char OP);
+char obtener_tag_a_desalojar(Cache* cache, uint32_t set_index);
+hash_t** inicializar_sets(uint32_t num_sets, uint32_t lineas);
+void destruir_sets(Cache* cache,hash_t** sets);
+hash_t* inicializar_contador();
+void destruir_linea(void* linea);
+void destruir_int(void* num);
 
 #endif // FUNCIONES_CACHE_H

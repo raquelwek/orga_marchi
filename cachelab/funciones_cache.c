@@ -33,7 +33,7 @@ bool es_dirty_miss(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  
     if (linea->valido == 1 && linea->dirty == 1) return true;
     return false;
 }
-void añadir_tag(Cache* cache, uint32_t set_index, char tag, char OP){
+void agg_tag(Cache* cache, uint32_t set_index, char tag, char OP){
     
     hash_t* set = cache->sets[set_index];
     if (hash_cantidad(set) == cache->tamanio_bloque){
