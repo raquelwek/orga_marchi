@@ -19,11 +19,24 @@ void destruir_cache(Cache* cache){
     free(cache);
 }
 
-bool es_hit(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address){
+bool es_hit(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address, char operacion){
     hash_t* set = cache->sets[set_index];
+    hash_t* contador = cache->contador;  
     if (!hash_pertenece(set, &tag)) return false;//El tag no se encuentra en el set
     line_t* linea = hash_obtener(set, &tag);
-    if (linea->valido == 1 ) return true;
+    if (linea->valido == 1 ){
+        if (operacion == 'R' )
+        {
+            hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
+            hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1);
+        } else if (operacion == 'W')
+        {
+            hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
+            hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1);
+        }
+        
+        
+    } return true;
     return false;
 }
 bool es_dirty_miss(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address){
