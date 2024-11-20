@@ -58,8 +58,8 @@ void procesar_linea_traza(Cache* cache, char linea, uint32_t direccion);
  */
 void liberar_cache(Cache* cache);
 
-bool es_hit(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address);
-bool es_dirty_miss(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address);
+bool es_hit(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address, char operacion);
+bool es_dirty_miss(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address, char operacion);
 void agg_tag(Cache* cache, uint32_t set_index, char tag, char OP);
 char obtener_tag_a_desalojar(Cache* cache, uint32_t set_index);
 hash_t** inicializar_sets(uint32_t num_sets, uint32_t lineas);

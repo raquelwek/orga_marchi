@@ -24,17 +24,12 @@ void procesar_linea(Cache* cache, char* linea, uint32_t BYTES_BLOCK) {
     uint32_t tag = obtener_tag(offset_set, offset_block, dir_acceso);
     char* tagC = (char*)tag;
 
-    bool hit = es_hit(cache, set_index, tagC, offset_block, dir_acceso);
+
+    bool hit = es_hit(cache, set_index, tagC, offset_block, dir_acceso, char operacion);
     if (hit) {
 
     }else {
-        bool dirty_miss = es_dirty_miss(cache, set_index, tagC, offset_block, dir_acceso);
-        if (dirty_miss) {
-            hash_guardar(cache->contador, "dirty-wmiss", hash_obtener(cache->contador, "dirty-wmiss") + 1);
-        }else {
-            hash_guardar(cache->contador, "wmiss", hash_obtener(cache->contador, "wmiss") + 1);
-        }
-        
+        bool dirty_miss = es_dirty_miss(cache, set_index, tagC, offset_block, dir_acceso, char operacion);   
     }
 
 }

@@ -39,7 +39,7 @@ bool es_hit(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_
     } 
     return false;
 }
-bool es_dirty_miss(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address){
+bool es_dirty_miss(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address, char operacion){
     hash_t* set = cache->sets[set_index];
     if (!hash_pertenece(set, &tag)) return false;//El tag no se encuentra en el set
     line_t* linea = hash_obtener(set, &tag);
