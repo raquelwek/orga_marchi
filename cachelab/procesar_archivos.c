@@ -1,5 +1,6 @@
 /********* MANEJO DE ARCHIVOS  *********/
-#include <procesar_archivos.h>
+//#include <funciones_cache.h>
+#include "procesar_archivos.h"
 #define NUM_CAMPOS 5 // Número de campos en el archivo de traza
 
 void procesar_linea(Cache* cache, char* linea, uint32_t BYTES_BLOCK) {
@@ -41,13 +42,13 @@ uint32_t obtener_tag(uint32_t offset_set, uint32_t offset_block, uint32_t direcc
 	uint32_t tag = direccion >> (offset_set + offset_block);
 	return tag;
 }
-int32_t obtenter_set(uint32_t direccion, uint32_t offset_set_index, uint32_t offset_block){
+uint32_t obtenter_set(uint32_t direccion, uint32_t offset_set_index, uint32_t offset_block){
     int32_t  indexMask = (1 << (offset_block + offset_set_index)) - 1;
 	int32_t  setIndex = (direccion & indexMask) >> offset_block;
 	return setIndex;
 }
-int32_t calcular_offset(uint32_t n){
-    int32_t offset = 0;
+uint32_t calcular_offset(uint32_t n){
+    uint32_t offset = 0;
 	while (n != 1){
 		offset += 1;
 		n >>= 1;
@@ -70,7 +71,7 @@ char* obtener_campos(char* linea){
     }
     return campos;
 }
-char* obtenerTag(uint32_t direccion){
+uint32_t obtenerTag(uint32_t direccion){
     return direccion >> 13;
 }
 uint32_t obtenerSet(uint32_t direccion){

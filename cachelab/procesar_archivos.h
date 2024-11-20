@@ -1,40 +1,22 @@
-#ifndef FUNCIONES_CACHE_H
-#define FUNCIONES_CACHE_H
+//#ifndef FUNCIONES_CACHE_H
+//#define FUNCIONES_CACHE_H
+#include "funciones_cache.h"// Implementación de las funciones de la caché
 
-#include "procesar_archivos.h" // Dependencia para acceder a la estructura Cache
-#include "funciones_cache.h" // Implementación de las funciones de la caché
-/**
- * @brief Realiza una lectura desde la caché.
- * 
- * @param cache Puntero a la estructura de la caché.
- * @param direccion Dirección de memoria a leer.
- * @return 1 si es un hit, 0 si es un miss.
- */
-int leer_cache(Cache* cache, unsigned int direccion);
 
-/**
- * @brief Realiza una escritura en la caché.
- * 
- * @param cache Puntero a la estructura de la caché.
- * @param direccion Dirección de memoria a escribir.
- * @return 1 si es un hit, 0 si es un miss.
- */
-int escribir_cache(Cache* cache, unsigned int direccion);
+void procesar_linea(Cache* cache, char* linea, uint32_t BYTES_BLOCK);
 
-/**
- * @brief Reemplaza un bloque en un conjunto de la caché.
- * 
- * @param cache Puntero a la estructura de la caché.
- * @param direccion Dirección de memoria para el reemplazo.
- * @return void
- */
-void reemplazar_bloque(Cache* cache, unsigned int direccion);
+uint32_t obtener_tag(uint32_t offset_set, uint32_t offset_block, uint32_t direccion);
 
-/**
- * @brief Limpia la caché escribiendo todos los bloques sucios a memoria principal.
- * 
- * @param cache Puntero a la estructura de la caché.
- */
-void limpiar_cache(Cache* cache);
+uint32_t obtenter_set(uint32_t direccion, uint32_t offset_set_index, uint32_t offset_block);
 
-#endif // FUNCIONES_CACHE_H
+char* obtener_campos(char* linea);
+
+uint32_t calcular_offset(uint32_t n);
+
+uint32_t obtenerTag(uint32_t direccion);
+
+uint32_t obtenerSet(uint32_t direccion);
+
+uint32_t obtenerBloqueOffset(uint32_t direccion);
+
+//#endif // FUNCIONES_CACHE_H
