@@ -49,11 +49,13 @@ bool es_dirty_miss(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  
         {
             hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
             hash_guardar(contador , "dirty-rmiss", hash_obtener(contador,"dirty-rmiss") + 1);
+            hash_guardar(contador , "bytes-read", hash_obtener(contador,"bytes-read") + tamañio_bloque);
             hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1 + (2 * penalty));
         } else if (operacion == 'W')
         {
             hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
             hash_guardar(contador , "dirty-wmiss", hash_obtener(contador,"dirty-wmiss") + 1);
+            hash_guardar(contador , "bytes-written", hash_obtener(contador,"bytes-written") + tamañio_bloque);
             hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1 + (2 * penalty));
         }
         return true;
@@ -62,10 +64,12 @@ bool es_dirty_miss(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  
         if (operacion == 'R' )
         {
             hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
+            hash_guardar(contador , "bytes-read", hash_obtener(contador,"bytes-read") + tamañio_bloque);
             hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1 + penalty);
         } else if (operacion == 'W')
         {
             hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
+            hash_guardar(contador , "bytes-written", hash_obtener(contador,"bytes-written") + tamañio_bloque);
             hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1 + penalty);
         }
         return false;
