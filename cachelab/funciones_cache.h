@@ -1,5 +1,5 @@
-#ifndef PROCESAR_ARCHIVOS_H
-#define PROCESAR_ARCHIVOS_H
+#ifndef FUNCIONES_CACHE_H
+#define FUNCIONES_CACHE_H
 #include <stdint.h> // Dependencia para usar uint32_t
 #include "funciones_cache.h" // Dependencia para manejar la estructura de la caché
 #include <hash.h>
@@ -57,4 +57,4 @@ void procesar_linea_traza(Cache* cache, char linea, uint32_t direccion);
  */
 void liberar_cache(Cache* cache);
 
-#endif // PROCESAR_ARCHIVOS_H
+#endif // FUNCIONES_CACHE_H
