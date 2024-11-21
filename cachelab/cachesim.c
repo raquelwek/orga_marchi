@@ -8,13 +8,60 @@
 #include "funciones_cache.h"
 #include "analisis_resultados.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "funciones_cache.h"
+#include "analisis_resultados.h"
+#include "procesar_archivos.h"
 
-/********* SIMULADOR DE CACHÉ *********/
-int main (void){    
+#define PENALTY 100       // Penalty para los misses
+
+// Función para procesar el archivo de traza
+void procesar_archivo(char* archivo_entrada, Cache* cache) {
+    FILE *file = fopen(archivo_entrada, "r");
+    if (file == NULL) {
+        perror("Error al abrir el archivo de traza");
+        return;
+    }
+    char linea[256];
+    while (fgets(linea, sizeof(linea), file)) {
+        procesar_linea(cache, linea, BLOCK_SIZE);
+    }
+    fclose(file);
+}
+
+// Función principal
+int main(int argc, char *argv[]) {
+    // Verifica si se pasaron los 4 argumentos esperados
+    if (argc != 5) {
+        fprintf(stderr, "Uso incorrecto. Se esperan 4 argumentos.\n");
+        fprintf(stderr, "Uso: %s <archivo_trace> <tamano_cache> <asociatividad> <numero_sets>\n", argv[0]);
+        return 1; // Código de error
+    }
+
+    // Asignación de los argumentos a las variables correspondientes
+    char *archivo_traza = argv[1];  // El archivo de traza
+    int tamano_cache = atoi(argv[2]);  // El tamaño de la caché en bytes
+    int asociatividad = atoi(argv[3]);  // La asociatividad de la caché (E)
+    int numero_sets = atoi(argv[4]);  // El número de sets de la caché (S)
+
+    // Crear la caché con los parámetros predefinidos
+    Cache* cache = crear_cache(tamano_cache, asociatividad, numero_sets);
+
+    // Procesar el archivo de traza
+    procesar_archivo(argv[1], cache);
+
+    // Imprimir las métricas de la simulación
+    imprimir_metricas(cache);
+
+    // Liberar la memoria de la caché
+    destruir_cache(cache);
+
     return 0;
 }
 
-
+/********* SIMULADOR DE CACHÉ *********/
 /*
     SECCIONES A DESARROLLAR
     - Procesar archivos 

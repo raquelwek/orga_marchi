@@ -42,14 +42,6 @@ typedef struct acceso{
 
 Cache* crear_cache(uint32_t tamanio_cache, uint32_t lineas, uint32_t num_sets);
 void destruir_cache(Cache* cache);
-/**
- * @brief Procesa una línea de traza y actualiza la caché.
- * 
- * @param cache Puntero a la estructura de la caché.
- * @param linea a procesar
- * @param direccion Dirección de memoria a acceder.
- */
-void procesar_linea_traza(Cache* cache, char linea, uint32_t direccion);
 
 /**
  * @brief Libera toda la memoria asociada a la caché.

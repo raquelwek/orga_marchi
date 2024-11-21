@@ -1,5 +1,7 @@
 //#ifndef FUNCIONES_CACHE_H
 //#define FUNCIONES_CACHE_H
+#ifndef PROCESAR_ARCHIVOS_H
+#define PROCESAR_ARCHIVOS_H
 #include "funciones_cache.h"// Implementación de las funciones de la caché
 
 
@@ -20,3 +22,4 @@ uint32_t obtenerSet(uint32_t direccion);
 uint32_t obtenerBloqueOffset(uint32_t direccion);
 
 //#endif // FUNCIONES_CACHE_H
+#endif //PROCESAR_ARCHIVOS_H
