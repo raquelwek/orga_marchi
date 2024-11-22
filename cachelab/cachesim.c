@@ -26,7 +26,7 @@ void procesar_archivo(char* archivo_entrada, Cache* cache) {
     }
     char linea[256];
     while (fgets(linea, sizeof(linea), file)) {
-        procesar_linea(cache, linea, BLOCK_SIZE);
+        procesar_linea(cache, linea);
     }
     fclose(file);
 }
@@ -42,15 +42,16 @@ int main(int argc, char *argv[]) {
 
     // Asignación de los argumentos a las variables correspondientes
     char *archivo_traza = argv[1];  // El archivo de traza
-    int tamano_cache = atoi(argv[2]);  // El tamaño de la caché en bytes
-    int asociatividad = atoi(argv[3]);  // La asociatividad de la caché (E)
-    int numero_sets = atoi(argv[4]);  // El número de sets de la caché (S)
+    uint32_t tamano_cache = atoi(argv[2]);  // El tamaño de la caché en bytes
+    uint32_t asociatividad = atoi(argv[3]);  // La asociatividad de la caché (E)
+    uint32_t numero_sets = atoi(argv[4]);  // El número de sets de la caché (S)
+    uint32_t tam_bloque = tamano_cache / (asociatividad * numero_sets);  // Tamaño del bloque en bytes
 
     // Crear la caché con los parámetros predefinidos
-    Cache* cache = crear_cache(tamano_cache, asociatividad, numero_sets);
+    Cache* cache = crear_cache(tamano_cache, asociatividad, numero_sets, tam_bloque);
 
     // Procesar el archivo de traza
-    procesar_archivo(argv[1], cache);
+    procesar_archivo(archivo_traza, cache);
 
     // Imprimir las métricas de la simulación
     imprimir_metricas(cache);

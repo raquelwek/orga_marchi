@@ -5,7 +5,7 @@
 #include "funciones_cache.h"// Implementación de las funciones de la caché
 
 
-void procesar_linea(Cache* cache, char* linea, uint32_t BYTES_BLOCK);
+void procesar_linea(Cache* cache, char* linea);
 
 uint32_t obtener_tag(uint32_t offset_set, uint32_t offset_block, uint32_t direccion);
 

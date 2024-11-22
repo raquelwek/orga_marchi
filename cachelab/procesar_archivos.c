@@ -3,7 +3,7 @@
 #include "procesar_archivos.h"
 #define NUM_CAMPOS 5 // Número de campos en el archivo de traza
 
-void procesar_linea(Cache* cache, char* linea, uint32_t BYTES_BLOCK) {
+void procesar_linea(Cache* cache, char* linea) {
     // Variables para almacenar cada campo
     uint32_t pc;      
     char operacion;          
@@ -25,11 +25,11 @@ void procesar_linea(Cache* cache, char* linea, uint32_t BYTES_BLOCK) {
     char* tagC = (char*)tag;
 
 
-    bool hit = es_hit(cache, set_index, tagC, offset_block, dir_acceso, char operacion);
+    bool hit = es_hit(cache, set_index, tagC, offset_block, dir_acceso, operacion);
     if (hit) {
 
     }else {
-        bool dirty_miss = es_dirty_miss(cache, set_index, tagC, offset_block, dir_acceso, char operacion);   
+        bool dirty_miss = es_dirty_miss(cache, set_index, tagC, offset_block, dir_acceso,operacion);   
     }
 
 }
