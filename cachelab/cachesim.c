@@ -53,13 +53,13 @@ void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, in
     if (!modo_verboso)
     {
         while (fgets(linea, sizeof(linea), file)) {
-        procesar_linea(cache, linea, BLOCK_SIZE);
+            procesar_linea(cache, linea);
         }
         fclose(file);
     } else {
         for (int i = n; i < m; i++)
         {
-            procesar_linea(cache, linea, BLOCK_SIZE);
+            procesar_linea(cache, linea);
         }
         fclose(file);
         
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
     
 
     // Crear la caché con los parámetros predefinidos
-    Cache* cache = crear_cache(args.tamaño_cache, args.asociatividad, args.numero_sets);
+    Cache* cache = crear_cache(args.tamanioo_cache, args.asociatividad, args.numero_sets);
 
 
     // Procesar el archivo de traza
