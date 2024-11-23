@@ -22,12 +22,12 @@ void destruir_cache(Cache* cache){
     free(cache);
 }
 
-bool es_hit(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_t address, char operacion){
+bool hit_case(Cache* cache, uint32_t set_index, char tag, char operacion){
     hash_t* set = cache->sets[set_index];
     hash_t* contador = cache->contador;  
     if (!hash_pertenece(set, &tag)) return false;//El tag no se encuentra en el set
     line_t* linea = hash_obtener(set, &tag);
-    if (linea->valido == 1 ){
+    if (es_linea_valida(linea)){
         if (operacion == SIMBOLO_READ ) {
             hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
             hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1);
@@ -37,89 +37,77 @@ bool es_hit(Cache* cache, uint32_t set_index, char tag, uint32_t b_off,  uint32_
             hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1);
         }
         linea->orden++;
+        cache->last_used++;
         return true;
         
     } 
     return false;
 }
 
-// es_miss contabiliza los contadores en el caso de miss, para ello recibe la cache, el indice del set, 
-// el tag en el cual se ubicará el bloque de direcciones y la operacion
-// prec: se asume que el tag que no está en el set
-bool es_miss(Cache* cache, uint32_t set_index, char tag, char operacion) {
-    hash_t* set = cache->sets[set_index];
-    hash_t* contador = cache->contador;
-    line_t* linea = hash_obtener(set, &tag);
-    if (linea->valido == 0 || linea ->dirty == 0) {
-        if (operacion == SIMBOLO_READ ) {
-            hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
-            hash_guardar(contador , "rmiss", hash_obtener(contador,"rmiss") + 1);
-            hash_guardar(contador , "bytes-read", hash_obtener(contador,"bytes-read") + cache->tamanio_bloque);
-            hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1 + PENALTY);
-        } else if (operacion == SIMBOLO_WRITE) {
-            hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
-            hash_guardar(contador , "wmiss", hash_obtener(contador,"wmiss") + 1);
-            hash_guardar(contador , "bytes-written", hash_obtener(contador,"bytes-written") + cache->tamanio_bloque);
-            hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1 + PENALTY);
-        }
-        return true;
+// miss_case contabiliza los contadores en el caso de miss
+// post: se actualizan los contadores de la cache
+void miss_case(char operacion, uint32_t tam_block, hash_t* contador) {
+     
+    if (operacion == SIMBOLO_READ ) {
+        hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
+        hash_guardar(contador , "rmiss", hash_obtener(contador,"rmiss") + 1);
+        hash_guardar(contador , "bytes-read", hash_obtener(contador,"bytes-read") + tam_block);
+        hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1 + PENALTY);
+    } else if (operacion == SIMBOLO_WRITE) {
+        hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
+        hash_guardar(contador , "wmiss", hash_obtener(contador,"wmiss") + 1);
+        hash_guardar(contador , "bytes-written", hash_obtener(contador,"bytes-written") + tam_block);
+        hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1 + PENALTY);
     }
-    return false;
+        
 
 }
-bool es_dirty_miss(Cache* cache, uint32_t set_index, char tag,  uint32_t address, char operacion){
-    hash_t* set = cache->sets[set_index];
-    hash_t* contador = cache->contador;
+void dirty_miss_case(char operacion, uint32_t tam_block, hash_t* contador) {
+   
+    if (operacion == SIMBOLO_READ ) {
+        hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
+        hash_guardar(contador , "dirty-rmiss", hash_obtener(contador,"dirty-rmiss") + 1);
+        hash_guardar(contador , "bytes-read", hash_obtener(contador,"bytes-read") + tam_block);
+        hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1 + (2 * PENALTY));
+    } else if (operacion == SIMBOLO_WRITE) {
+        hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
+        hash_guardar(contador , "dirty-wmiss", hash_obtener(contador,"dirty-wmiss") + 1);
+        hash_guardar(contador , "bytes-written", hash_obtener(contador,"bytes-written") + tam_block);
+        hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1 + (2 * PENALTY));
+    }
 
-    if (!hash_pertenece(set, &tag)) return false;//El tag no se encuentra en el set
-    uint32_t tam_block = cache->tamanio_bloque;
-    line_t* linea = hash_obtener(set, &tag);
-    if (linea->valido == 1 && linea->dirty == 1) 
-    {
-        if (operacion == SIMBOLO_READ )
-        {
-            hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
-            hash_guardar(contador , "dirty-rmiss", hash_obtener(contador,"dirty-rmiss") + 1);
-            hash_guardar(contador , "bytes-read", hash_obtener(contador,"bytes-read") + tam_block);
-            hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1 + (2 * PENALTY));
-        } else if (operacion == SIMBOLO_WRITE)
-        {
-            hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
-            hash_guardar(contador , "dirty-wmiss", hash_obtener(contador,"dirty-wmiss") + 1);
-            hash_guardar(contador , "bytes-written", hash_obtener(contador,"bytes-written") + tam_block);
-            hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1 + (2 * PENALTY));
-        }
-        return true;
-    }
-    else{
-        if (operacion == SIMBOLO_READ )
-        {
-            hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
-            hash_guardar(contador , "bytes-read", hash_obtener(contador,"bytes-read") + tam_block);
-            hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1 + PENALTY);
-        } else if (operacion == SIMBOLO_WRITE)
-        {
-            hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
-            hash_guardar(contador , "bytes-written", hash_obtener(contador,"bytes-written") + tam_block);
-            hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1 + PENALTY);
-        }
-        return false;
-    }
     
 }
-void agg_tag(Cache* cache, uint32_t set_index, char tag, char OP){
-    
+bool es_linea_valida(line_t* linea){
+    return linea->valido == 1;
+}
+bool set_tiene_espacio(hash_t* set, uint32_t lineas_por_set){
+    return hash_cantidad(set) < lineas_por_set;
+}
+
+
+bool agg_tag(Cache* cache, uint32_t set_index, char tag, char OP) {
+
     hash_t* set = cache->sets[set_index];
-    if (hash_cantidad(set) == cache->tamanio_bloque){
-        char tag_a_desalojar = obtener_tag_a_desalojar(cache, set_index);
-        destruir_linea(hash_borrar(set, &tag_a_desalojar));
-    }
     line_t* linea = malloc(sizeof(line_t));
+    bool es_dirty_miss = false;
+    if (!set_tiene_espacio(set, cache->num_lineas)){
+        tag = obtener_tag_a_desalojar(cache, set_index);
+
+        line_t* linea_target = hash_obtener(set, &tag);
+        linea -> numero_linea = linea_target->numero_linea;
+        es_dirty_miss = (linea->dirty) == 1;
+        destruir_linea(hash_borrar(set, &tag));
+    }
+    
     linea->tag = tag;
     linea->valido = 1;
     linea->dirty = 0;
+    linea->orden = cache->last_used +1;
+    cache->last_used++;
     if (OP == SIMBOLO_WRITE) linea->dirty = 1;
     hash_guardar(set, &tag, linea);
+    return es_dirty_miss;
 }
 
 char obtener_tag_a_desalojar(Cache* cache, uint32_t set_index) {
@@ -142,15 +130,6 @@ char obtener_tag_a_desalojar(Cache* cache, uint32_t set_index) {
 }
 
 
-
-/*
-mi idea es que cada set esté asociado a un hash de lineas las claves son los tags y los valores son las lineas
-donde cada linea tiene un tag, un bit de validez y un bit de dirty. Entonces
-por cada set tengo un hash, y los sets los almaceno en un arreglo de sets.
-Para contar cada hit, miss, dirty miss, dirty hit, etc. uso tmb un hash donde
-las claves serían los contadores y los valores arrancan en 0 y se incrementan luego.
-*/
-
 // FUNCIONES AUXILIARES
 
 hash_t** inicializar_sets(uint32_t num_sets, uint32_t lineas){
@@ -163,9 +142,6 @@ hash_t** inicializar_sets(uint32_t num_sets, uint32_t lineas){
 void destruir_sets(Cache* cache,hash_t** sets){
     for(int i = 0; i < cache->num_conjuntos; i++){
         hash_t* set  = sets[i];
-        while (hash_cantidad(set) > 0){
-            destruir_linea(hash_borrar(set, hash_iter_ver_actual(hash_iter_crear(set))));
-        }
         hash_destruir(sets[i]);
     }
     free(sets);

@@ -25,11 +25,14 @@ void procesar_linea(Cache* cache, char* linea) {
     char* tagC = (char*)tag;
 
 
-    bool hit = es_hit(cache, set_index, tagC, offset_block, dir_acceso, operacion);
-    if (hit) {
-
-    }else {
-        bool dirty_miss = es_dirty_miss(cache, set_index, tagC, offset_block, dir_acceso,operacion);   
+    bool hit = hit_case(cache, set_index, tagC, operacion);
+    if (!hit) {
+        bool es_dirty_miss = agg_tag(cache, set_index, tagC, operacion);
+        if (es_dirty_miss) {
+            dirty_miss_case(operacion, cache->tamanio_bloque, cache->contador);
+        }else {
+            miss_case(operacion, cache->tamanio_bloque, cache->contador);
+        }
     }
 
 }
@@ -38,8 +41,8 @@ uint32_t obtener_tag(uint32_t offset_set, uint32_t offset_block, uint32_t direcc
 	return tag;
 }
 uint32_t obtenter_set(uint32_t direccion, uint32_t offset_set_index, uint32_t offset_block){
-    int32_t  indexMask = (1 << (offset_block + offset_set_index)) - 1;
-	int32_t  setIndex = (direccion & indexMask) >> offset_block;
+    uint32_t  indexMask = (1 << (offset_block + offset_set_index)) - 1;
+	uint32_t  setIndex = (direccion & indexMask) >> offset_block;
 	return setIndex;
 }
 uint32_t calcular_offset(uint32_t n){
