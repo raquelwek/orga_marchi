@@ -18,14 +18,45 @@ typedef struct {
 } Argumentos;
 
 
-void verificar_argumentos(int argc, char *argv[], Argumentos* args) {
-    if (argc < 5 || argc > 8) {
-        fprintf(stderr, "Uso incorrecto. Se esperan 4 o 7 argumentos.\n");
-        exit(1); // Finaliza con error
+bool verificar_argumentos(int argc) {
+    return (argc == 5 || argc == 8);   
+}
+
+bool verificar_archivo(char* archivo){
+    if (archivo == NULL) return false; // Verifico que el puntero no sea nulo
+    FILE *file = fopen(archivo, "r");
+    if (file) {
+        fclose(file); 
+        return true;
+    }
+    return false; 
+}
+
+bool verificar_potencia(int numero){
+    return numero > 0 && (numero & (numero - 1)) == 0;
+}
+
+bool verificar_rango(int n, int m){
+    return (n >= 0 && m >= n);
+}
+
+bool verificar_condiciones(int argc, char *argv[], Argumentos* args, bool modo_verboso){
+    bool valido = (verificar_argumentos(argc) && verificar_archivo(argv[1]));
+    if(modo_verboso && argc == 8){
+        int rango_n = atoi(argv[6]);
+        int rango_m = atoi(argv[7]);
+        bool verboso = (verificar_potencia(rango_n) && verificar_potencia(rango_m) && verificar_rango(rango_n,rango_m));
+        return (valido && verboso);
     }
 
-    
-    // Asignar valores comunes
+    return valido;
+        
+     
+}
+
+
+void asignar_argumentos(int argc, char *argv[], Argumentos* args){
+     // Asignar valores comunes
     args->archivo_traza = argv[1];
     args->tamano_cache = atoi(argv[2]);
     args->asociatividad = atoi(argv[3]);
@@ -39,7 +70,7 @@ void verificar_argumentos(int argc, char *argv[], Argumentos* args) {
         args->rango_n = atoi(argv[6]);
         args->rango_m = atoi(argv[7]);
     }
-    
+
 }
 
 // Función para procesar el archivo de traza
