@@ -3,6 +3,7 @@
 #include <stdint.h> // Dependencia para usar uint32_t
 #include "funciones_cache.h" // Dependencia para manejar la estructura de la caché
 #include "hash.h"
+#define PENALTY 100
 /**
  * @brief Estructura que representa una caché.
  * 
@@ -13,6 +14,7 @@ typedef struct {
     uint32_t tamanio_cache;      // Tamaño total de la caché (en bytes)
     uint32_t tamanio_bloque;     // Tamaño de cada bloque (en bytes)
     uint32_t num_conjuntos;      // Número de conjuntos en la caché
+    uint32_t num_lineas;         // Número de líneas por conjunto
     hash_t* contador;
     hash_t** sets;
 } Cache;
@@ -40,7 +42,7 @@ typedef struct acceso{
  * @return Un puntero a la estructura Cache creada alocada en el heap.
  */
 
-Cache* crear_cache(uint32_t tamanio_cache, uint32_t lineas, uint32_t num_sets);
+Cache* crear_cache(uint32_t C, uint32_t E, uint32_t S, uint32_t B);
 void destruir_cache(Cache* cache);
 
 /**
