@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h> 
 #include "funciones_cache.h"
 #include "analisis_resultados.h"
 #include "procesar_archivos.h"
@@ -76,47 +77,53 @@ void asignar_argumentos(int argc, char *argv[], Argumentos* args){
 // Función para procesar el archivo de traza
 void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, int n, int m) {
     FILE *file = fopen(archivo_entrada, "r");
-    if (file == NULL) {
-        perror("Error al abrir el archivo de traza");
+    if (!file) {
+        fprintf(stderr, "Error: no se pudo abrir el archivo %s\n", archivo_entrada);
         return;
     }
+
     char linea[256];
-    if (!modo_verboso)
-    {
-        while (fgets(linea, sizeof(linea), file)) {
-        procesar_linea(cache, linea, BLOCK_SIZE);
-        }
-        fclose(file);
-    } else {
-        for (int i = n; i < m; i++)
-        {
+    int indice = -1; // Indice para contar las líneas
+
+    while (fgets(linea, sizeof(linea), file)) {
+        indice++; // Incrementar el índice al leer una nueva línea
+
+        if (!modo_verboso) {
+            // En modo normal, procesar todas las líneas
             procesar_linea(cache, linea, BLOCK_SIZE);
+        } else {
+            // En modo verboso, procesar solo líneas dentro del rango [n, m]
+            if (indice >= n && indice <= m) {
+                procesar_linea(cache, linea, BLOCK_SIZE);
+            }
         }
-        fclose(file);
-        
     }
-    
+    fclose(file);
     
 
 }
 
 // Función principal
 int main(int argc, char *argv[]) {
-    
-     // Estructura para almacenar los argumentos procesados
+      // Estructura para almacenar los argumentos procesados
     Argumentos args;
 
-    // Verificar y procesar los argumentos
-    verificar_argumentos(argc, argv, &args);
-    
-    
+    // Verificar condiciones
+    if (!verificar_condiciones(argc, argv, &args, args.modo_verboso)) {
+        fprintf(stderr, "Error: condiciones inválidas para los argumentos.\n");
+        return 1;
+    }
+
+    // Asignar argumentos
+    asignar_argumentos(argc, argv, &args);
+
+
 
     // Crear la caché con los parámetros predefinidos
-    Cache* cache = crear_cache(args.tamaño_cache, args.asociatividad, args.numero_sets);
-
+    Cache* cache = crear_cache(args.tamano_cache, args.asociatividad, args.numero_sets);
 
     // Procesar el archivo de traza
-    procesar_archivo(args.archivo_traza, cache, args.modo_verboso, args.rango_n, args.rango_m );
+    procesar_archivo(args.archivo_traza, cache, args.modo_verboso, args.rango_n, args.rango_m);
 
     // Imprimir las métricas de la simulación
     imprimir_metricas(cache);
