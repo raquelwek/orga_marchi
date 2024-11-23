@@ -1,4 +1,5 @@
 /**********  FUNCIONES PARA LA CACHE *********/
+#include <stdlib.h>
 #include "funciones_cache.h"
 #define ADDRESS_SIZE 32     // Tamaño de dirección en bits
 #define CONTADORES_CANT 10
@@ -30,12 +31,18 @@ bool hit_case(Cache* cache, uint32_t set_index, char tag, char operacion, verbos
     line_t* linea = hash_obtener(set, &tag);
     if (es_linea_valida(linea)){
         if (operacion == SIMBOLO_READ ) {
-            hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
-            hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1);
+            int nuevo_valor = *(int*)hash_obtener(contador, "loads") + 1;
+            hash_guardar(contador , "loads", &nuevo_valor);
+            int nuevo_time_r = *(int*)hash_obtener(contador, "time-r") + 1;
+            hash_guardar(contador , "time-r", &nuevo_time_r);
+
         } else if (operacion == SIMBOLO_WRITE) {
             linea->dirty = 1;
-            hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
-            hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1);
+            int nuevo_stores = *(int*)hash_obtener(contador, "stores") + 1;
+            hash_guardar(contador , "stores", &nuevo_stores);
+            int nuevo_time_w = *(int*)hash_obtener(contador, "time-w") + 1;
+            hash_guardar(contador , "time-w", &nuevo_time_w);
+
         }
         linea->last_used = cache -> indice_op;
         campos_verboso(info, linea, '1');
@@ -58,15 +65,25 @@ void campos_verboso(verboso_t* v, line_t*  linea, char caso){
 void miss_case(char operacion, uint32_t tam_block, hash_t* contador) {
      
     if (operacion == SIMBOLO_READ ) {
-        hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
-        hash_guardar(contador , "rmiss", hash_obtener(contador,"rmiss") + 1);
-        hash_guardar(contador , "bytes-read", hash_obtener(contador,"bytes-read") + tam_block);
-        hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1 + PENALTY);
+        // Operación de lectura
+        int nuevo_loads = *(int*)hash_obtener(contador, "loads") + 1;
+        hash_guardar(contador, "loads", &nuevo_loads);
+        int nuevo_rmiss = *(int*)hash_obtener(contador, "rmiss") + 1;
+        hash_guardar(contador, "rmiss", &nuevo_rmiss);
+        int nuevo_bytes_read = *(int*)hash_obtener(contador, "bytes-read") + tam_block;
+        hash_guardar(contador, "bytes-read", &nuevo_bytes_read);
+        int nuevo_time_r = *(int*)hash_obtener(contador, "time-r") + 1 + PENALTY;
+        hash_guardar(contador, "time-r", &nuevo_time_r);
+
     } else if (operacion == SIMBOLO_WRITE) {
-        hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
-        hash_guardar(contador , "wmiss", hash_obtener(contador,"wmiss") + 1);
-        hash_guardar(contador , "bytes-written", hash_obtener(contador,"bytes-written") + tam_block);
-        hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1 + PENALTY);
+        int nuevo_stores = *(int*)hash_obtener(contador, "stores") + 1;
+        hash_guardar(contador, "stores", &nuevo_stores);
+        int nuevo_wmiss = *(int*)hash_obtener(contador, "wmiss") + 1;
+        hash_guardar(contador, "wmiss", &nuevo_wmiss);
+        int nuevo_bytes_written = *(int*)hash_obtener(contador, "bytes-written") + tam_block;
+        hash_guardar(contador, "bytes-written", &nuevo_bytes_written);
+        int nuevo_time_w = *(int*)hash_obtener(contador, "time-w") + 1 + PENALTY;
+        hash_guardar(contador, "time-w", &nuevo_time_w);
     }
         
 
@@ -74,15 +91,29 @@ void miss_case(char operacion, uint32_t tam_block, hash_t* contador) {
 void dirty_miss_case(char operacion, uint32_t tam_block, hash_t* contador) {
    
     if (operacion == SIMBOLO_READ ) {
-        hash_guardar(contador , "loads", hash_obtener(contador,"loads") + 1);
-        hash_guardar(contador , "dirty-rmiss", hash_obtener(contador,"dirty-rmiss") + 1);
-        hash_guardar(contador , "bytes-read", hash_obtener(contador,"bytes-read") + tam_block);
-        hash_guardar(contador , "time-r", hash_obtener(contador,"time-r") + 1 + (2 * PENALTY));
+        int nuevo_loads = *(int*)hash_obtener(contador, "loads") + 1;
+        hash_guardar(contador, "loads", &nuevo_loads);
+
+        int nuevo_dirty_rmiss = *(int*)hash_obtener(contador, "dirty-rmiss") + 1;
+        hash_guardar(contador, "dirty-rmiss", &nuevo_dirty_rmiss);
+
+        int nuevo_bytes_read = *(int*)hash_obtener(contador, "bytes-read") + tam_block;
+        hash_guardar(contador, "bytes-read", &nuevo_bytes_read);
+
+        int nuevo_time_r = *(int*)hash_obtener(contador, "time-r") + 1 + (2 * PENALTY);
+        hash_guardar(contador, "time-r", &nuevo_time_r);
     } else if (operacion == SIMBOLO_WRITE) {
-        hash_guardar(contador , "stores", hash_obtener(contador,"stores") + 1);
-        hash_guardar(contador , "dirty-wmiss", hash_obtener(contador,"dirty-wmiss") + 1);
-        hash_guardar(contador , "bytes-written", hash_obtener(contador,"bytes-written") + tam_block);
-        hash_guardar(contador , "time-w", hash_obtener(contador,"time-w") + 1 + (2 * PENALTY));
+        int nuevo_stores = *(int*)hash_obtener(contador, "stores") + 1;
+        hash_guardar(contador, "stores", &nuevo_stores);
+
+        int nuevo_dirty_wmiss = *(int*)hash_obtener(contador, "dirty-wmiss") + 1;
+        hash_guardar(contador, "dirty-wmiss", &nuevo_dirty_wmiss);
+
+        int nuevo_bytes_written = *(int*)hash_obtener(contador, "bytes-written") + tam_block;
+        hash_guardar(contador, "bytes-written", &nuevo_bytes_written);
+
+        int nuevo_time_w = *(int*)hash_obtener(contador, "time-w") + 1 + (2 * PENALTY);
+        hash_guardar(contador, "time-w", &nuevo_time_w);
     }
 
     
@@ -100,7 +131,7 @@ void agg_tag(Cache* cache, uint32_t set_index, char tag, char OP, verboso_t* inf
 
     hash_t* set = cache->sets[set_index];
     line_t* linea = malloc(sizeof(line_t));
-    char caso = '2a';
+    char* caso = "2a";;
 
     if (!set_tiene_espacio(set, cache->num_lineas)){
         tag = obtener_tag_a_desalojar(cache, set_index);
@@ -110,7 +141,7 @@ void agg_tag(Cache* cache, uint32_t set_index, char tag, char OP, verboso_t* inf
         linea->last_used = linea_target ->last_used;
         // preparar info:
         
-        if (linea_target -> dirty == 1) caso = '2b';
+        if (linea_target -> dirty == 1) caso = "2b";
         campos_verboso(info,linea_target, caso);        
 
         destruir_linea(hash_borrar(set, &tag));
@@ -137,9 +168,6 @@ void agg_tag(Cache* cache, uint32_t set_index, char tag, char OP, verboso_t* inf
     return info;
 }
 
-line_t* obtener_linea_a_desalojar(Cache* cache, uint32_t set_index) {
-    return valida_menos_usada(cache, set_index);
-}
 line_t* valida_menos_usada(Cache* cache, uint32_t set_index) {
     hash_t* set = cache->sets[set_index];
     line_t* linea_a_desalojar = NULL;
@@ -158,6 +186,9 @@ line_t* valida_menos_usada(Cache* cache, uint32_t set_index) {
     }
     hash_iter_destruir(iter);
     return linea_a_desalojar;
+}
+line_t* obtener_linea_a_desalojar(Cache* cache, uint32_t set_index) {
+    return valida_menos_usada(cache, set_index);
 }
 /*
 line_t* invalida_de_menor_indice(Cache* cache, uint32_t set_index) {
@@ -183,20 +214,20 @@ line_t* invalida_de_menor_indice(Cache* cache, uint32_t set_index) {
 
 // FUNCIONES AUXILIARES
 
-hash_t** inicializar_sets(uint32_t num_sets, uint32_t lineas){
+hash_t** inicializar_sets(uint32_t num_sets){
     hash_t** sets = malloc(num_sets * sizeof(hash_t*));
-    for(int i = 0; i < num_sets; i++){
+    for(uint32_t i = 0; i < num_sets; i++){
         sets[i] = hash_crear(destruir_linea);
     }
     return sets;
 }
-void destruir_sets(Cache* cache,hash_t** sets){
-    for(int i = 0; i < cache->num_conjuntos; i++){
-        hash_t* set  = sets[i];
+void destruir_sets(Cache* cache, hash_t** sets) {
+    for(uint32_t i = 0; i < cache->num_conjuntos; i++) {
         hash_destruir(sets[i]);
     }
     free(sets);
 }
+
 hash_t* inicializar_contador() {
     hash_t* contador = hash_crear(destruir_int);
     const char* strings[CONTADORES_CANT] = {
@@ -215,6 +246,7 @@ hash_t* inicializar_contador() {
     for(int i = 0; i < CONTADORES_CANT; i++){
         hash_guardar(contador, strings[i], &num);
     }
+    return contador;
 
 }
 void destruir_linea(void* linea){

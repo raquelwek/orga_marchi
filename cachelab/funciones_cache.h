@@ -76,7 +76,7 @@ void campos_verboso(verboso_t* v, line_t*  linea, char caso);
 char obtener_tag_a_desalojar(Cache* cache, uint32_t set_index);
 
 // inicializar_sets inicializa los sets de la caché vacíos
-hash_t** inicializar_sets(uint32_t num_sets, uint32_t lineas);
+hash_t** inicializar_sets(uint32_t num_sets);
 
 // destruir_sets libera la memoria asociada a los sets, y las líneas de cada set
 void destruir_sets(Cache* cache,hash_t** sets);

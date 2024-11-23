@@ -107,6 +107,10 @@ void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, in
 
 }
 
+int calcular_tambloque(int tamano_cache,int numero_sets,int asociatividad){
+    return (tamano_cache / (numero_sets * asociatividad));
+}
+
 // Función principal
 int main(int argc, char *argv[]) {
       // Estructura para almacenar los argumentos procesados
@@ -122,7 +126,8 @@ int main(int argc, char *argv[]) {
     asignar_argumentos(argc, argv, &args);
 
     // Crear la caché con los parámetros predefinidos
-    Cache* cache = crear_cache(args.tamano_cache, args.asociatividad, args.numero_sets);
+    int bloque = calcular_tambloque(args.tamano_cache,args.numero_sets,args.asociatividad);
+    Cache* cache = crear_cache(args.tamano_cache, args.asociatividad, args.numero_sets, bloque);
 
     // Procesar el archivo de traza
     procesar_archivo(args.archivo_traza, cache, args.modo_verboso, args.rango_n, args.rango_m);

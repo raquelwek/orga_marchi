@@ -52,7 +52,7 @@ uint32_t funcion_hash(const uint8_t* key, size_t length){
 campo_t* hash_crear_tabla(size_t capacidad){
 	campo_t* tabla = malloc(capacidad*sizeof(campo_t));	
 	if (!tabla) return NULL;
-	for (int i = 0; i < capacidad; i++) tabla[i].estado = VACIO;
+	for (size_t i = 0; i < capacidad; i++) tabla[i].estado = VACIO;
 	return tabla;
 }
 
