@@ -84,17 +84,21 @@ void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, in
 
     char linea[256];
     int indice = -1; // Indice para contar las líneas
+    verboso_t* info;
 
     while (fgets(linea, sizeof(linea), file)) {
         indice++; // Incrementar el índice al leer una nueva línea
 
         if (!modo_verboso) {
             // En modo normal, procesar todas las líneas
-            procesar_linea(cache, linea, BLOCK_SIZE);
+            procesar_linea(cache, linea, info);
+            cache -> indice_op++;
         } else {
             // En modo verboso, procesar solo líneas dentro del rango [n, m]
             if (indice >= n && indice <= m) {
-                procesar_linea(cache, linea, BLOCK_SIZE);
+                procesar_linea(cache, linea, info);
+                cache -> indice_op++;
+                registrar_procesada(info);
             }
         }
     }
@@ -116,8 +120,6 @@ int main(int argc, char *argv[]) {
 
     // Asignar argumentos
     asignar_argumentos(argc, argv, &args);
-
-
 
     // Crear la caché con los parámetros predefinidos
     Cache* cache = crear_cache(args.tamano_cache, args.asociatividad, args.numero_sets);

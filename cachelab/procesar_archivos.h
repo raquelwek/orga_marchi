@@ -7,7 +7,7 @@
 /* procesar_linea recibe una línea de un archivo de traza 
  * actualizando los atributos de la caché según la operación
  */
-void procesar_linea(Cache* cache, char* linea, , verboso_t* info);
+void procesar_linea(Cache* cache, char* linea,  verboso_t* info);
 
 /* obtener_tag recibe un offset de set, un offset de bloque y una dirección
  * y devuelve el tag correspondiente a la dirección
