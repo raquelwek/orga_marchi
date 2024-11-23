@@ -1,56 +1,91 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <assert.h>
-#include <math.h>
-#include "procesar_archivos.h"
-#include "funciones_cache.h"
-#include "analisis_resultados.h"
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "funciones_cache.h"
 #include "analisis_resultados.h"
 #include "procesar_archivos.h"
 
 #define PENALTY 100       // Penalty para los misses
+// Estructura para devolver los argumentos procesados
+typedef struct {
+    char* archivo_traza;
+    int tamano_cache;
+    int asociatividad;
+    int numero_sets;
+    int rango_n;
+    int rango_m;
+    bool modo_verboso;
+} Argumentos;
+
+
+void verificar_argumentos(int argc, char *argv[], Argumentos* args) {
+    if (argc < 5 || argc > 8) {
+        fprintf(stderr, "Uso incorrecto. Se esperan 4 o 7 argumentos.\n");
+        exit(1); // Finaliza con error
+    }
+
+    
+    // Asignar valores comunes
+    args->archivo_traza = argv[1];
+    args->tamano_cache = atoi(argv[2]);
+    args->asociatividad = atoi(argv[3]);
+    args->numero_sets = atoi(argv[4]);
+    args->modo_verboso = false;
+    args->rango_n = 0; // Valores por defecto
+    args->rango_m = 0;
+
+    // Verificar modo verboso y rangos
+    if (argc >= 6 && strcmp(argv[5], "-v")) {
+        args->rango_n = atoi(argv[6]);
+        args->rango_m = atoi(argv[7]);
+    }
+    
+}
 
 // Función para procesar el archivo de traza
-void procesar_archivo(char* archivo_entrada, Cache* cache) {
+void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, int n, int m) {
     FILE *file = fopen(archivo_entrada, "r");
     if (file == NULL) {
         perror("Error al abrir el archivo de traza");
         return;
     }
     char linea[256];
-    while (fgets(linea, sizeof(linea), file)) {
+    if (!modo_verboso)
+    {
+        while (fgets(linea, sizeof(linea), file)) {
         procesar_linea(cache, linea, BLOCK_SIZE);
+        }
+        fclose(file);
+    } else {
+        for (int i = n; i < m; i++)
+        {
+            procesar_linea(cache, linea, BLOCK_SIZE);
+        }
+        fclose(file);
+        
     }
-    fclose(file);
+    
+    
+
 }
 
 // Función principal
 int main(int argc, char *argv[]) {
-    // Verifica si se pasaron los 4 argumentos esperados
-    if (argc != 5) {
-        fprintf(stderr, "Uso incorrecto. Se esperan 4 argumentos.\n");
-        fprintf(stderr, "Uso: %s <archivo_trace> <tamano_cache> <asociatividad> <numero_sets>\n", argv[0]);
-        return 1; // Código de error
-    }
+    
+     // Estructura para almacenar los argumentos procesados
+    Argumentos args;
 
-    // Asignación de los argumentos a las variables correspondientes
-    char *archivo_traza = argv[1];  // El archivo de traza
-    int tamano_cache = atoi(argv[2]);  // El tamaño de la caché en bytes
-    int asociatividad = atoi(argv[3]);  // La asociatividad de la caché (E)
-    int numero_sets = atoi(argv[4]);  // El número de sets de la caché (S)
+    // Verificar y procesar los argumentos
+    verificar_argumentos(argc, argv, &args);
+    
+    
 
     // Crear la caché con los parámetros predefinidos
-    Cache* cache = crear_cache(tamano_cache, asociatividad, numero_sets);
+    Cache* cache = crear_cache(args.tamaño_cache, args.asociatividad, args.numero_sets);
+
 
     // Procesar el archivo de traza
-    procesar_archivo(argv[1], cache);
+    procesar_archivo(args.archivo_traza, cache, args.modo_verboso, args.rango_n, args.rango_m );
 
     // Imprimir las métricas de la simulación
     imprimir_metricas(cache);
