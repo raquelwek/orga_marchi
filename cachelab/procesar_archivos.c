@@ -1,7 +1,6 @@
 /********* MANEJO DE ARCHIVOS  *********/
-//#include <funciones_cache.h>
+//#include "funciones_cache.h"
 #include "procesar_archivos.h"
-#include "funciones_cache.h"
 #include <stdlib.h>
 #include <string.h>
 

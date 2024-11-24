@@ -1,7 +1,6 @@
 #ifndef FUNCIONES_CACHE_H
 #define FUNCIONES_CACHE_H
 #include <stdint.h> // Dependencia para usar uint32_t
-//#include "funciones_cache.h" // Dependencia para manejar la estructura de la caché
 #include "hash.h"
 #define PENALTY 100
 /**

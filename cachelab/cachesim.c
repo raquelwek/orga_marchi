@@ -3,10 +3,10 @@
 #include <string.h>
 #include <stdbool.h> 
 #include "funciones_cache.h"
-#include "analisis_resultados.h"
 #include "procesar_archivos.h"
 
-#define PENALTY 100       // Penalty para los misses
+
+//#define PENALTY 100       // Penalty para los misses
 // Estructura para devolver los argumentos procesados
 typedef struct {
     char* archivo_traza;
@@ -64,7 +64,7 @@ bool verificar_condiciones(int argc, char *argv[], Argumentos* args, bool modo_v
 
 
 void asignar_argumentos(int argc, char *argv[], Argumentos* args){
-     // Asignar valores comunes
+    // Asignar valores comunes
     args->archivo_traza = argv[1];
     args->tamano_cache = atoi(argv[2]);
     args->asociatividad = atoi(argv[3]);
@@ -74,7 +74,7 @@ void asignar_argumentos(int argc, char *argv[], Argumentos* args){
     args->rango_m = 0;
 
     // Verificar modo verboso y rangos
-    if (argc >= 6 && strcmp(argv[5], "-v")) {
+    if (argc >= 6 && strcmp(argv[5], "-v") == 0) {
         args->rango_n = atoi(argv[6]);
         args->rango_m = atoi(argv[7]);
     }
@@ -91,7 +91,8 @@ void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, in
 
     char linea[256];
     int indice = -1; // Indice para contar las líneas
-    verboso_t* info;
+    verboso_t info_data = {0};  // Asume que `verboso_t` es una estructura válida
+    verboso_t* info = &info_data;
     uint32_t E = cache -> num_lineas;
     while (fgets(linea, sizeof(linea), file)) {
         indice++; // Incrementar el índice al leer una nueva línea
@@ -118,13 +119,46 @@ int calcular_tambloque(int tamano_cache,int numero_sets,int asociatividad){
     return (tamano_cache / (numero_sets * asociatividad));
 }
 
+void imprimir_metricas(const Cache* cache) {
+    // Obtenemos los contadores de la caché
+    int* loads = (int*)hash_obtener(cache->contador, "loads");
+    int* stores = (int*)hash_obtener(cache->contador, "stores");
+    int* rmiss = (int*)hash_obtener(cache->contador, "rmiss");
+    int* wmiss = (int*)hash_obtener(cache->contador, "wmiss");
+    int* dirty_rmiss = (int*)hash_obtener(cache->contador, "dirty-rmiss");
+    int* dirty_wmiss = (int*)hash_obtener(cache->contador, "dirty-wmiss");
+
+    int* bytes_read = (int*)hash_obtener(cache->contador, "bytes-read");
+    int* bytes_written = (int*)hash_obtener(cache->contador, "bytes-written");
+    int* time_w = (int*)hash_obtener(cache->contador, "time-w");
+    int* time_r = (int*)hash_obtener(cache->contador, "time-r");
+
+    // Calculamos los resultados
+    int total_accesses = *loads + *stores;
+    int total_misses = *rmiss + *wmiss;
+    int total_dirty_misses = *dirty_rmiss + *dirty_wmiss;
+    int total_time = *time_w + *time_r;
+
+    uint32_t tamanio_cache = cache->tamanio_cache/1000;//tam cache en KB
+    float dirty_miss_rate = (total_misses) / (float)total_misses * 100;
+
+    // Imprimimos las métricas
+    printf("%d-way , %d sets, size=%d\n", cache->num_lineas, cache->num_conjuntos, tamanio_cache);
+    printf("loads %d stores %d total %d\n", loads, stores, total_accesses);
+    printf("rmiss %d wmiss %d total %d\n", rmiss, wmiss, total_misses);
+    printf("dirty rmiss %d dirty wmiss %d\n", dirty_rmiss, dirty_wmiss);
+    printf("bytes read %d bytes written %d\n", bytes_read, bytes_written);
+    printf("read time %d write time %d\n", time_r, time_w);
+    printf("miss rate %f\n", dirty_miss_rate);
+}
+
 // Función principal
 int main(int argc, char *argv[]) {
       // Estructura para almacenar los argumentos procesados
-    Argumentos args;
+    Argumentos args = {NULL, 0, 0, 0, 0, 0, false};
 
     // Verificar condiciones
-    if (!verificar_condiciones(argc, argv, &args, args.modo_verboso)) {
+    if (!verificar_condiciones(argc, argv, &args, false)) {
         fprintf(stderr, "Error: condiciones inválidas para los argumentos.\n");
         return 1;
     }
@@ -200,4 +234,13 @@ int main(int argc, char *argv[]) {
         * interpretar comando
         * interfaz de línea de comandos
         * liberar memoria
+        * 
+    Reading symbols from ./cachesim...
+(gdb) (gdb) set args ./trazas/adpcm.xex 2048 2 64
+Undefined command: "".  Try "help".
+(gdb) set args ./trazas/adpcm.xex 2048 2 64
+(gdb) (gdb) break main
+Undefined command: "".  Try "help".
+(gdb) break main
+Breakpoint 1 at 0x403605: file cachesim.c, line 155.
 */
