@@ -67,7 +67,7 @@ bool set_tiene_espacio(hash_t* set, uint32_t lineas_por_set);
 // agg_tag agrega un tag no encontrado al set, si el set está lleno,
 // desaloja el tag que fue menos usado recientemente
 // post: devuelve true si el linea desalojado era dirty, false en caso contrario
-void agg_tag(Cache* cache, uint32_t set_index, char tag, char OP, verboso_t* info);
+verboso_t* agg_tag(Cache* cache, uint32_t set_index, char* tag, char OP, verboso_t* info);
 
 // Actualiza los campos a imprimir en caso de modo verboso
 void campos_verboso(verboso_t* v, line_t*  linea, char caso);
@@ -76,7 +76,7 @@ void campos_verboso(verboso_t* v, line_t*  linea, char caso);
 char obtener_tag_a_desalojar(Cache* cache, uint32_t set_index);
 
 // inicializar_sets inicializa los sets de la caché vacíos
-hash_t** inicializar_sets(uint32_t num_sets);
+hash_t** inicializar_sets(uint32_t num_sets, uint32_t lineas);
 
 // destruir_sets libera la memoria asociada a los sets, y las líneas de cada set
 void destruir_sets(Cache* cache,hash_t** sets);

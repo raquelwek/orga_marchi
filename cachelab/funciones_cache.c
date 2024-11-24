@@ -127,7 +127,7 @@ bool set_tiene_espacio(hash_t* set, uint32_t lineas_por_set){
 
 
 
-void agg_tag(Cache* cache, uint32_t set_index, char tag, char OP, verboso_t* info) {
+verboso_t* agg_tag(Cache* cache, uint32_t set_index, char* tag, char OP, verboso_t* info){
 
     hash_t* set = cache->sets[set_index];
     line_t* linea = malloc(sizeof(line_t));
@@ -213,21 +213,21 @@ line_t* invalida_de_menor_indice(Cache* cache, uint32_t set_index) {
 */
 
 // FUNCIONES AUXILIARES
-
-hash_t** inicializar_sets(uint32_t num_sets){
+hash_t** inicializar_sets(uint32_t num_sets, uint32_t lineas) {
     hash_t** sets = malloc(num_sets * sizeof(hash_t*));
-    for(uint32_t i = 0; i < num_sets; i++){
+    for (uint32_t i = 0; i < num_sets; i++) {
         sets[i] = hash_crear(destruir_linea);
     }
     return sets;
 }
-void destruir_sets(Cache* cache, hash_t** sets) {
-    for(uint32_t i = 0; i < cache->num_conjuntos; i++) {
+
+void destruir_sets(Cache* cache,hash_t** sets){
+    for(uint32_t i = 0; i < cache->num_conjuntos; i++){
+        hash_t* set  = sets[i];
         hash_destruir(sets[i]);
     }
     free(sets);
 }
-
 hash_t* inicializar_contador() {
     hash_t* contador = hash_crear(destruir_int);
     const char* strings[CONTADORES_CANT] = {
@@ -246,7 +246,6 @@ hash_t* inicializar_contador() {
     for(int i = 0; i < CONTADORES_CANT; i++){
         hash_guardar(contador, strings[i], &num);
     }
-    return contador;
 
 }
 void destruir_linea(void* linea){

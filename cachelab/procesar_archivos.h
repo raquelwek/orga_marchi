@@ -17,7 +17,7 @@ uint32_t obtener_tag(uint32_t offset_set, uint32_t offset_block, uint32_t direcc
 /* obtener_set recibe una dirección, un offset de set y un offset de bloque
  * y devuelve el set correspondiente a la dirección
  */
-uint32_t obtenter_set(uint32_t direccion, uint32_t offset_set_index, uint32_t offset_block);
+uint32_t obtener_set(uint32_t direccion, uint32_t offset_set_index, uint32_t offset_block);
 
 /* obtener_campos recibe una línea de un archivo de traza y devuelve un arreglo
  * con los campos de la línea
