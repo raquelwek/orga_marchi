@@ -13,7 +13,7 @@ void procesar_linea(Cache* cache, char* linea, verboso_t* info) {
     uint32_t dir_acceso; 
     uint32_t cant_bytes;     
     uint32_t data_readed;  
-    char* campos = obtener_campos(linea);
+    char** campos = obtener_campos(linea);
     pc = campos[0];
     operacion = campos[1];
     dir_acceso = (uint32_t)atoi(campos[2]);;
@@ -61,22 +61,19 @@ uint32_t calcular_offset(uint32_t n){
 	}
 	return offset;
 }
-char* obtener_campos(char* linea){
-    char layout[] = "0x1234: A 0x5678 123 0x9abc\n";
-    char *pch;
-    
-    // Arreglo estático para guardar los campos
-    char *campos[NUM_CAMPOS];
-    
-    pch = strtok(layout, " :\n");
-    
+char** obtener_campos(char* linea) {
+    // Crear un arreglo estático para guardar los campos
+    static char* arrayCampos[NUM_CAMPOS]; // Usa `static` para devolverlo sin problemas
+    char* fragmento = strtok(linea, " ");
     int i = 0;
-    while (pch != NULL && i < NUM_CAMPOS) {
-        campos[i++] = pch; 
-        pch = strtok(NULL, " :\n");  
+
+    while (fragmento != NULL && i < NUM_CAMPOS) {
+        arrayCampos[i++] = fragmento; // Guardar puntero al fragmento
+        fragmento = strtok(NULL, " ");
     }
-    return campos;
+    return arrayCampos;
 }
+
 uint32_t obtenerTag(uint32_t direccion){
     return direccion >> 13;
 }

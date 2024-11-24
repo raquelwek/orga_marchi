@@ -48,7 +48,7 @@ bool verificar_rango(int n, int m){
     return (n >= 0 && m >= n);
 }
 
-bool verificar_condiciones(int argc, char *argv[], Argumentos* args, bool modo_verboso){
+bool verificar_condiciones(int argc, char *argv[], bool modo_verboso){
     bool valido = (verificar_argumentos(argc) && verificar_archivo(argv[1]));
     if(modo_verboso && argc == 8){
         int rango_n = atoi(argv[6]);
@@ -115,7 +115,7 @@ void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, in
 
 }
    
-int calcular_tambloque(int tamano_cache,int numero_sets,int asociatividad){
+uint32_t calcular_tambloque(int tamano_cache,int numero_sets,int asociatividad){
     return (tamano_cache / (numero_sets * asociatividad));
 }
 
@@ -155,10 +155,11 @@ void imprimir_metricas(const Cache* cache) {
 // Función principal
 int main(int argc, char *argv[]) {
       // Estructura para almacenar los argumentos procesados
-    Argumentos args = {NULL, 0, 0, 0, 0, 0, false};
+    Argumentos* args = malloc(sizeof(Argumentos));
+    
 
     // Verificar condiciones
-    if (!verificar_condiciones(argc, argv, &args, false)) {
+    if (!verificar_condiciones(argc, argv, false)) {
         fprintf(stderr, "Error: condiciones inválidas para los argumentos.\n");
         return 1;
     }
@@ -167,11 +168,13 @@ int main(int argc, char *argv[]) {
     asignar_argumentos(argc, argv, &args);
 
     // Crear la caché con los parámetros predefinidos
-    int bloque = calcular_tambloque(args.tamano_cache,args.numero_sets,args.asociatividad);
-    Cache* cache = crear_cache(args.tamano_cache, args.asociatividad, args.numero_sets, bloque);
+    uint32_t bloque = calcular_tambloque(args->tamano_cache,args->numero_sets,args->asociatividad);
+    Cache* cache = crear_cache(args->tamano_cache, args->asociatividad, args->numero_sets, bloque);
 
     // Procesar el archivo de traza
-    procesar_archivo(args.archivo_traza, cache, args.modo_verboso, args.rango_n, args.rango_m);
+    procesar_archivo(args->archivo_traza, cache, args->modo_verboso, args->rango_n, args->rango_m);
+
+    free(args);
 
     // Imprimir las métricas de la simulación
     imprimir_metricas(cache);
