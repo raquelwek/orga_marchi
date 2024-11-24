@@ -32,4 +32,5 @@ cachesim.o: cachesim.c funciones_cache.h procesar_archivos.h analisis_resultados
 
 # Limpieza
 clean:
-	rm -f *.o cachesim
+	rm -f *.o
+	rm -f  cachesim

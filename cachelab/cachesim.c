@@ -18,7 +18,14 @@ typedef struct {
     bool modo_verboso;
 } Argumentos;
 
-
+void registrar_procesada(verboso_t* info, uint32_t indice, uint32_t asociatividad){
+    char place_holder[] = "%d %c %x %x %d %d %d %d";
+    printf(place_holder, indice, info->case_identifier, info->cache_index, info->cache_tag, info->cache_line, info->line_tag, info->valid_bit, info->dirty_bit);
+    if (asociatividad > 1 ){
+        printf(" %d", info->last_used);
+    }
+    printf("\n");
+}
 bool verificar_argumentos(int argc) {
     return (argc == 5 || argc == 8);   
 }
@@ -85,7 +92,7 @@ void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, in
     char linea[256];
     int indice = -1; // Indice para contar las líneas
     verboso_t* info;
-
+    uint32_t E = cache -> num_lineas;
     while (fgets(linea, sizeof(linea), file)) {
         indice++; // Incrementar el índice al leer una nueva línea
 
@@ -98,7 +105,7 @@ void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, in
             if (indice >= n && indice <= m) {
                 procesar_linea(cache, linea, info);
                 cache -> indice_op++;
-                registrar_procesada(info);
+                registrar_procesada(info, cache->indice_op, E);
             }
         }
     }
@@ -106,7 +113,7 @@ void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, in
     
 
 }
-
+   
 int calcular_tambloque(int tamano_cache,int numero_sets,int asociatividad){
     return (tamano_cache / (numero_sets * asociatividad));
 }

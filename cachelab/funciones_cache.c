@@ -125,26 +125,25 @@ bool set_tiene_espacio(hash_t* set, uint32_t lineas_por_set){
     return hash_cantidad(set) < lineas_por_set;
 }
 
-
-
-verboso_t* agg_tag(Cache* cache, uint32_t set_index, char* tag, char OP, verboso_t* info){
+verboso_t* agg_tag(Cache* cache, uint32_t set_index, char tag, char OP, verboso_t* info){
 
     hash_t* set = cache->sets[set_index];
     line_t* linea = malloc(sizeof(line_t));
-    char* caso = "2a";;
+    char casoA[] = "2a";
+    char casoB[] = "2b";
+    char* caso = casoA;
+
 
     if (!set_tiene_espacio(set, cache->num_lineas)){
-        tag = obtener_tag_a_desalojar(cache, set_index);
-
-        line_t* linea_target = hash_obtener(set, &tag);
+        line_t* linea_target = obtener_linea_a_desalojar(cache, set_index);
         linea -> numero_linea = linea_target->numero_linea;
         linea->last_used = linea_target ->last_used;
         // preparar info:
         
-        if (linea_target -> dirty == 1) caso = "2b";
-        campos_verboso(info,linea_target, caso);        
+        if (linea_target -> dirty == 1) caso = casoB;
+        campos_verboso(info,linea_target, *caso);        
 
-        destruir_linea(hash_borrar(set, &tag));
+        destruir_linea(hash_borrar(set, tag));
 
     }else {
         // seleccionar línea  no válida cuyo índice sea  el menor
@@ -152,7 +151,7 @@ verboso_t* agg_tag(Cache* cache, uint32_t set_index, char* tag, char OP, verboso
         linea->numero_linea = hash_cantidad(set);
         linea->last_used = cache ->indice_op; // el bloque se usa por primera vez
 
-        info -> case_identifier = caso;
+        info -> case_identifier = *caso;
         info -> cache_line = linea -> numero_linea;
         info -> valid_bit = 0;
         info -> dirty_bit = 0;
@@ -164,7 +163,7 @@ verboso_t* agg_tag(Cache* cache, uint32_t set_index, char* tag, char OP, verboso
     linea->valido = 1;
     linea->dirty = 0;
     if (OP == SIMBOLO_WRITE) linea->dirty = 1;
-    hash_guardar(set, &tag, linea);
+    hash_guardar(set, tag, linea);
     return info;
 }
 

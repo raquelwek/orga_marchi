@@ -1,7 +1,7 @@
 #ifndef FUNCIONES_CACHE_H
 #define FUNCIONES_CACHE_H
 #include <stdint.h> // Dependencia para usar uint32_t
-#include "funciones_cache.h" // Dependencia para manejar la estructura de la caché
+//#include "funciones_cache.h" // Dependencia para manejar la estructura de la caché
 #include "hash.h"
 #define PENALTY 100
 /**
@@ -67,13 +67,13 @@ bool set_tiene_espacio(hash_t* set, uint32_t lineas_por_set);
 // agg_tag agrega un tag no encontrado al set, si el set está lleno,
 // desaloja el tag que fue menos usado recientemente
 // post: devuelve true si el linea desalojado era dirty, false en caso contrario
-verboso_t* agg_tag(Cache* cache, uint32_t set_index, char* tag, char OP, verboso_t* info);
+verboso_t* agg_tag(Cache* cache, uint32_t set_index, char tag, char OP, verboso_t* info);
 
 // Actualiza los campos a imprimir en caso de modo verboso
 void campos_verboso(verboso_t* v, line_t*  linea, char caso);
 
 // obtener_tag_a_desalojar obtiene el tag a desalojar menos usado recientemente
-char obtener_tag_a_desalojar(Cache* cache, uint32_t set_index);
+line_t* obtener_linea_a_desalojar(Cache* cache, uint32_t set_index);
 
 // inicializar_sets inicializa los sets de la caché vacíos
 hash_t** inicializar_sets(uint32_t num_sets, uint32_t lineas);
@@ -90,4 +90,4 @@ void destruir_linea(void* linea);
 // destruir_int libera la memoria asociada a un entero
 void destruir_int(void* num);
 
-#endif // FUNCIONES_CACHE_H
+#endif //FUNCIONES_CACHE_H

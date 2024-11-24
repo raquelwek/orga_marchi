@@ -12,4 +12,4 @@
  */
 void imprimir_metricas(const Cache* cache);
 
-#endif // ANALISIS_RESULTADOS_H
+#endif  //ANALISIS_RESULTADOS_H
