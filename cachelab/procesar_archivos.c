@@ -8,30 +8,32 @@
 
 void procesar_linea(Cache* cache, char* linea, verboso_t* info) {
     // Variables para almacenar cada campo     
-    char* operacion;          
-    uint32_t* dir_acceso;   
-    obtener_campos(linea, operacion, dir_acceso);
+    char operacion;          
+    uint32_t dir_acceso;   
+    obtener_campos(linea, &operacion, &dir_acceso);
     
-    uint32_t offset_set= calcular_offset(cache->num_conjuntos);
+    uint32_t offset_set = calcular_offset(cache->num_conjuntos);
     uint32_t offset_block = calcular_offset(cache->tamanio_bloque);    
 
     uint32_t set_index = obtener_set(dir_acceso, offset_set, offset_block);
     uint32_t tag = obtener_tag(offset_set, offset_block, dir_acceso);
-    char* tagC = (char*)tag;
+    char tagC[20];
+    sprintf(tagC, "%u", tag);
+
 
     info -> indice_op = cache->indice_op;
     info -> cache_index= set_index;
     info ->cache_tag = tagC;
 
-    bool hit = hit_case(cache, set_index, tagC, operacion, info);
+    bool hit = hit_case(cache, set_index, &tagC, &operacion, info);
     if (!hit) {
-        agg_tag(cache, set_index, tagC, operacion, info);
+        agg_tag(cache, set_index, &tagC, &operacion, info);
         bool es_dirty_miss = (info -> dirty_bit) == 1;
 
         if (es_dirty_miss) {
-            dirty_miss_case(operacion, cache->tamanio_bloque, cache->contador);
+            dirty_miss_case(&operacion, cache->tamanio_bloque, cache->contador);
         }else {
-            miss_case(operacion, cache->tamanio_bloque, cache->contador);
+            miss_case(&operacion, cache->tamanio_bloque, cache->contador);
         }
     }
 
@@ -54,18 +56,20 @@ uint32_t calcular_offset(uint32_t n){
 	return offset;
 }
 void obtener_campos(char* comando, char* operacion, uint32_t* direccionAcceso) {
+    char simbolo_w = 'W';
+    char simbolo_r = 'R';
 	char* arrayComando[5];
-	char* fragmento = strtok(comando, " ");
+	char* fragmento = strtok(comando, ": ");
 	int i = 0;
 	while (fragmento != NULL){
 		arrayComando[i++] = fragmento;
-		fragmento = strtok(NULL, " ");
+		fragmento = strtok(NULL, ": ");
 	}
 
     if(strcmp(arrayComando[1], "R")== 0){
-        *operacion = 'R';
+        *operacion = simbolo_w;
     } else{
-        *operacion = 'W';
+        *operacion = simbolo_r;
     }
 
 	*direccionAcceso = strtoul(arrayComando[2], NULL, 0);

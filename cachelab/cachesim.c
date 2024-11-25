@@ -83,6 +83,7 @@ void asignar_argumentos(int argc, char *argv[], Argumentos* args){
 
 // Función para procesar el archivo de traza
 void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, int n, int m) {
+    char* debug = "stores";
     FILE *file = fopen(archivo_entrada, "r");
     if (!file) {
         fprintf(stderr, "Error: no se pudo abrir el archivo %s\n", archivo_entrada);
@@ -91,8 +92,8 @@ void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, in
 
     char linea[256];
     int indice = -1; // Indice para contar las líneas
-    verboso_t info_data = {0};  // Asume que `verboso_t` es una estructura válida
-    verboso_t* info = &info_data;
+    
+    verboso_t* info = malloc(sizeof(verboso_t));
     uint32_t E = cache -> num_lineas;
     while (fgets(linea, sizeof(linea), file)) {
         indice++; // Incrementar el índice al leer una nueva línea
@@ -121,17 +122,17 @@ uint32_t calcular_tambloque(int tamano_cache,int numero_sets,int asociatividad){
 
 void imprimir_metricas(const Cache* cache) {
     // Obtenemos los contadores de la caché
-    int* loads = (int*)hash_obtener(cache->contador, "loads");
-    int* stores = (int*)hash_obtener(cache->contador, "stores");
-    int* rmiss = (int*)hash_obtener(cache->contador, "rmiss");
-    int* wmiss = (int*)hash_obtener(cache->contador, "wmiss");
-    int* dirty_rmiss = (int*)hash_obtener(cache->contador, "dirty-rmiss");
-    int* dirty_wmiss = (int*)hash_obtener(cache->contador, "dirty-wmiss");
+    int* loads = (int*)hash_obtener(cache->contador, strings[0]);
+    int* stores = (int*)hash_obtener(cache->contador, strings[1]);
+    int* rmiss = (int*)hash_obtener(cache->contador, strings[2]);
+    int* wmiss = (int*)hash_obtener(cache->contador, strings[3]);
+    int* dirty_rmiss = (int*)hash_obtener(cache->contador, strings[4]);
+    int* dirty_wmiss = (int*)hash_obtener(cache->contador, strings[5]);
 
-    int* bytes_read = (int*)hash_obtener(cache->contador, "bytes-read");
-    int* bytes_written = (int*)hash_obtener(cache->contador, "bytes-written");
-    int* time_w = (int*)hash_obtener(cache->contador, "time-w");
-    int* time_r = (int*)hash_obtener(cache->contador, "time-r");
+    int* bytes_read = (int*)hash_obtener(cache->contador, strings[6]);
+    int* bytes_written = (int*)hash_obtener(cache->contador, strings[7]);
+    int* time_w = (int*)hash_obtener(cache->contador, strings[8]);
+    int* time_r = (int*)hash_obtener(cache->contador, strings[9]);
 
     // Calculamos los resultados
     int total_accesses = *loads + *stores;
@@ -143,12 +144,12 @@ void imprimir_metricas(const Cache* cache) {
     float dirty_miss_rate = (total_misses) / (float)total_misses * 100;
 
     // Imprimimos las métricas
-    printf("%d-way , %d sets, size=%d\n", cache->num_lineas, cache->num_conjuntos, tamanio_cache);
-    printf("loads %d stores %d total %d\n", loads, stores, total_accesses);
-    printf("rmiss %d wmiss %d total %d\n", rmiss, wmiss, total_misses);
-    printf("dirty rmiss %d dirty wmiss %d\n", dirty_rmiss, dirty_wmiss);
-    printf("bytes read %d bytes written %d\n", bytes_read, bytes_written);
-    printf("read time %d write time %d\n", time_r, time_w);
+    printf("%d-way, %d sets, size = %dKB\n", cache->num_lineas, cache->num_conjuntos, tamanio_cache);
+    printf("loads %d stores %d total %d\n", *stores,*loads, total_accesses);
+    printf("rmiss %d wmiss %d total %d\n", *rmiss, *wmiss, total_misses);
+    printf("dirty rmiss %d dirty wmiss %d\n", *dirty_rmiss,* dirty_wmiss);
+    printf("bytes read %d bytes written %d\n", *bytes_read, *bytes_written);
+    printf("read time %d write time %d\n", *time_r, *time_w);
     printf("miss rate %f\n", dirty_miss_rate);
 }
 
@@ -156,6 +157,14 @@ void imprimir_metricas(const Cache* cache) {
 int main(int argc, char *argv[]) {
       // Estructura para almacenar los argumentos procesados
     Argumentos* args = malloc(sizeof(Argumentos));
+    args->archivo_traza = NULL;
+    args->tamano_cache = 0;
+    args->asociatividad = 0;
+    args->numero_sets = 0;
+    args->modo_verboso = false;
+    args->rango_n = 0;
+    args->rango_m = 0;
+
     
 
     // Verificar condiciones
@@ -165,7 +174,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Asignar argumentos
-    asignar_argumentos(argc, argv, &args);
+    asignar_argumentos(argc, argv, args);
 
     // Crear la caché con los parámetros predefinidos
     uint32_t bloque = calcular_tambloque(args->tamano_cache,args->numero_sets,args->asociatividad);
@@ -241,7 +250,7 @@ int main(int argc, char *argv[]) {
     Reading symbols from ./cachesim...
 (gdb) (gdb) set args ./trazas/adpcm.xex 2048 2 64
 Undefined command: "".  Try "help".
-(gdb) set args ./trazas/adpcm.xex 2048 2 64
+(gdb) set args ./trazas/pruebas.xex 2048 2 64
 (gdb) (gdb) break main
 Undefined command: "".  Try "help".
 (gdb) break main

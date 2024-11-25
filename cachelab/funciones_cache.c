@@ -2,12 +2,26 @@
 #include <stdlib.h>
 #include "funciones_cache.h"
 #define ADDRESS_SIZE 32     // Tamaño de dirección en bits
-#define CONTADORES_CANT 10
-#define SIMBOLO_WRITE 'W'
-#define SIMBOLO_READ 'R'
+const char* strings[CONTADORES_CANT] = {
+    "loads",
+    "stores",
+    "rmiss",
+    "wmiss",
+    "dirty-rmiss",
+    "dirty-wmiss",
+    "bytes-read",
+    "bytes-written",
+    "time-w",
+    "time-r"
+};
+
 
 Cache* crear_cache(uint32_t C, uint32_t E, uint32_t S, uint32_t B){
     Cache* cache = malloc(sizeof(Cache));
+    if (cache == NULL) {
+        perror("Error al asignar memoria");
+        exit(1);
+    }
     cache->tamanio_cache = C;
     cache->tamanio_bloque = B;
     cache->num_conjuntos = S;
@@ -23,35 +37,50 @@ void destruir_cache(Cache* cache){
     free(cache);
 }
 
-bool hit_case(Cache* cache, uint32_t set_index, char tag, char operacion, verboso_t* info){
+bool hit_case(Cache* cache, uint32_t set_index, char* tag, char* operacion, verboso_t* info){
+    char caso[] = "1";
     hash_t* set = cache->sets[set_index];
     hash_t* contador = cache->contador;  
-    if (!hash_pertenece(set, &tag)) return false;//El tag no se encuentra en el set
+    if (!hash_pertenece(set, tag)) return false;//El tag no se encuentra en el set
 
-    line_t* linea = hash_obtener(set, &tag);
+    line_t* linea = hash_obtener(set, tag);
     if (es_linea_valida(linea)){
-        if (operacion == SIMBOLO_READ ) {
-            int nuevo_valor = *(int*)hash_obtener(contador, "loads") + 1;
-            hash_guardar(contador , "loads", &nuevo_valor);
-            int nuevo_time_r = *(int*)hash_obtener(contador, "time-r") + 1;
-            hash_guardar(contador , "time-r", &nuevo_time_r);
+        if (strcmp(operacion, "R") == 0) {
+            uint32_t* ptr_nuevo_valor = malloc(sizeof(uint32_t));
+            if (!ptr_nuevo_valor) exit(EXIT_FAILURE);
+            *ptr_nuevo_valor = *(uint32_t*)hash_obtener(contador, strings[0]) + 1;
+            hash_guardar(contador, strings[0], ptr_nuevo_valor);
 
-        } else if (operacion == SIMBOLO_WRITE) {
+            // Actualizar "time_r"
+            uint32_t* ptr_nuevo_time_r = malloc(sizeof(uint32_t));
+            if (!ptr_nuevo_time_r) exit(EXIT_FAILURE);
+            *ptr_nuevo_time_r = *(uint32_t*)hash_obtener(contador, strings[9]) + 1;
+            hash_guardar(contador, strings[9], ptr_nuevo_time_r);
+
+        } else if (strcmp(operacion, "W") == 0) {
             linea->dirty = 1;
-            int nuevo_stores = *(int*)hash_obtener(contador, "stores") + 1;
-            hash_guardar(contador , "stores", &nuevo_stores);
-            int nuevo_time_w = *(int*)hash_obtener(contador, "time-w") + 1;
-            hash_guardar(contador , "time-w", &nuevo_time_w);
+
+            // Actualizar "stores"
+            uint32_t* ptr_nuevo_stores = malloc(sizeof(uint32_t));
+            if (!ptr_nuevo_stores) exit(EXIT_FAILURE);
+            *ptr_nuevo_stores = *(uint32_t*)hash_obtener(contador, strings[1]) + 1;
+            hash_guardar(contador, strings[1], ptr_nuevo_stores);
+
+            // Actualizar "time_w"
+            uint32_t* ptr_nuevo_time_w = malloc(sizeof(uint32_t));
+            if (!ptr_nuevo_time_w) exit(EXIT_FAILURE);
+            *ptr_nuevo_time_w = *(uint32_t*)hash_obtener(contador, strings[8]) + 1;
+            hash_guardar(contador, strings[8], ptr_nuevo_time_w);
 
         }
         linea->last_used = cache -> indice_op;
-        campos_verboso(info, linea, '1');
+        campos_verboso(info, linea, &caso);
         return true;
         
     } 
     return false;
 }
-void campos_verboso(verboso_t* v, line_t*  linea, char caso){
+void campos_verboso(verboso_t* v, line_t*  linea, char* caso){
     v -> case_identifier = caso;
     v -> cache_line = linea -> numero_linea;
     v -> line_tag = linea -> tag;
@@ -62,58 +91,108 @@ void campos_verboso(verboso_t* v, line_t*  linea, char caso){
 
 // miss_case contabiliza los contadores en el caso de miss
 // post: se actualizan los contadores de la cache
-void miss_case(char operacion, uint32_t tam_block, hash_t* contador) {
+void miss_case(char* operacion, uint32_t tam_block, hash_t* contador) {
      
-    if (operacion == SIMBOLO_READ ) {
+    if (strcmp(operacion, "W") == 0) {
         // Operación de lectura
-        int nuevo_loads = *(int*)hash_obtener(contador, "loads") + 1;
-        hash_guardar(contador, "loads", &nuevo_loads);
-        int nuevo_rmiss = *(int*)hash_obtener(contador, "rmiss") + 1;
-        hash_guardar(contador, "rmiss", &nuevo_rmiss);
-        int nuevo_bytes_read = *(int*)hash_obtener(contador, "bytes-read") + tam_block;
-        hash_guardar(contador, "bytes-read", &nuevo_bytes_read);
-        int nuevo_time_r = *(int*)hash_obtener(contador, "time-r") + 1 + PENALTY;
-        hash_guardar(contador, "time-r", &nuevo_time_r);
+        uint32_t* ptr_nuevo_loads = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_loads) exit(EXIT_FAILURE); // Manejo de errores por malloc
+        *ptr_nuevo_loads = *(uint32_t*)hash_obtener(contador, strings[0]) + 1;
+        hash_guardar(contador, strings[0], ptr_nuevo_loads);
 
-    } else if (operacion == SIMBOLO_WRITE) {
-        int nuevo_stores = *(int*)hash_obtener(contador, "stores") + 1;
-        hash_guardar(contador, "stores", &nuevo_stores);
-        int nuevo_wmiss = *(int*)hash_obtener(contador, "wmiss") + 1;
-        hash_guardar(contador, "wmiss", &nuevo_wmiss);
-        int nuevo_bytes_written = *(int*)hash_obtener(contador, "bytes-written") + tam_block;
-        hash_guardar(contador, "bytes-written", &nuevo_bytes_written);
-        int nuevo_time_w = *(int*)hash_obtener(contador, "time-w") + 1 + PENALTY;
-        hash_guardar(contador, "time-w", &nuevo_time_w);
+        // Guardar nuevo valor de "rmiss"
+        uint32_t* ptr_nuevo_rmiss = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_rmiss) exit(EXIT_FAILURE);
+        *ptr_nuevo_rmiss = *(uint32_t*)hash_obtener(contador, strings[2]) + 1;
+        hash_guardar(contador, strings[2], ptr_nuevo_rmiss);
+
+        // Guardar nuevo valor de "bytes_read"
+        uint32_t* ptr_nuevo_bytes_read = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_bytes_read) exit(EXIT_FAILURE);
+        *ptr_nuevo_bytes_read = *(uint32_t*)hash_obtener(contador, strings[6]) + tam_block;
+        hash_guardar(contador, strings[6], ptr_nuevo_bytes_read);
+
+        // Guardar nuevo valor de "time_r"
+        uint32_t* ptr_nuevo_time_r = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_time_r) exit(EXIT_FAILURE);
+        *ptr_nuevo_time_r = *(uint32_t*)hash_obtener(contador, strings[9]) + 1 + PENALTY;
+        hash_guardar(contador, strings[9], ptr_nuevo_time_r);
+
+    } else if (strcmp(operacion, "R") == 0) {
+        // Operación de escritura
+        uint32_t* ptr_nuevo_stores = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_stores) exit(EXIT_FAILURE);
+        *ptr_nuevo_stores = *(uint32_t*)hash_obtener(contador, strings[1]) + 1;
+        hash_guardar(contador, strings[1], ptr_nuevo_stores);
+
+        uint32_t* ptr_nuevo_wmiss = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_wmiss) exit(EXIT_FAILURE);
+        *ptr_nuevo_wmiss = *(uint32_t*)hash_obtener(contador, strings[3]) + 1;
+        hash_guardar(contador, strings[3], ptr_nuevo_wmiss);
+
+        uint32_t* ptr_nuevo_bytes_written = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_bytes_written) exit(EXIT_FAILURE);
+        *ptr_nuevo_bytes_written = *(uint32_t*)hash_obtener(contador, strings[7]) + tam_block;
+        hash_guardar(contador, strings[7], ptr_nuevo_bytes_written);
+
+        uint32_t* ptr_nuevo_time_w = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_time_w) exit(EXIT_FAILURE);
+        *ptr_nuevo_time_w = *(uint32_t*)hash_obtener(contador, strings[8]) + 1 + PENALTY;
+        hash_guardar(contador, strings[8], ptr_nuevo_time_w);
     }
         
 
 }
-void dirty_miss_case(char operacion, uint32_t tam_block, hash_t* contador) {
+void dirty_miss_case(char* operacion, uint32_t tam_block, hash_t* contador) {
    
-    if (operacion == SIMBOLO_READ ) {
-        int nuevo_loads = *(int*)hash_obtener(contador, "loads") + 1;
-        hash_guardar(contador, "loads", &nuevo_loads);
+    if (strcmp(operacion, "R") == 0) {
+        uint32_t* ptr_nuevo_loads = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_loads) exit(EXIT_FAILURE);
+        *ptr_nuevo_loads = *(uint32_t*)hash_obtener(contador, strings[0]) + 1;
+        hash_guardar(contador, strings[0], ptr_nuevo_loads);
 
-        int nuevo_dirty_rmiss = *(int*)hash_obtener(contador, "dirty-rmiss") + 1;
-        hash_guardar(contador, "dirty-rmiss", &nuevo_dirty_rmiss);
+        // Actualizar "dirty_rmiss"
+        uint32_t* ptr_nuevo_dirty_rmiss = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_dirty_rmiss) exit(EXIT_FAILURE);
+        *ptr_nuevo_dirty_rmiss = *(uint32_t*)hash_obtener(contador, strings[4]) + 1;
+        hash_guardar(contador, strings[4], ptr_nuevo_dirty_rmiss);
 
-        int nuevo_bytes_read = *(int*)hash_obtener(contador, "bytes-read") + tam_block;
-        hash_guardar(contador, "bytes-read", &nuevo_bytes_read);
+        // Actualizar "bytes_read"
+        uint32_t* ptr_nuevo_bytes_read = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_bytes_read) exit(EXIT_FAILURE);
+        *ptr_nuevo_bytes_read = *(uint32_t*)hash_obtener(contador, strings[6]) + tam_block;
+        hash_guardar(contador, strings[6], ptr_nuevo_bytes_read);
 
-        int nuevo_time_r = *(int*)hash_obtener(contador, "time-r") + 1 + (2 * PENALTY);
-        hash_guardar(contador, "time-r", &nuevo_time_r);
-    } else if (operacion == SIMBOLO_WRITE) {
-        int nuevo_stores = *(int*)hash_obtener(contador, "stores") + 1;
-        hash_guardar(contador, "stores", &nuevo_stores);
+        // Actualizar "time_r"
+        uint32_t* ptr_nuevo_time_r = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_time_r) exit(EXIT_FAILURE);
+        *ptr_nuevo_time_r = *(uint32_t*)hash_obtener(contador, strings[9]) + 1 + (2 * PENALTY);
+        hash_guardar(contador, strings[9], ptr_nuevo_time_r);
 
-        int nuevo_dirty_wmiss = *(int*)hash_obtener(contador, "dirty-wmiss") + 1;
-        hash_guardar(contador, "dirty-wmiss", &nuevo_dirty_wmiss);
+    } else if (strcmp(operacion, "W") == 0) {
+        // Actualizar "stores"
+        uint32_t* ptr_nuevo_stores = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_stores) exit(EXIT_FAILURE);
+        *ptr_nuevo_stores = *(uint32_t*)hash_obtener(contador, strings[1]) + 1;
+        hash_guardar(contador, strings[1], ptr_nuevo_stores);
 
-        int nuevo_bytes_written = *(int*)hash_obtener(contador, "bytes-written") + tam_block;
-        hash_guardar(contador, "bytes-written", &nuevo_bytes_written);
+        // Actualizar "dirty_wmiss"
+        uint32_t* ptr_nuevo_dirty_wmiss = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_dirty_wmiss) exit(EXIT_FAILURE);
+        *ptr_nuevo_dirty_wmiss = *(uint32_t*)hash_obtener(contador, strings[5]) + 1;
+        hash_guardar(contador, strings[5], ptr_nuevo_dirty_wmiss);
 
-        int nuevo_time_w = *(int*)hash_obtener(contador, "time-w") + 1 + (2 * PENALTY);
-        hash_guardar(contador, "time-w", &nuevo_time_w);
+        // Actualizar "bytes_written"
+        uint32_t* ptr_nuevo_bytes_written = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_bytes_written) exit(EXIT_FAILURE);
+        *ptr_nuevo_bytes_written = *(uint32_t*)hash_obtener(contador, strings[7]) + tam_block;
+        hash_guardar(contador, strings[7], ptr_nuevo_bytes_written);
+
+        // Actualizar "time_w"
+        uint32_t* ptr_nuevo_time_w = malloc(sizeof(uint32_t));
+        if (!ptr_nuevo_time_w) exit(EXIT_FAILURE);
+        *ptr_nuevo_time_w = *(uint32_t*)hash_obtener(contador, strings[8]) + 1 + (2 * PENALTY);
+        hash_guardar(contador, strings[8], ptr_nuevo_time_w);
     }
 
     
@@ -125,14 +204,12 @@ bool set_tiene_espacio(hash_t* set, uint32_t lineas_por_set){
     return hash_cantidad(set) < lineas_por_set;
 }
 
-verboso_t* agg_tag(Cache* cache, uint32_t set_index, char tag, char OP, verboso_t* info){
-
+void agg_tag(Cache* cache, uint32_t set_index, char* tag, char* OP, verboso_t* info){
     hash_t* set = cache->sets[set_index];
     line_t* linea = malloc(sizeof(line_t));
     char casoA[] = "2a";
     char casoB[] = "2b";
     char* caso = casoA;
-
 
     if (!set_tiene_espacio(set, cache->num_lineas)){
         line_t* linea_target = obtener_linea_a_desalojar(cache, set_index);
@@ -162,9 +239,9 @@ verboso_t* agg_tag(Cache* cache, uint32_t set_index, char tag, char OP, verboso_
     linea->tag = tag;
     linea->valido = 1;
     linea->dirty = 0;
-    if (OP == SIMBOLO_WRITE) linea->dirty = 1;
+    if (strcmp(OP, "W")==0) linea->dirty = 1;
     hash_guardar(set, tag, linea);
-    return info;
+    return;
 }
 
 line_t* valida_menos_usada(Cache* cache, uint32_t set_index) {
@@ -229,25 +306,19 @@ void destruir_sets(Cache* cache,hash_t** sets){
 }
 hash_t* inicializar_contador() {
     hash_t* contador = hash_crear(destruir_int);
-    const char* strings[CONTADORES_CANT] = {
-        "loads",
-        "stores",
-        "rmiss",
-        "wmiss",
-        "dirty-rmiss",
-        "dirty-wmiss",
-        "bytes-read",
-        "bytes-written",
-        "time-w",
-        "time-r"
-    };
-    int32_t num = 0;
+    
     for(int i = 0; i < CONTADORES_CANT; i++){
-        hash_guardar(contador, strings[i], &num);
+        uint32_t* num_ptr = malloc(sizeof(uint32_t));
+        if (num_ptr == NULL) {
+            hash_destruir(contador);
+            return NULL;
+        }
+        *num_ptr = 0;
+        hash_guardar(contador, strings[i], num_ptr);
     }
-
+    return contador;
 }
-void destruir_linea(void* linea){
+void destruir_linea(line_t* linea){
     free(linea);
 }
 

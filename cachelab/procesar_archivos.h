@@ -3,6 +3,8 @@
 #ifndef PROCESAR_ARCHIVOS_H
 #define PROCESAR_ARCHIVOS_H
 #include "funciones_cache.h"// Implementación de las funciones de la caché
+#define SIMBOLO_WRITE 'W'
+#define SIMBOLO_READ 'R'
 
 /* procesar_linea recibe una línea de un archivo de traza 
  * actualizando los atributos de la caché según la operación
