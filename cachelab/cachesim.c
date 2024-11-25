@@ -145,7 +145,7 @@ void imprimir_metricas(const Cache* cache) {
 
     // Imprimimos las métricas
     printf("%d-way, %d sets, size = %dKB\n", cache->num_lineas, cache->num_conjuntos, tamanio_cache);
-    printf("loads %d stores %d total %d\n", *stores,*loads, total_accesses);
+    printf("loads %d stores %d total %d\n", *loads,*stores, total_accesses);
     printf("rmiss %d wmiss %d total %d\n", *rmiss, *wmiss, total_misses);
     printf("dirty rmiss %d dirty wmiss %d\n", *dirty_rmiss,* dirty_wmiss);
     printf("bytes read %d bytes written %d\n", *bytes_read, *bytes_written);
