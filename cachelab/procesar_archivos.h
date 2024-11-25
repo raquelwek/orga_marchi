@@ -22,7 +22,7 @@ uint32_t obtener_set(uint32_t direccion, uint32_t offset_set_index, uint32_t off
 /* obtener_campos recibe una línea de un archivo de traza y devuelve un arreglo
  * con los campos de la línea
  */
-char** obtener_campos(char* linea);
+void obtener_campos(char* comando, char* operacion, uint32_t* direccionAcceso);
 
 /* calcular_offset recibe un cantidad n y devuelve el offset correspondiente
     para acceder al comienzo de un bloque de tamaño n

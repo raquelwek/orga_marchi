@@ -7,19 +7,11 @@
 #define NUM_CAMPOS 5 // Número de campos en el archivo de traza
 
 void procesar_linea(Cache* cache, char* linea, verboso_t* info) {
-    // Variables para almacenar cada campo
-    uint32_t pc;      
-    char operacion;          
-    uint32_t dir_acceso; 
-    uint32_t cant_bytes;     
-    uint32_t data_readed;  
-    char** campos = obtener_campos(linea);
-    pc = campos[0];
-    operacion = campos[1];
-    dir_acceso = (uint32_t)atoi(campos[2]);;
-    cant_bytes = campos[3];
-    data_readed = campos[4];
-
+    // Variables para almacenar cada campo     
+    char* operacion;          
+    uint32_t* dir_acceso;   
+    obtener_campos(linea, operacion, dir_acceso);
+    
     uint32_t offset_set= calcular_offset(cache->num_conjuntos);
     uint32_t offset_block = calcular_offset(cache->tamanio_bloque);    
 
@@ -61,17 +53,22 @@ uint32_t calcular_offset(uint32_t n){
 	}
 	return offset;
 }
-char** obtener_campos(char* linea) {
-    // Crear un arreglo estático para guardar los campos
-    static char* arrayCampos[NUM_CAMPOS]; // Usa `static` para devolverlo sin problemas
-    char* fragmento = strtok(linea, " ");
-    int i = 0;
+void obtener_campos(char* comando, char* operacion, uint32_t* direccionAcceso) {
+	char* arrayComando[5];
+	char* fragmento = strtok(comando, " ");
+	int i = 0;
+	while (fragmento != NULL){
+		arrayComando[i++] = fragmento;
+		fragmento = strtok(NULL, " ");
+	}
 
-    while (fragmento != NULL && i < NUM_CAMPOS) {
-        arrayCampos[i++] = fragmento; // Guardar puntero al fragmento
-        fragmento = strtok(NULL, " ");
+    if(strcmp(arrayComando[1], "R")== 0){
+        *operacion = 'R';
+    } else{
+        *operacion = 'W';
     }
-    return arrayCampos;
+
+	*direccionAcceso = strtoul(arrayComando[2], NULL, 0);
 }
 
 uint32_t obtenerTag(uint32_t direccion){
