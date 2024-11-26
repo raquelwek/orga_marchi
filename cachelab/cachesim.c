@@ -83,7 +83,6 @@ void asignar_argumentos(int argc, char *argv[], Argumentos* args){
 
 // Función para procesar el archivo de traza
 void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, int n, int m) {
-    char* debug = "stores";
     FILE *file = fopen(archivo_entrada, "r");
     if (!file) {
         fprintf(stderr, "Error: no se pudo abrir el archivo %s\n", archivo_entrada);
@@ -124,23 +123,23 @@ uint32_t calcular_tambloque(int tamano_cache,int numero_sets,int asociatividad){
 
 void imprimir_metricas(const Cache* cache) {
     // Obtenemos los contadores de la caché
-    int* loads = (int*)hash_obtener(cache->contador, strings[0]);
-    int* stores = (int*)hash_obtener(cache->contador, strings[1]);
-    int* rmiss = (int*)hash_obtener(cache->contador, strings[2]);
-    int* wmiss = (int*)hash_obtener(cache->contador, strings[3]);
-    int* dirty_rmiss = (int*)hash_obtener(cache->contador, strings[4]);
-    int* dirty_wmiss = (int*)hash_obtener(cache->contador, strings[5]);
+    uint32_t* loads = (uint32_t*)hash_obtener(cache->contador, strings[0]);
+    uint32_t* stores = (uint32_t*)hash_obtener(cache->contador, strings[1]);
+    uint32_t* rmiss = (uint32_t*)hash_obtener(cache->contador, strings[2]);
+    uint32_t* wmiss = (uint32_t*)hash_obtener(cache->contador, strings[3]);
+    uint32_t* dirty_rmiss = (uint32_t*)hash_obtener(cache->contador, strings[4]);
+    uint32_t* dirty_wmiss = (uint32_t*)hash_obtener(cache->contador, strings[5]);
 
-    int* bytes_read = (int*)hash_obtener(cache->contador, strings[6]);
-    int* bytes_written = (int*)hash_obtener(cache->contador, strings[7]);
-    int* time_w = (int*)hash_obtener(cache->contador, strings[8]);
-    int* time_r = (int*)hash_obtener(cache->contador, strings[9]);
+    uint32_t* bytes_read = (uint32_t*)hash_obtener(cache->contador, strings[6]);
+    uint32_t* bytes_written = (uint32_t*)hash_obtener(cache->contador, strings[7]);
+    uint32_t* time_w = (uint32_t*)hash_obtener(cache->contador, strings[8]);
+    uint32_t* time_r = (uint32_t*)hash_obtener(cache->contador, strings[9]);
 
     // Calculamos los resultados
-    int total_accesses = *loads + *stores;
-    int total_misses = *rmiss + *wmiss;
-    int total_dirty_misses = *dirty_rmiss + *dirty_wmiss;
-    int total_time = *time_w + *time_r;
+    uint32_t total_accesses = *loads + *stores;
+    uint32_t total_misses = *rmiss + *wmiss;
+    uint32_t total_dirty_misses = *dirty_rmiss + *dirty_wmiss;
+    uint32_t total_time = *time_w + *time_r;
 
     uint32_t tamanio_cache = cache->tamanio_cache/1000;//tam cache en KB
     float dirty_miss_rate = (total_misses) / (float)total_misses * 100;
@@ -149,7 +148,7 @@ void imprimir_metricas(const Cache* cache) {
     printf("%d-way, %d sets, size = %dKB\n", cache->num_lineas, cache->num_conjuntos, tamanio_cache);
     printf("loads %d stores %d total %d\n", *loads,*stores, total_accesses);
     printf("rmiss %d wmiss %d total %d\n", *rmiss, *wmiss, total_misses);
-    printf("dirty rmiss %d dirty wmiss %d\n", *dirty_rmiss,* dirty_wmiss);
+    printf("dirty rmiss %d dirty wmiss %d\n", *dirty_rmiss,*dirty_wmiss);
     printf("bytes read %d bytes written %d\n", *bytes_read, *bytes_written);
     printf("read time %d write time %d\n", *time_r, *time_w);
     printf("miss rate %f\n", dirty_miss_rate);

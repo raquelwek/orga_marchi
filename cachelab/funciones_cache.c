@@ -1,5 +1,4 @@
 /**********  FUNCIONES PARA LA CACHE *********/
-#include <stdlib.h>
 #include "funciones_cache.h"
 #define ADDRESS_SIZE 32     // Tamaño de dirección en bits
 const char* strings[CONTADORES_CANT] = {
@@ -18,16 +17,12 @@ const char* strings[CONTADORES_CANT] = {
 
 Cache* crear_cache(uint32_t C, uint32_t E, uint32_t S, uint32_t B){
     Cache* cache = malloc(sizeof(Cache));
-    //if (cache == NULL) {
-    //    perror("Error al asignar memoria");
-    //    exit(1);
-    //}
     cache->tamanio_cache = C;
     cache->tamanio_bloque = B;
     cache->num_conjuntos = S;
     cache->num_lineas = E;
     cache->contador = inicializar_contador();
-    cache->sets = inicializar_sets(S, E);
+    cache->sets = inicializar_sets(S);
     return cache;
 }
 
@@ -37,18 +32,9 @@ void destruir_cache(Cache* cache){
     free(cache);
 }
 /*
-    "loads",
-    "stores",
-    "rmiss",
-    "wmiss",
-    "dirty-rmiss",
-    "dirty-wmiss",
-    "bytes-read",
-    "bytes-written",
-    "time-w",
-    "time-r"
-};
-
+    **********************************************
+    *        HIT, MISS Y DIRTY MISS CASES        * 
+    **********************************************
 */
 bool hit_case(Cache* cache, uint32_t set_index, char* tag, char* operacion, verboso_t* info){
     char caso[] = "1";
@@ -57,6 +43,7 @@ bool hit_case(Cache* cache, uint32_t set_index, char* tag, char* operacion, verb
     if (!hash_pertenece(set, tag)) return false;//El tag no se encuentra en el set
 
     line_t* linea = hash_obtener(set, tag);
+    campos_verboso(info, linea, &caso);
     if (es_linea_valida(linea)){
         if (strcmp(operacion, "R") == 0) {
             uint32_t* ptr_nuevo_valor = malloc(sizeof(uint32_t));
@@ -83,21 +70,11 @@ bool hit_case(Cache* cache, uint32_t set_index, char* tag, char* operacion, verb
 
         }
         linea->last_used = cache -> indice_op;
-        campos_verboso(info, linea, &caso);
         return true;
         
     } 
     return false;
 }
-void campos_verboso(verboso_t* v, line_t*  linea, char* caso){
-    v -> case_identifier = caso;
-    v -> cache_line = linea -> numero_linea;
-    v -> line_tag = linea -> tag;
-    v -> valid_bit = linea -> valido;
-    v -> dirty_bit = linea ->dirty;
-    v -> indice_op = linea -> last_used;
-}
-
 // miss_case contabiliza los contadores en el caso de miss
 // post: se actualizan los contadores de la cache
 void miss_case(char* operacion, uint32_t tam_block, hash_t* contador) {
@@ -196,6 +173,14 @@ bool es_linea_valida(line_t* linea){
 bool set_tiene_espacio(hash_t* set, uint32_t lineas_por_set){
     return hash_cantidad(set) < lineas_por_set;
 }
+void campos_verboso(verboso_t* v, line_t*  linea, char* caso){
+    v -> case_identifier = caso;
+    v -> cache_line = linea -> numero_linea;
+    v -> line_tag = linea -> tag;
+    v -> valid_bit = linea -> valido;
+    v -> dirty_bit = linea ->dirty;
+    v -> indice_op = linea -> last_used;
+}
 
 void agg_tag(Cache* cache, uint32_t set_index, char* tag, char* OP, verboso_t* info){
     hash_t* set = cache->sets[set_index];
@@ -211,9 +196,9 @@ void agg_tag(Cache* cache, uint32_t set_index, char* tag, char* OP, verboso_t* i
         // preparar info:
         
         if (linea_target -> dirty == 1) caso = casoB;
-        campos_verboso(info,linea_target, *caso);        
+        campos_verboso(info,linea_target, &caso);        
 
-        destruir_linea(hash_borrar(set, tag));
+        destruir_linea(hash_borrar(set, linea_target->tag));
 
     }else {
         // seleccionar línea  no válida cuyo índice sea  el menor
@@ -260,30 +245,9 @@ line_t* valida_menos_usada(Cache* cache, uint32_t set_index) {
 line_t* obtener_linea_a_desalojar(Cache* cache, uint32_t set_index) {
     return valida_menos_usada(cache, set_index);
 }
-/*
-line_t* invalida_de_menor_indice(Cache* cache, uint32_t set_index) {
-    hash_t* set = cache->sets[set_index];
-    line_t* linea_a_desalojar = NULL;
-    uint32_t indice_minimo = cache->num_lineas - 1;  // Máximo valor posible para encontrar el mínimo.
-    
-    hash_iter_t* iter = hash_iter_crear(set);
-    while (!hash_iter_al_final(iter)) {
-        const char* tag_actual = hash_iter_ver_actual(iter);
-        line_t* linea = hash_obtener(set, tag_actual);
-        
-        if (linea->numero_linea < indice_minimo && linea->valido == 0){
-            indice_minimo = linea->numero_linea;
-            linea_a_desalojar = linea;
-        }
-        hash_iter_avanzar(iter);
-    }
-    hash_iter_destruir(iter);
-    return linea_a_desalojar;
-}
-*/
 
 // FUNCIONES AUXILIARES
-hash_t** inicializar_sets(uint32_t num_sets, uint32_t lineas) {
+hash_t** inicializar_sets(uint32_t num_sets) { //, uint32_t lineas
     hash_t** sets = malloc(num_sets * sizeof(hash_t*));
     for (uint32_t i = 0; i < num_sets; i++) {
         sets[i] = hash_crear(destruir_linea);
@@ -293,7 +257,6 @@ hash_t** inicializar_sets(uint32_t num_sets, uint32_t lineas) {
 
 void destruir_sets(Cache* cache,hash_t** sets){
     for(uint32_t i = 0; i < cache->num_conjuntos; i++){
-        hash_t* set  = sets[i];
         hash_destruir(sets[i]);
     }
     free(sets);
