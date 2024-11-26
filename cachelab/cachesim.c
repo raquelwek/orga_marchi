@@ -94,6 +94,7 @@ void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, in
     int indice = -1; // Indice para contar las líneas
     
     verboso_t* info = malloc(sizeof(verboso_t));
+
     uint32_t E = cache -> num_lineas;
     while (fgets(linea, sizeof(linea), file)) {
         indice++; // Incrementar el índice al leer una nueva línea
@@ -112,6 +113,7 @@ void procesar_archivo(char* archivo_entrada, Cache* cache, bool modo_verboso, in
         }
     }
     fclose(file);
+    free(info);
     
 
 }

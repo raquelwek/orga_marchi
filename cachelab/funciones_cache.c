@@ -18,10 +18,10 @@ const char* strings[CONTADORES_CANT] = {
 
 Cache* crear_cache(uint32_t C, uint32_t E, uint32_t S, uint32_t B){
     Cache* cache = malloc(sizeof(Cache));
-    if (cache == NULL) {
-        perror("Error al asignar memoria");
-        exit(1);
-    }
+    //if (cache == NULL) {
+    //    perror("Error al asignar memoria");
+    //    exit(1);
+    //}
     cache->tamanio_cache = C;
     cache->tamanio_bloque = B;
     cache->num_conjuntos = S;
@@ -36,7 +36,20 @@ void destruir_cache(Cache* cache){
     hash_destruir(cache->contador);
     free(cache);
 }
+/*
+    "loads",
+    "stores",
+    "rmiss",
+    "wmiss",
+    "dirty-rmiss",
+    "dirty-wmiss",
+    "bytes-read",
+    "bytes-written",
+    "time-w",
+    "time-r"
+};
 
+*/
 bool hit_case(Cache* cache, uint32_t set_index, char* tag, char* operacion, verboso_t* info){
     char caso[] = "1";
     hash_t* set = cache->sets[set_index];
@@ -47,13 +60,11 @@ bool hit_case(Cache* cache, uint32_t set_index, char* tag, char* operacion, verb
     if (es_linea_valida(linea)){
         if (strcmp(operacion, "R") == 0) {
             uint32_t* ptr_nuevo_valor = malloc(sizeof(uint32_t));
-            if (!ptr_nuevo_valor) exit(EXIT_FAILURE);
             *ptr_nuevo_valor = *(uint32_t*)hash_obtener(contador, strings[0]) + 1;
             hash_guardar(contador, strings[0], ptr_nuevo_valor);
 
             // Actualizar "time_r"
             uint32_t* ptr_nuevo_time_r = malloc(sizeof(uint32_t));
-            if (!ptr_nuevo_time_r) exit(EXIT_FAILURE);
             *ptr_nuevo_time_r = *(uint32_t*)hash_obtener(contador, strings[9]) + 1;
             hash_guardar(contador, strings[9], ptr_nuevo_time_r);
 
@@ -62,13 +73,11 @@ bool hit_case(Cache* cache, uint32_t set_index, char* tag, char* operacion, verb
 
             // Actualizar "stores"
             uint32_t* ptr_nuevo_stores = malloc(sizeof(uint32_t));
-            if (!ptr_nuevo_stores) exit(EXIT_FAILURE);
             *ptr_nuevo_stores = *(uint32_t*)hash_obtener(contador, strings[1]) + 1;
             hash_guardar(contador, strings[1], ptr_nuevo_stores);
 
             // Actualizar "time_w"
             uint32_t* ptr_nuevo_time_w = malloc(sizeof(uint32_t));
-            if (!ptr_nuevo_time_w) exit(EXIT_FAILURE);
             *ptr_nuevo_time_w = *(uint32_t*)hash_obtener(contador, strings[8]) + 1;
             hash_guardar(contador, strings[8], ptr_nuevo_time_w);
 
@@ -93,50 +102,42 @@ void campos_verboso(verboso_t* v, line_t*  linea, char* caso){
 // post: se actualizan los contadores de la cache
 void miss_case(char* operacion, uint32_t tam_block, hash_t* contador) {
      
-    if (strcmp(operacion, "W") == 0) {
+    if (strcmp(operacion, "R") == 0) {
         // Operación de lectura
         uint32_t* ptr_nuevo_loads = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_loads) exit(EXIT_FAILURE); // Manejo de errores por malloc
         *ptr_nuevo_loads = *(uint32_t*)hash_obtener(contador, strings[0]) + 1;
         hash_guardar(contador, strings[0], ptr_nuevo_loads);
 
         // Guardar nuevo valor de "rmiss"
         uint32_t* ptr_nuevo_rmiss = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_rmiss) exit(EXIT_FAILURE);
         *ptr_nuevo_rmiss = *(uint32_t*)hash_obtener(contador, strings[2]) + 1;
         hash_guardar(contador, strings[2], ptr_nuevo_rmiss);
 
         // Guardar nuevo valor de "bytes_read"
         uint32_t* ptr_nuevo_bytes_read = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_bytes_read) exit(EXIT_FAILURE);
         *ptr_nuevo_bytes_read = *(uint32_t*)hash_obtener(contador, strings[6]) + tam_block;
         hash_guardar(contador, strings[6], ptr_nuevo_bytes_read);
 
         // Guardar nuevo valor de "time_r"
         uint32_t* ptr_nuevo_time_r = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_time_r) exit(EXIT_FAILURE);
         *ptr_nuevo_time_r = *(uint32_t*)hash_obtener(contador, strings[9]) + 1 + PENALTY;
         hash_guardar(contador, strings[9], ptr_nuevo_time_r);
 
-    } else if (strcmp(operacion, "R") == 0) {
+    } else if (strcmp(operacion, "W") == 0) {
         // Operación de escritura
         uint32_t* ptr_nuevo_stores = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_stores) exit(EXIT_FAILURE);
         *ptr_nuevo_stores = *(uint32_t*)hash_obtener(contador, strings[1]) + 1;
         hash_guardar(contador, strings[1], ptr_nuevo_stores);
 
         uint32_t* ptr_nuevo_wmiss = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_wmiss) exit(EXIT_FAILURE);
         *ptr_nuevo_wmiss = *(uint32_t*)hash_obtener(contador, strings[3]) + 1;
         hash_guardar(contador, strings[3], ptr_nuevo_wmiss);
 
         uint32_t* ptr_nuevo_bytes_written = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_bytes_written) exit(EXIT_FAILURE);
         *ptr_nuevo_bytes_written = *(uint32_t*)hash_obtener(contador, strings[7]) + tam_block;
         hash_guardar(contador, strings[7], ptr_nuevo_bytes_written);
 
         uint32_t* ptr_nuevo_time_w = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_time_w) exit(EXIT_FAILURE);
         *ptr_nuevo_time_w = *(uint32_t*)hash_obtener(contador, strings[8]) + 1 + PENALTY;
         hash_guardar(contador, strings[8], ptr_nuevo_time_w);
     }
@@ -147,50 +148,42 @@ void dirty_miss_case(char* operacion, uint32_t tam_block, hash_t* contador) {
    
     if (strcmp(operacion, "R") == 0) {
         uint32_t* ptr_nuevo_loads = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_loads) exit(EXIT_FAILURE);
         *ptr_nuevo_loads = *(uint32_t*)hash_obtener(contador, strings[0]) + 1;
         hash_guardar(contador, strings[0], ptr_nuevo_loads);
 
         // Actualizar "dirty_rmiss"
         uint32_t* ptr_nuevo_dirty_rmiss = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_dirty_rmiss) exit(EXIT_FAILURE);
         *ptr_nuevo_dirty_rmiss = *(uint32_t*)hash_obtener(contador, strings[4]) + 1;
         hash_guardar(contador, strings[4], ptr_nuevo_dirty_rmiss);
 
         // Actualizar "bytes_read"
         uint32_t* ptr_nuevo_bytes_read = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_bytes_read) exit(EXIT_FAILURE);
         *ptr_nuevo_bytes_read = *(uint32_t*)hash_obtener(contador, strings[6]) + tam_block;
         hash_guardar(contador, strings[6], ptr_nuevo_bytes_read);
 
         // Actualizar "time_r"
         uint32_t* ptr_nuevo_time_r = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_time_r) exit(EXIT_FAILURE);
         *ptr_nuevo_time_r = *(uint32_t*)hash_obtener(contador, strings[9]) + 1 + (2 * PENALTY);
         hash_guardar(contador, strings[9], ptr_nuevo_time_r);
 
     } else if (strcmp(operacion, "W") == 0) {
         // Actualizar "stores"
         uint32_t* ptr_nuevo_stores = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_stores) exit(EXIT_FAILURE);
         *ptr_nuevo_stores = *(uint32_t*)hash_obtener(contador, strings[1]) + 1;
         hash_guardar(contador, strings[1], ptr_nuevo_stores);
 
         // Actualizar "dirty_wmiss"
         uint32_t* ptr_nuevo_dirty_wmiss = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_dirty_wmiss) exit(EXIT_FAILURE);
         *ptr_nuevo_dirty_wmiss = *(uint32_t*)hash_obtener(contador, strings[5]) + 1;
         hash_guardar(contador, strings[5], ptr_nuevo_dirty_wmiss);
 
         // Actualizar "bytes_written"
         uint32_t* ptr_nuevo_bytes_written = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_bytes_written) exit(EXIT_FAILURE);
         *ptr_nuevo_bytes_written = *(uint32_t*)hash_obtener(contador, strings[7]) + tam_block;
         hash_guardar(contador, strings[7], ptr_nuevo_bytes_written);
 
         // Actualizar "time_w"
         uint32_t* ptr_nuevo_time_w = malloc(sizeof(uint32_t));
-        if (!ptr_nuevo_time_w) exit(EXIT_FAILURE);
         *ptr_nuevo_time_w = *(uint32_t*)hash_obtener(contador, strings[8]) + 1 + (2 * PENALTY);
         hash_guardar(contador, strings[8], ptr_nuevo_time_w);
     }
@@ -240,6 +233,7 @@ void agg_tag(Cache* cache, uint32_t set_index, char* tag, char* OP, verboso_t* i
     linea->valido = 1;
     linea->dirty = 0;
     if (strcmp(OP, "W")==0) linea->dirty = 1;
+    //if (strcmp(caso, casoB) == 0) info -> dirty_bit = 1;
     hash_guardar(set, tag, linea);
     return;
 }
@@ -309,10 +303,6 @@ hash_t* inicializar_contador() {
     
     for(int i = 0; i < CONTADORES_CANT; i++){
         uint32_t* num_ptr = malloc(sizeof(uint32_t));
-        if (num_ptr == NULL) {
-            hash_destruir(contador);
-            return NULL;
-        }
         *num_ptr = 0;
         hash_guardar(contador, strings[i], num_ptr);
     }

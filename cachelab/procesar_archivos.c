@@ -29,7 +29,7 @@ void procesar_linea(Cache* cache, char* linea, verboso_t* info) {
     if (!hit) {
         agg_tag(cache, set_index, &tagC, &operacion, info);
         bool es_dirty_miss = (info -> dirty_bit) == 1;
-
+        
         if (es_dirty_miss) {
             dirty_miss_case(&operacion, cache->tamanio_bloque, cache->contador);
         }else {
@@ -67,9 +67,9 @@ void obtener_campos(char* comando, char* operacion, uint32_t* direccionAcceso) {
 	}
 
     if(strcmp(arrayComando[1], "R")== 0){
-        *operacion = simbolo_w;
-    } else{
         *operacion = simbolo_r;
+    } else{
+        *operacion = simbolo_w;
     }
 
 	*direccionAcceso = strtoul(arrayComando[2], NULL, 0);
