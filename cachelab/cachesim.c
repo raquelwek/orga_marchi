@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h> 
-#include "funciones_cache.h"
+#include "funciones_cache2.h"
 #include "procesar_archivos.h"
 
 
@@ -121,7 +121,8 @@ uint32_t calcular_tambloque(int tamano_cache,int numero_sets,int asociatividad){
     return (tamano_cache / (numero_sets * asociatividad));
 }
 
-void imprimir_metricas(const Cache* cache) {
+void imprimir_metricas(Cache* cache) {
+    /*
     // Obtenemos los contadores de la caché
     uint32_t* loads = (uint32_t*)hash_obtener(cache->contador, strings[0]);
     uint32_t* stores = (uint32_t*)hash_obtener(cache->contador, strings[1]);
@@ -134,24 +135,25 @@ void imprimir_metricas(const Cache* cache) {
     uint32_t* bytes_written = (uint32_t*)hash_obtener(cache->contador, strings[7]);
     uint32_t* time_w = (uint32_t*)hash_obtener(cache->contador, strings[8]);
     uint32_t* time_r = (uint32_t*)hash_obtener(cache->contador, strings[9]);
-
+    */
     // Calculamos los resultados
-    uint32_t total_accesses = *loads + *stores;
-    uint32_t total_misses = *rmiss + *wmiss;
-    uint32_t total_dirty_misses = *dirty_rmiss + *dirty_wmiss;
-    uint32_t total_time = *time_w + *time_r;
+    contador_t* contador = cache->contador;
+    uint32_t total_accesses = contador -> loads + contador -> stores;
+    uint32_t total_misses = contador->rmiss+ contador->wmiss;
+    uint32_t total_dirty_misses = contador->dirty_rmiss + contador->dirty_wmiss;
+    //uint32_t total_time = contador->time_w + *time_r;
 
     uint32_t tamanio_cache = cache->tamanio_cache/1000;//tam cache en KB
-    float dirty_miss_rate = (total_misses) / (float)total_misses * 100;
+    double dirty_miss_rate = (total_misses) / total_accesses;
 
     // Imprimimos las métricas
     printf("%d-way, %d sets, size = %dKB\n", cache->num_lineas, cache->num_conjuntos, tamanio_cache);
-    printf("loads %d stores %d total %d\n", *loads,*stores, total_accesses);
-    printf("rmiss %d wmiss %d total %d\n", *rmiss, *wmiss, total_misses);
-    printf("dirty rmiss %d dirty wmiss %d\n", *dirty_rmiss,*dirty_wmiss);
-    printf("bytes read %d bytes written %d\n", *bytes_read, *bytes_written);
-    printf("read time %d write time %d\n", *time_r, *time_w);
-    printf("miss rate %f\n", dirty_miss_rate);
+    printf("loads %d stores %d total %d\n", contador->loads,contador->stores, total_accesses);
+    printf("rmiss %d wmiss %d total %d\n", contador->rmiss, contador->wmiss, total_misses);
+    printf("dirty rmiss %d dirty wmiss %d\n", contador->dirty_rmiss,contador->dirty_wmiss);
+    printf("bytes read %d bytes written %d\n", contador->bytes_read, contador->bytes_written);
+    printf("read time %d write time %d\n", contador->time_r, contador->time_w);
+    printf("miss rate %.6f\n", dirty_miss_rate);
 }
 
 // Función principal

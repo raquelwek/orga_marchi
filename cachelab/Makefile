@@ -15,16 +15,15 @@ cachesim: $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
 # Reglas individuales para cada archivo objeto
-hash.o: hash.c hash.h
+
+
+funciones_cache.o: funciones_cache2.c funciones_cache2.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-funciones_cache.o: funciones_cache.c funciones_cache.h hash.h
+procesar_archivos.o: procesar_archivos.c procesar_archivos.h funciones_cache2.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-procesar_archivos.o: procesar_archivos.c procesar_archivos.h funciones_cache.h hash.h
-	$(CC) $(CFLAGS) -c $< -o $@
-
-cachesim.o: cachesim.c funciones_cache.h procesar_archivos.h hash.h
+cachesim.o: cachesim.c funciones_cache2.h procesar_archivos.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Limpieza

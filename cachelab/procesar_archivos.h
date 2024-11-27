@@ -2,7 +2,7 @@
 //#define FUNCIONES_CACHE_H
 #ifndef PROCESAR_ARCHIVOS_H
 #define PROCESAR_ARCHIVOS_H
-#include "funciones_cache.h"// Implementación de las funciones de la caché
+#include "funciones_cache2.h"// Implementación de las funciones de la caché
 #define SIMBOLO_WRITE 'W'
 #define SIMBOLO_READ 'R'
 

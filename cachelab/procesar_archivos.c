@@ -17,13 +17,15 @@ void procesar_linea(Cache* cache, char* linea, verboso_t* info) {
 
     uint32_t set_index = obtener_set(dir_acceso, offset_set, offset_block);
     uint32_t tag = obtener_tag(offset_set, offset_block, dir_acceso);
+    /*
     char tagC[20];
-    sprintf(tagC, "%u", tag);
+    
+    sprintf(tagC, "%x", tag);
 
 
     info -> indice_op = cache->indice_op;
     info -> cache_index= set_index;
-    info ->cache_tag = tagC;
+    info ->cache_tag = &tagC;
 
     bool hit = hit_case(cache, set_index, &tagC, &operacion, info);
     if (!hit) {
@@ -32,10 +34,18 @@ void procesar_linea(Cache* cache, char* linea, verboso_t* info) {
         
         if (es_dirty_miss) {
             dirty_miss_case(&operacion, cache->tamanio_bloque, cache->contador);
+            printf("DIRTY MISS %d tag: %s %x\n", cache->indice_op, &tagC, tag);
         }else {
             miss_case(&operacion, cache->tamanio_bloque, cache->contador);
+            printf("MISS %d %s %x \n", cache->indice_op, &tagC, tag);
         }
     }
+    */
+    info->indice_op = cache->indice_op;
+    info->cache_index = set_index;
+    info->cache_tag = tag;
+    bool hit = hit_case(cache, set_index, tag, &operacion, info);
+    if (!hit) agg_tag(cache, set_index, tag, &operacion, info);
 
 }
 uint32_t obtener_tag(uint32_t offset_set, uint32_t offset_block, uint32_t direccion) {
