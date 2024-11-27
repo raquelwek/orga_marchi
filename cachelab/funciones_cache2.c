@@ -2,6 +2,7 @@
 /*
     FUNCIONES PARA INICIALIZAR ESTRUCTURAS DE DATOS
 */
+
 Cache* crear_cache(uint32_t C, uint32_t E, uint32_t S, uint32_t B){
     Cache* cache = malloc(sizeof(Cache));
     cache->tamanio_cache = C;
@@ -55,7 +56,7 @@ void destruir_cache(Cache* cache){
 /*
     FUNCIONES PARA SIMULAR LA CACHE
 */
-bool hit_case(Cache* cache, uint32_t set_index, int32_t tag, char* operacion, verboso_t* info){
+bool hit_case(Cache* cache, uint32_t set_index, int32_t tag, op_t* operacion, verboso_t* info){
     bool hit = false;
     line_t* set = cache->sets[set_index];
     for (uint32_t i = 0; i < cache->num_lineas; i++){
@@ -64,11 +65,11 @@ bool hit_case(Cache* cache, uint32_t set_index, int32_t tag, char* operacion, ve
             hit = true;
             
             campos_verboso(info, linea, "1");
-            if (strcmp(operacion, "W") == 0){
+            if (*operacion == WRITTING){
                 linea->dirty = 1;
                 cache->contador->stores ++;
                 cache->contador->time_w ++;
-            }else {
+            }else if (*operacion == READING){
                 cache->contador->loads ++;
                 cache->contador->time_r ++;
             }
@@ -77,27 +78,28 @@ bool hit_case(Cache* cache, uint32_t set_index, int32_t tag, char* operacion, ve
     }
     return hit;
 }
-void miss_case(char* operacion, uint32_t tam_block, contador_t* contador){
-    if (strcmp(operacion, "R") == 0){
+void miss_case(op_t* operacion, uint32_t tam_block, contador_t* contador){
+    if (*operacion == READING){
         contador -> loads ++;
         contador->rmiss ++;
         contador->time_r += 1 + (PENALTY);
-        contador->bytes_read += tam_block;
-    }else {
+        
+    }else if (*operacion == WRITTING){
         contador -> stores ++;
         contador->wmiss ++;
         contador->time_w += 1 + (PENALTY);
-        contador->bytes_written += tam_block;
+        //contador->bytes_written += tam_block;
     }
+    contador->bytes_read += tam_block;
 }
-void dirty_miss_case(char* operacion, uint32_t tam_block, contador_t* contador){
-    if (strcmp(operacion, "R") == 0){
+void dirty_miss_case(op_t* operacion, uint32_t tam_block, contador_t* contador){
+    if (*operacion == READING){
         contador -> loads ++;
         contador->rmiss ++;
         contador->dirty_rmiss ++;
         contador->time_r += 1 + (2 * PENALTY);
         
-    }else {
+    }else if (*operacion == WRITTING){
         contador -> stores ++;
         contador->wmiss ++;
         contador->dirty_wmiss ++;
@@ -120,7 +122,7 @@ void campos_verboso(verboso_t* info, line_t* linea, char* caso){
    
 }
 
-void agg_tag(Cache* cache, uint32_t set_index, int32_t tag, char* operacion, verboso_t* info){
+void agg_tag(Cache* cache, uint32_t set_index, int32_t tag, op_t* operacion, verboso_t* info){
     line_t* set = cache->sets[set_index];
     line_t* linea_a_desalojar = obtener_linea_a_desalojar(cache, set_index);
    
@@ -135,7 +137,7 @@ void agg_tag(Cache* cache, uint32_t set_index, int32_t tag, char* operacion, ver
         linea_a_desalojar->tag = tag;
         linea_a_desalojar->valido = 1;
         linea_a_desalojar->dirty = 0;
-        if (strcmp(operacion, "W") == 0) linea_a_desalojar->dirty = 1;
+        if (*operacion == WRITTING) linea_a_desalojar->dirty = 1;
         linea_a_desalojar->last_used = cache -> indice_op;
 }
 

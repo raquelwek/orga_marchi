@@ -5,9 +5,13 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
-#include "hash.h"
+
 #define PENALTY 100
 
+typedef enum acceso {
+	WRITTING,
+	READING,
+} op_t;
 
 typedef struct{
     uint32_t numero_linea;
@@ -22,7 +26,7 @@ typedef struct {
     char* case_identifier;
     uint32_t cache_index;
     char* cache_tag;
-    uint32_t cache_line;
+    int32_t cache_line;
     int32_t line_tag;
     uint8_t valid_bit;
     uint32_t dirty_bit;
@@ -65,19 +69,19 @@ line_t** inicializar_sets(uint32_t S, uint32_t E);
 contador_t* inicializar_contador();
 
 // hit_case simula un hit en la caché
-bool hit_case(Cache* cache, uint32_t set_index, int32_t tag, char* operacion, verboso_t* info);
+bool hit_case(Cache* cache, uint32_t set_index, int32_t tag, op_t* operacion, verboso_t* info);
 
 // miss_case simula un miss en la caché
-void miss_case(char* operacion, uint32_t tam_block, contador_t* contador);
+void miss_case(op_t* operacion, uint32_t tam_block, contador_t* contador);
 
 // dirty_miss_case simula un dirty miss en la caché
-void dirty_miss_case(char* operacion, uint32_t tam_block, contador_t* contador);
+void dirty_miss_case(op_t* operacion, uint32_t tam_block, contador_t* contador);
 
 // campos_verboso actualiza los campos de un struct verboso
 void campos_verboso(verboso_t* info, line_t* linea, char* caso);
 
 // agg_tag agrega un tag a la caché
-void agg_tag(Cache* cache, uint32_t set_index, int32_t tag, char* operacion, verboso_t* info);
+void agg_tag(Cache* cache, uint32_t set_index, int32_t tag, op_t* operacion, verboso_t* info);
 
 // obtener_linea_a_desalojar obtiene la línea a desalojar
 line_t* obtener_linea_a_desalojar(Cache* cache, uint32_t set_index);

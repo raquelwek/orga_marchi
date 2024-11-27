@@ -3,8 +3,6 @@
 #ifndef PROCESAR_ARCHIVOS_H
 #define PROCESAR_ARCHIVOS_H
 #include "funciones_cache2.h"// Implementación de las funciones de la caché
-#define SIMBOLO_WRITE 'W'
-#define SIMBOLO_READ 'R'
 
 /* procesar_linea recibe una línea de un archivo de traza 
  * actualizando los atributos de la caché según la operación
@@ -24,7 +22,7 @@ uint32_t obtener_set(uint32_t direccion, uint32_t offset_set_index, uint32_t off
 /* obtener_campos recibe una línea de un archivo de traza y devuelve un arreglo
  * con los campos de la línea
  */
-void obtener_campos(char* comando, char* operacion, uint32_t* direccionAcceso);
+void obtener_campos(char* comando, op_t* operacion, uint32_t* direccionAcceso);
 
 /* calcular_offset recibe un cantidad n y devuelve el offset correspondiente
     para acceder al comienzo de un bloque de tamaño n

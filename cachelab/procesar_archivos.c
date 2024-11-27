@@ -8,7 +8,7 @@
 
 void procesar_linea(Cache* cache, char* linea, verboso_t* info) {
     // Variables para almacenar cada campo     
-    char operacion;          
+    op_t operacion;          
     uint32_t dir_acceso;   
     obtener_campos(linea, &operacion, &dir_acceso);
     
@@ -65,9 +65,9 @@ uint32_t calcular_offset(uint32_t n){
 	}
 	return offset;
 }
-void obtener_campos(char* comando, char* operacion, uint32_t* direccionAcceso) {
-    char simbolo_w = 'W';
-    char simbolo_r = 'R';
+void obtener_campos(char* comando, op_t* operacion, uint32_t* direccionAcceso) {
+    //char simbolo_w = 'W';
+    //char simbolo_r = 'R';
 	char* arrayComando[5];
 	char* fragmento = strtok(comando, ": ");
 	int i = 0;
@@ -77,9 +77,9 @@ void obtener_campos(char* comando, char* operacion, uint32_t* direccionAcceso) {
 	}
 
     if(strcmp(arrayComando[1], "R")== 0){
-        *operacion = simbolo_r;
+        *operacion = READING;
     } else{
-        *operacion = simbolo_w;
+        *operacion = WRITTING;
     }
 
 	*direccionAcceso = strtoul(arrayComando[2], NULL, 0);
