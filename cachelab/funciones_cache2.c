@@ -2,6 +2,9 @@
 /*
     FUNCIONES PARA INICIALIZAR ESTRUCTURAS DE DATOS
 */
+const char* HIT_IDENTIFIER = "1";
+const char* MISS_IDENTIFIER = "2a";
+const char* MISS_DIRTY_IDENTIFIER = "2b";
 
 Cache* crear_cache(uint32_t C, uint32_t E, uint32_t S, uint32_t B){
     Cache* cache = malloc(sizeof(Cache));
@@ -64,7 +67,7 @@ bool hit_case(Cache* cache, uint32_t set_index, int32_t tag, op_t* operacion, ve
         if (linea->valido == 1 && linea->tag == tag){
             hit = true;
             
-            campos_verboso(info, linea, "1");
+            campos_verboso(info, linea, HIT_IDENTIFIER);
             if (*operacion == WRITTING){
                 linea->dirty = 1;
                 cache->contador->stores ++;
@@ -88,7 +91,6 @@ void miss_case(op_t* operacion, uint32_t tam_block, contador_t* contador){
         contador -> stores ++;
         contador->wmiss ++;
         contador->time_w += 1 + (PENALTY);
-        //contador->bytes_written += tam_block;
     }
     contador->bytes_read += tam_block;
 }
@@ -110,9 +112,6 @@ void dirty_miss_case(op_t* operacion, uint32_t tam_block, contador_t* contador){
 }
 
 void campos_verboso(verboso_t* info, line_t* linea, char* caso){
-    //info -> indice_op = info -> indice_op;
-    //info -> cache_index = set_index;
-    //info -> cache_tag = linea -> tag;
     info->case_identifier = caso;
     info->line_tag = linea->tag;
     info -> cache_line = linea -> numero_linea; 
@@ -128,10 +127,10 @@ void agg_tag(Cache* cache, uint32_t set_index, int32_t tag, op_t* operacion, ver
    
         
         if (linea_a_desalojar->dirty == 1){
-            campos_verboso(info, linea_a_desalojar, "2b");
+            campos_verboso(info, linea_a_desalojar, MISS_DIRTY_IDENTIFIER);
             dirty_miss_case(operacion, cache->tamanio_bloque, cache->contador);
         }else {
-            campos_verboso(info, linea_a_desalojar, "2a");
+            campos_verboso(info, linea_a_desalojar, MISS_IDENTIFIER);
             miss_case(operacion, cache->tamanio_bloque, cache->contador);
         }
         linea_a_desalojar->tag = tag;

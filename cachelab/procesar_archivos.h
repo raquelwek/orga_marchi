@@ -29,12 +29,4 @@ void obtener_campos(char* comando, op_t* operacion, uint32_t* direccionAcceso);
  */
 uint32_t calcular_offset(uint32_t n);
 
-
-uint32_t obtenerTag(uint32_t direccion);
-
-uint32_t obtenerSet(uint32_t direccion);
-
-uint32_t obtenerBloqueOffset(uint32_t direccion);
-
-//#endif // FUNCIONES_CACHE_H
 #endif //PROCESAR_ARCHIVOS_H

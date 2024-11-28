@@ -5,6 +5,8 @@
 #include <string.h>
 
 #define NUM_CAMPOS 5 // Número de campos en el archivo de traza
+const char* SEPARADOR = ": "; // Separador de campos en el archivo de traza
+const char* READING_OP = "R";
 
 void procesar_linea(Cache* cache, char* linea, verboso_t* info) {
     // Variables para almacenar cada campo     
@@ -17,30 +19,7 @@ void procesar_linea(Cache* cache, char* linea, verboso_t* info) {
 
     uint32_t set_index = obtener_set(dir_acceso, offset_set, offset_block);
     uint32_t tag = obtener_tag(offset_set, offset_block, dir_acceso);
-    /*
-    char tagC[20];
     
-    sprintf(tagC, "%x", tag);
-
-
-    info -> indice_op = cache->indice_op;
-    info -> cache_index= set_index;
-    info ->cache_tag = &tagC;
-
-    bool hit = hit_case(cache, set_index, &tagC, &operacion, info);
-    if (!hit) {
-        agg_tag(cache, set_index, &tagC, &operacion, info);
-        bool es_dirty_miss = (info -> dirty_bit) == 1;
-        
-        if (es_dirty_miss) {
-            dirty_miss_case(&operacion, cache->tamanio_bloque, cache->contador);
-            printf("DIRTY MISS %d tag: %s %x\n", cache->indice_op, &tagC, tag);
-        }else {
-            miss_case(&operacion, cache->tamanio_bloque, cache->contador);
-            printf("MISS %d %s %x \n", cache->indice_op, &tagC, tag);
-        }
-    }
-    */
     info->indice_op = cache->indice_op;
     info->cache_index = set_index;
     info->cache_tag = tag;
@@ -65,32 +44,21 @@ uint32_t calcular_offset(uint32_t n){
 	}
 	return offset;
 }
-void obtener_campos(char* comando, op_t* operacion, uint32_t* direccionAcceso) {
-    //char simbolo_w = 'W';
-    //char simbolo_r = 'R';
-	char* arrayComando[5];
-	char* fragmento = strtok(comando, ": ");
-	int i = 0;
-	while (fragmento != NULL){
-		arrayComando[i++] = fragmento;
-		fragmento = strtok(NULL, ": ");
-	}
+void obtener_campos(char* comando, op_t* operacion, uint32_t* direccion) {
+	char* campos[5];
+	char* campo = strtok(comando, SEPARADOR);
 
-    if(strcmp(arrayComando[1], "R")== 0){
+    for (int i = 1; i <= NUM_CAMPOS && campo != NULL; i++){
+        campos[i-1] = campo;
+        campo = strtok(NULL, SEPARADOR);
+    }
+	
+    if(strcmp(campos[1], READING_OP)== 0){
         *operacion = READING;
     } else{
         *operacion = WRITTING;
     }
 
-	*direccionAcceso = strtoul(arrayComando[2], NULL, 0);
+	*direccion = strtoul(campos[2], NULL, 0);
 }
 
-uint32_t obtenerTag(uint32_t direccion){
-    return direccion >> 13;
-}
-uint32_t obtenerSet(uint32_t direccion){
-    return (direccion >> 5) & 0x7F;
-}
-uint32_t obtenerBloqueOffset(uint32_t direccion){
-    return direccion & 0x1F;
-}

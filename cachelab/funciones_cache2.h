@@ -16,9 +16,9 @@ typedef enum acceso {
 typedef struct{
     uint32_t numero_linea;
     int8_t valido;             // 0: invalido, 1: valido
-    uint8_t dirty;              // 0: no modificado, 1: modificado
+    uint8_t dirty;             // 0: no modificado, 1: modificado
     int32_t tag;
-    uint32_t last_used;              // para LRU
+    uint32_t last_used;        // para LRU
 } line_t;
 
 typedef struct {
