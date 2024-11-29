@@ -2,7 +2,7 @@
 //#define FUNCIONES_CACHE_H
 #ifndef PROCESAR_ARCHIVOS_H
 #define PROCESAR_ARCHIVOS_H
-#include "funciones_cache2.h"// Implementación de las funciones de la caché
+#include "funciones_cache.h"// Implementación de las funciones de la caché
 
 /* procesar_linea recibe una línea de un archivo de traza 
  * actualizando los atributos de la caché según la operación

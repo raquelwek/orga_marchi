@@ -17,13 +17,13 @@ cachesim: $(OBJ)
 # Reglas individuales para cada archivo objeto
 
 
-funciones_cache.o: funciones_cache2.c funciones_cache2.h
+funciones_cache.o: funciones_cache.c funciones_cache.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-procesar_archivos.o: procesar_archivos.c procesar_archivos.h funciones_cache2.h
+procesar_archivos.o: procesar_archivos.c procesar_archivos.h funciones_cache.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-cachesim.o: cachesim.c funciones_cache2.h procesar_archivos.h
+cachesim.o: cachesim.c funciones_cache.h procesar_archivos.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Limpieza
