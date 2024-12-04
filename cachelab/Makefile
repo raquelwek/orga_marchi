@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -pedantic -std=c11 -O0 -ggdb -no-pie
 LIBS = -lm
 
 # Archivos fuente y objeto
-SRC = hash.c funciones_cache.c procesar_archivos.c cachesim.c
+SRC = funciones_cache.c procesar_archivos.c cachesim.c
 OBJ = $(SRC:.c=.o)
 
 # Regla principal
